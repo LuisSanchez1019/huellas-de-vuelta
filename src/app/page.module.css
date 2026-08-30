@@ -1,16 +1,29 @@
-.page { min-height: 100vh; display: grid; align-content: center; gap: 3.5rem; max-width: 72rem; margin: 0 auto; padding: 4rem 1.5rem; }
-.hero { max-width: 47rem; }
+.header { position: sticky; top: 0; z-index: 10; display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1rem 1.5rem; background: rgba(244,248,250,.85); backdrop-filter: blur(6px); border-bottom: 1px solid var(--surface-300); }
 .brand { display: flex; align-items: center; gap: .6rem; color: var(--navy-900); font-size: 1.05rem; font-weight: 750; letter-spacing: -.02em; }
-.paw { display: grid; place-items: center; width: 2rem; height: 2rem; border-radius: 50%; color: white; background: linear-gradient(135deg, var(--green-500), var(--blue-500)); }
+.logo { border-radius: .5rem; }
+.nav { display: flex; align-items: center; gap: 1.25rem; }
+.navLink { color: var(--ink-600); font-weight: 700; font-size: .92rem; }
+.navLink:hover { color: var(--navy-900); }
+.navCta { padding: .55rem .95rem; border-radius: .6rem; color: white; background: var(--teal-600); font-weight: 700; font-size: .92rem; }
+.navCta:hover { background: var(--navy-900); }
+
+.page { display: grid; gap: 3.5rem; max-width: 72rem; margin: 0 auto; padding: 3.5rem 1.5rem 5rem; }
+.hero { max-width: 47rem; }
 .eyebrow, .sectionLabel { color: var(--blue-600); font-size: .75rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
-.eyebrow { margin-top: 4rem; }
-.hero h1 { max-width: 13ch; margin-top: 1rem; color: var(--navy-900); font-size: clamp(2.8rem, 7vw, 5.8rem); font-weight: 700; letter-spacing: -.065em; line-height: .96; }
+.hero h1 { max-width: 13ch; margin-top: 1rem; color: var(--navy-900); font-size: clamp(2.6rem, 6.5vw, 5.2rem); font-weight: 700; letter-spacing: -.06em; line-height: .98; }
 .description { max-width: 38rem; margin-top: 1.5rem; color: var(--ink-600); font-size: clamp(1rem, 2vw, 1.18rem); line-height: 1.65; }
 .authLink { display: inline-flex; margin-top: 1.75rem; padding: .8rem 1.1rem; border-radius: .7rem; color: white; background: var(--teal-600); font-weight: 700; }
 .authLink:hover { background: var(--navy-900); }
-.foundation { width: min(100%, 34rem); padding: 1.6rem; border: 1px solid var(--surface-300); border-radius: 1.25rem; background: rgba(255,255,255,.75); box-shadow: 0 1.25rem 3rem rgba(23,34,63,.08); }
-.foundation h2 { margin-top: .55rem; color: var(--navy-900); font-size: 1.3rem; letter-spacing: -.035em; }
+
+.foundation, .upcoming { width: min(100%, 40rem); padding: 1.75rem; border: 1px solid var(--surface-300); border-radius: 1.25rem; background: rgba(255,255,255,.75); box-shadow: 0 1.25rem 3rem rgba(23,34,63,.08); }
+.foundation h2, .upcoming h2 { margin-top: .55rem; color: var(--navy-900); font-size: 1.3rem; letter-spacing: -.035em; }
 .foundation ul { display: grid; gap: .7rem; margin-top: 1.25rem; list-style: none; }
 .foundation li { display: flex; align-items: center; gap: .7rem; color: var(--ink-600); }
 .foundation li::before { content: ""; width: .55rem; height: .55rem; border-radius: 50%; background: var(--green-500); }
-@media (max-width: 40rem) { .page { gap: 2.5rem; padding-block: 2rem; } .eyebrow { margin-top: 3rem; } }
+.upcoming .description { margin-top: .75rem; max-width: none; }
+
+@media (max-width: 40rem) {
+  .header { padding: .85rem 1.1rem; }
+  .navLink { display: none; }
+  .page { gap: 2.5rem; padding: 2.5rem 1.25rem 3.5rem; }
+}
