@@ -19,9 +19,9 @@
 
 ## V0.1.2 — Mascotas iniciales
 
-- Crear mascota: nombre, especie, raza opcional, color, descripción y estado.
-- Ver, editar y archivar solo las mascotas propias.
-- Validar formularios y proteger todo con RLS.
+- [x] Crear mascota: nombre, especie, raza opcional, color, descripción y estado.
+- [x] Ver, editar y archivar solo las mascotas propias.
+- [x] Validar formularios y proteger todo con RLS.
 
 ## V0.5 — MVP privado
 
