@@ -4,6 +4,7 @@ import type { FormEvent } from "react";
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import styles from "./page.module.css";
 
@@ -28,6 +29,7 @@ function EyeIcon({ hidden }: { hidden: boolean }) {
 }
 
 export default function AuthPage() {
+  const router = useRouter();
   const [mode, setMode] = useState<Mode>("sign-up");
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -81,15 +83,15 @@ export default function AuthPage() {
 
         if (signUpError) throw signUpError;
 
-        setMessage(
-          data.session
-            ? "Tu cuenta fue creada y la sesión está lista."
-            : "Revisa tu correo para confirmar la cuenta antes de iniciar sesión.",
-        );
+        if (data.session) {
+          router.push("/mascotas");
+        } else {
+          setMessage("Revisa tu correo para confirmar la cuenta antes de iniciar sesión.");
+        }
       } else {
         const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
         if (signInError) throw signInError;
-        setMessage("Sesión iniciada correctamente. El panel de mascotas llegará en el siguiente paso.");
+        router.push("/mascotas");
       }
     } catch (caughtError) {
       setError(caughtError instanceof Error ? caughtError.message : "No fue posible completar la operación.");
