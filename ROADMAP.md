@@ -7,14 +7,14 @@
 - [x] Añadir documentación y portada responsive.
 - [x] Verificar compilación y lint.
 - [x] Preparar esquema inicial de Supabase y políticas RLS.
-- [ ] Crear repositorio remoto en GitHub y publicar primer commit.
+- [x] Crear repositorio remoto en GitHub y publicar primer commit.
 
 ## V0.1.1 — Datos y autenticación
 
-- Crear proyecto Supabase y configurar variables locales.
+- [x] Crear proyecto Supabase y configurar variables locales.
 - [x] Habilitar acceso por correo.
-- Definir perfiles y políticas RLS.
-- Crear migración para mascotas.
+- [x] Definir perfiles y políticas RLS.
+- [x] Crear migración para mascotas.
 - [x] Crear registro e inicio de sesión básicos.
 
 ## V0.1.2 — Mascotas iniciales
