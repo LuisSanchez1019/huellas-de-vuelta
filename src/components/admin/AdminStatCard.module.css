@@ -1,0 +1,22 @@
+.card {
+  display: flex;
+  align-items: center;
+  gap: .9rem;
+  padding: 1.15rem 1.25rem;
+  border: 1px solid var(--surface-300);
+  border-radius: 1rem;
+  background: white;
+  box-shadow: 0 .5rem 1.4rem rgba(23, 34, 63, .05);
+}
+.icon {
+  display: grid;
+  place-items: center;
+  width: 2.9rem;
+  height: 2.9rem;
+  border-radius: .75rem;
+  flex-shrink: 0;
+  background: rgba(11, 122, 114, .12);
+  color: var(--teal-600);
+}
+.value { font-size: 1.55rem; font-weight: 800; letter-spacing: -.02em; color: var(--navy-900); line-height: 1.1; }
+.label { margin-top: .15rem; color: var(--ink-600); font-size: .85rem; font-weight: 600; }

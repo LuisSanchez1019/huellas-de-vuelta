@@ -1,0 +1,64 @@
+.toolbar { display: flex; flex-wrap: wrap; gap: .75rem; align-items: center; margin-top: 1.5rem; }
+.search {
+  flex: 1;
+  min-width: 14rem;
+  padding: .7rem .9rem;
+  border: 1px solid var(--surface-300);
+  border-radius: .6rem;
+  color: var(--navy-900);
+  background: white;
+  font: inherit;
+}
+.search:focus { outline: 3px solid rgba(47, 191, 124, .35); border-color: var(--green-500); }
+.tabs { display: flex; gap: .35rem; padding: .25rem; border-radius: .6rem; background: var(--surface-100); }
+.tab, .activeTab {
+  border: 0;
+  border-radius: .45rem;
+  padding: .55rem .9rem;
+  cursor: pointer;
+  color: var(--ink-600);
+  background: transparent;
+  font: inherit;
+  font-weight: 700;
+  font-size: .85rem;
+  white-space: nowrap;
+}
+.activeTab { color: var(--navy-900); background: white; box-shadow: 0 .1rem .5rem rgba(23, 34, 63, .1); }
+
+.tableWrap { margin-top: 1.25rem; overflow-x: auto; border: 1px solid var(--surface-300); border-radius: 1rem; background: white; }
+.table { width: 100%; border-collapse: collapse; min-width: 42rem; }
+.table th {
+  text-align: left;
+  padding: .85rem 1rem;
+  font-size: .74rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  color: var(--ink-600);
+  border-bottom: 1px solid var(--surface-300);
+  white-space: nowrap;
+}
+.table td { padding: .85rem 1rem; border-bottom: 1px solid var(--surface-300); vertical-align: middle; font-size: .9rem; color: var(--navy-900); }
+.table tr:last-child td { border-bottom: 0; }
+.userCell { display: flex; flex-direction: column; }
+.userName { font-weight: 700; }
+.userEmail { color: var(--ink-600); font-size: .82rem; }
+.badge { display: inline-flex; padding: .25rem .6rem; border-radius: 999px; font-size: .72rem; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; white-space: nowrap; }
+.badgeActive { color: #0f5132; background: #d9f2e3; }
+.badgeSuspended { color: #8b3023; background: #fbe4df; }
+.actions { display: flex; gap: .5rem; flex-wrap: wrap; }
+.actionLink, .actionButton {
+  border: 1px solid var(--surface-300);
+  border-radius: .5rem;
+  padding: .45rem .75rem;
+  font: inherit;
+  font-weight: 700;
+  font-size: .82rem;
+  color: var(--navy-900);
+  background: white;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.actionLink:hover { border-color: var(--teal-600); color: var(--teal-600); }
+.actionButton:disabled { cursor: not-allowed; opacity: .55; }
+.empty { padding: 2.5rem 1.5rem; text-align: center; color: var(--ink-600); }

@@ -1,13 +1,14 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import type { ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
-import { BellIcon, ChevronDownIcon, CloseIcon, LogoutIcon, MenuIcon, SettingsIcon, UserIcon } from "@/components/icons/Icon";
-import type { DashboardUser } from "./DashboardShell";
-import styles from "./DashboardHeader.module.css";
+import { BellIcon, ChevronDownIcon, CloseIcon, LogoutIcon, MenuIcon } from "@/components/icons/Icon";
+import type { PanelUser } from "./types";
+import styles from "./PanelHeader.module.css";
+
+export type PanelHeaderMenuItem = { label: string; href: string; icon: ReactNode };
 
 function initialsFor(name: string) {
   const parts = name.trim().split(/\s+/).filter(Boolean);
@@ -16,16 +17,27 @@ function initialsFor(name: string) {
   return (parts[0][0] + parts[1][0]).toUpperCase();
 }
 
-export default function DashboardHeader({
+export default function PanelHeader({
   user,
+  brandHref,
+  brandLabel,
+  badge,
+  notificationsHref,
+  menuItems = [],
+  onSignOut,
   isNavOpen,
   onToggleNav,
 }: {
-  user: DashboardUser;
+  user: PanelUser;
+  brandHref: string;
+  brandLabel: string;
+  badge?: string;
+  notificationsHref?: string;
+  menuItems?: PanelHeaderMenuItem[];
+  onSignOut: () => void;
   isNavOpen: boolean;
   onToggleNav: () => void;
 }) {
-  const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
 
@@ -39,13 +51,6 @@ export default function DashboardHeader({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  async function handleSignOut() {
-    setMenuOpen(false);
-    const supabase = createSupabaseBrowserClient();
-    await supabase.auth.signOut();
-    router.replace("/auth");
-  }
-
   return (
     <header className={styles.header}>
       <button
@@ -58,15 +63,18 @@ export default function DashboardHeader({
         {isNavOpen ? <CloseIcon size={22} /> : <MenuIcon size={22} />}
       </button>
 
-      <Link className={styles.brand} href="/dashboard">
+      <Link className={styles.brand} href={brandHref}>
         <Image className={styles.logo} src="/logo.png" alt="Huellas de Vuelta" width={32} height={32} priority />
-        <span className={styles.brandName}>Huellas de Vuelta</span>
+        <span className={styles.brandName}>{brandLabel}</span>
+        {badge && <span className={styles.badge}>{badge}</span>}
       </Link>
 
       <div className={styles.actions}>
-        <Link className={styles.notifButton} href="/dashboard/notificaciones" aria-label="Notificaciones">
-          <BellIcon size={21} />
-        </Link>
+        {notificationsHref && (
+          <Link className={styles.notifButton} href={notificationsHref} aria-label="Notificaciones">
+            <BellIcon size={21} />
+          </Link>
+        )}
 
         <div className={styles.userMenu} ref={menuRef}>
           <button
@@ -83,13 +91,26 @@ export default function DashboardHeader({
 
           {menuOpen && (
             <div className={styles.dropdown} role="menu">
-              <Link className={styles.dropdownItem} href="/dashboard/perfil" role="menuitem" onClick={() => setMenuOpen(false)}>
-                <UserIcon size={17} /> Mi perfil
-              </Link>
-              <Link className={styles.dropdownItem} href="/dashboard/configuracion/cuenta" role="menuitem" onClick={() => setMenuOpen(false)}>
-                <SettingsIcon size={17} /> Configuración
-              </Link>
-              <button type="button" className={styles.dropdownItem} role="menuitem" onClick={handleSignOut}>
+              {menuItems.map((item) => (
+                <Link
+                  key={item.href}
+                  className={styles.dropdownItem}
+                  href={item.href}
+                  role="menuitem"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  {item.icon} {item.label}
+                </Link>
+              ))}
+              <button
+                type="button"
+                className={styles.dropdownItem}
+                role="menuitem"
+                onClick={() => {
+                  setMenuOpen(false);
+                  onSignOut();
+                }}
+              >
                 <LogoutIcon size={17} /> Cerrar sesión
               </button>
             </div>

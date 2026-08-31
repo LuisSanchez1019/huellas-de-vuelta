@@ -1,0 +1,11 @@
+.title { font-size: 1.7rem; font-weight: 800; letter-spacing: -.03em; color: var(--navy-900); }
+.subtitle { margin-top: .4rem; color: var(--ink-600); max-width: 42rem; line-height: 1.55; }
+
+.statGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: 1rem;
+  margin-top: 1.75rem;
+}
+
+.checking { min-height: 100vh; display: grid; place-items: center; color: var(--ink-600); background: var(--surface-100); }

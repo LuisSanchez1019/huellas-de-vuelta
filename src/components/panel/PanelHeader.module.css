@@ -99,3 +99,14 @@
   .menuToggle { display: grid; place-items: center; }
   .userName { display: none; }
 }
+.badge {
+  padding: .2rem .55rem;
+  border-radius: 999px;
+  background: rgba(31, 111, 178, .12);
+  color: var(--blue-600);
+  font-size: .68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  white-space: nowrap;
+}
