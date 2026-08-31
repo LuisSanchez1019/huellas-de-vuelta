@@ -24,13 +24,18 @@ export default function Hero() {
 
         <div className={styles.visual}>
           <div className={styles.card}>
-            <div className={styles.photo} aria-hidden="true">🐾</div>
+            <img
+              className={styles.photo}
+              src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/34/Labrador_on_Quantock_%282175262184%29.jpg/960px-Labrador_on_Quantock_%282175262184%29.jpg"
+              alt="Luna, una labrador color chocolate"
+              loading="eager"
+            />
             <p className={styles.cardName}>Luna</p>
             <p className={styles.cardMeta}>Labrador · Bucaramanga</p>
-          </div>
-          <div className={styles.qrChip}>
-            <div className={styles.qrChipGrid} aria-hidden="true" />
-            <p className={styles.qrChipLabel}>Placa QR</p>
+            <p className={styles.photoCredit}>
+              Foto ilustrativa · IDS.photos ·{" "}
+              <a href="https://creativecommons.org/licenses/by-sa/2.0/" target="_blank" rel="noopener noreferrer">CC BY-SA 2.0</a>
+            </p>
           </div>
         </div>
       </div>

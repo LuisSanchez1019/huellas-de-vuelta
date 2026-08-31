@@ -25,15 +25,20 @@ export default function QRSection() {
               </p>
             ))}
           </div>
-          <Link className={styles.qrCta} href="/auth?mode=sign-up">Registrar mi mascota</Link>
+          <div className={styles.qrCtaRow}>
+            <Link className={styles.qrCta} href="/auth?mode=sign-up">Registrar mi mascota</Link>
+            <Link className={styles.qrCtaSecondary} href="/mascota/demo">Ver QR escaneado (ejemplo)</Link>
+          </div>
         </div>
 
         <div className={styles.qrVisual}>
-          <div className={styles.qrBadge}>
-            <p className={styles.qrBadgeBrand}>Huellas de Vuelta</p>
-            <div className={styles.qrBadgeGrid} aria-hidden="true" />
-            <p className={styles.qrBadgeCaption}>Escanea para contactar al propietario de forma segura</p>
-          </div>
+          <Link className={styles.qrVisualLink} href="/mascota/demo" aria-label="Ver ejemplo de página al escanear una placa QR">
+            <div className={styles.qrBadge}>
+              <p className={styles.qrBadgeBrand}>Huellas de Vuelta</p>
+              <div className={styles.qrBadgeGrid} aria-hidden="true" />
+              <p className={styles.qrBadgeCaption}>Escanea para contactar al propietario de forma segura</p>
+            </div>
+          </Link>
         </div>
       </div>
     </section>

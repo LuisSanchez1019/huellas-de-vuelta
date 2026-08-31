@@ -11,17 +11,13 @@
 .trustRow { display:flex; gap:1.5rem; flex-wrap:wrap; margin-top:2.25rem; }
 .trustItem { display:flex; align-items:center; gap:.5rem; color: var(--ink-600); font-size:.85rem; font-weight:600; }
 .trustDot { width:.5rem; height:.5rem; border-radius:50%; background: var(--green-500); }
-.visual { display:grid; justify-items:center; position:relative; }
-.card { width:16.5rem; padding:1.5rem; border-radius:1.5rem; background:white; border:1px solid var(--surface-300); box-shadow:0 2rem 4rem rgba(23,34,63,.14); }
-.photo { height:11rem; border-radius:1rem; display:grid; place-items:center; font-size:3.5rem; color:white; background: linear-gradient(135deg, var(--navy-900), var(--teal-600)); }
+.visual { display:grid; justify-items:center; }
+.card { width:17rem; padding:1.5rem; border-radius:1.5rem; background:white; border:1px solid var(--surface-300); box-shadow:0 2rem 4rem rgba(23,34,63,.14); }
+.photo { display:block; width:100%; height:12.5rem; object-fit:cover; border-radius:1rem; }
 .cardName { margin-top:1rem; font-weight:800; color: var(--navy-900); font-size:1.1rem; }
 .cardMeta { margin-top:.2rem; color: var(--ink-600); font-size:.85rem; }
-.qrChip { position:absolute; bottom:-1.25rem; right: -1rem; width:7rem; padding:1rem; border-radius:1rem; background:white; border:1px solid var(--surface-300); box-shadow:0 1rem 2.5rem rgba(23,34,63,.16); text-align:center; }
-.qrChipGrid { margin:0 auto .5rem; width:3.4rem; height:3.4rem; border-radius:.4rem; background:
-    repeating-linear-gradient(90deg, var(--navy-900) 0 4px, transparent 4px 8px),
-    repeating-linear-gradient(0deg, var(--navy-900) 0 4px, transparent 4px 8px);
-  background-blend-mode: multiply; background-color:white; }
-.qrChipLabel { font-size:.62rem; font-weight:800; color: var(--navy-900); letter-spacing:.04em; text-transform:uppercase; }
+.photoCredit { margin-top:.7rem; color: var(--ink-600); font-size:.68rem; line-height:1.4; opacity:.75; }
+.photoCredit a { text-decoration: underline; }
 
 @media (max-width: 60rem) {
   .inner { grid-template-columns: 1fr; }

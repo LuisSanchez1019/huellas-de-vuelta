@@ -79,9 +79,13 @@
 .qrFlow { margin-top: 1.5rem; display: grid; gap: .6rem; }
 .qrFlowStep { display: flex; align-items: center; gap: .6rem; color: var(--navy-900); font-weight: 700; font-size: .92rem; }
 .qrFlowDot { display: grid; place-items: center; width: 1.6rem; height: 1.6rem; border-radius: 50%; background: var(--surface-100); color: var(--teal-600); font-size: .8rem; }
-.qrCta { display: inline-flex; margin-top: 1.5rem; padding: .8rem 1.15rem; border-radius: .7rem; color: white; background: var(--teal-600); font-weight: 700; }
+.qrCtaRow { display:flex; gap:.75rem; flex-wrap:wrap; margin-top: 1.5rem; }
+.qrCta { display: inline-flex; padding: .8rem 1.15rem; border-radius: .7rem; color: white; background: var(--teal-600); font-weight: 700; }
 .qrCta:hover { background: var(--navy-900); }
+.qrCtaSecondary { display: inline-flex; padding: .8rem 1.15rem; border-radius: .7rem; border: 1px solid var(--surface-300); background: white; color: var(--navy-900); font-weight: 700; }
+.qrCtaSecondary:hover { border-color: var(--teal-600); color: var(--teal-600); }
 .qrVisual { display: grid; justify-items: center; }
+.qrVisualLink { display: block; }
 .qrBadge { width: 14rem; padding: 1.75rem 1.5rem; border-radius: 1.25rem; background: white; border: 1px solid var(--surface-300); box-shadow: 0 1.5rem 3rem rgba(23,34,63,.12); text-align: center; }
 .qrBadgeBrand { font-size: .7rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--navy-900); }
 .qrBadgeGrid { margin: 1.1rem auto; width: 7rem; height: 7rem; border-radius: .6rem; background:
