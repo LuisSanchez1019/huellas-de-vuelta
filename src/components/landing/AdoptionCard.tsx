@@ -1,8 +1,7 @@
 import Link from "next/link";
 import type { MockAdoption } from "@/data/mock";
+import { PawIcon } from "@/components/icons/Icon";
 import styles from "./landing.module.css";
-
-const speciesIcon: Record<string, string> = { Perro: "🐶", Gata: "🐱" };
 
 export default function AdoptionCard({ pet }: { pet: MockAdoption }) {
   return (
@@ -12,7 +11,7 @@ export default function AdoptionCard({ pet }: { pet: MockAdoption }) {
         style={{ background: `linear-gradient(135deg, ${pet.colorFrom}, ${pet.colorTo})` }}
         aria-hidden="true"
       >
-        {speciesIcon[pet.species] ?? "🐾"}
+        <PawIcon size={34} className={styles.avatarIcon} />
       </div>
       <div className={styles.adoptionBody}>
         <p className={styles.adoptionName}>{pet.name}</p>

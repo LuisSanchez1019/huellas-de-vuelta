@@ -1,7 +1,8 @@
+import type { ReactNode } from "react";
 import Link from "next/link";
 import styles from "./PlaceholderPage.module.css";
 
-export default function PlaceholderPage({ icon, title, text }: { icon: string; title: string; text: string }) {
+export default function PlaceholderPage({ icon, title, text }: { icon: ReactNode; title: string; text: string }) {
   return (
     <main className={styles.page}>
       <div className={styles.inner}>

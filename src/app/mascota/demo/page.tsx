@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { LockIcon, PawIcon, SearchIcon } from "@/components/icons/Icon";
 import styles from "./page.module.css";
 
 export default function ScannedPetProfileDemo() {
@@ -8,17 +9,14 @@ export default function ScannedPetProfileDemo() {
         <Link className={styles.back} href="/">← Volver al inicio</Link>
 
         <div className={styles.previewBanner}>
-          <span className={styles.previewIcon} aria-hidden="true">🔍</span>
+          <SearchIcon size={18} className={styles.previewIcon} />
           Vista previa · QR escaneado — así se verá esta página cuando escanees la placa real de una mascota.
         </div>
 
         <div className={styles.card}>
-          <img
-            className={styles.photo}
-            src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/34/Labrador_on_Quantock_%282175262184%29.jpg/960px-Labrador_on_Quantock_%282175262184%29.jpg"
-            alt="Luna, una labrador color chocolate"
-            loading="eager"
-          />
+          <div className={styles.photo} aria-hidden="true">
+            <PawIcon size={56} className={styles.photoIcon} />
+          </div>
           <div className={styles.body}>
             <div className={styles.badgeRow}>
               <span className={styles.badge}>Perdida</span>
@@ -46,15 +44,11 @@ export default function ScannedPetProfileDemo() {
             </div>
 
             <p className={styles.privacyNote}>
-              🔒 Los datos del propietario están protegidos. Al contactar, tu mensaje se envía de forma segura sin mostrar su número ni su dirección.
+              <LockIcon size={16} className={styles.inlineIcon} />
+              Los datos del propietario están protegidos. Al contactar, tu mensaje se envía de forma segura sin mostrar su número ni su dirección.
             </p>
 
             <Link className={styles.contactCta} href="/auth?mode=sign-up">Contactar al propietario de forma segura</Link>
-
-            <p className={styles.photoCredit}>
-              Foto ilustrativa · IDS.photos ·{" "}
-              <a href="https://creativecommons.org/licenses/by-sa/2.0/" target="_blank" rel="noopener noreferrer">CC BY-SA 2.0</a>
-            </p>
           </div>
         </div>
 

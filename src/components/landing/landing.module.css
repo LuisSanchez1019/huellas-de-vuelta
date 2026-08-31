@@ -6,7 +6,7 @@
 .eyebrow { color: var(--blue-600); font-size: .75rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
 .sectionTitleText { margin-top: .5rem; color: var(--navy-900); font-size: clamp(1.5rem, 3vw, 2.1rem); font-weight: 800; letter-spacing: -.03em; }
 .sectionSubtitle { margin-top: .5rem; max-width: 40rem; color: var(--ink-600); line-height: 1.6; }
-.viewAllLink { flex-shrink: 0; color: var(--teal-600); font-weight: 700; font-size: .92rem; white-space: nowrap; }
+.viewAllLink { flex-shrink: 0; color: var(--teal-600); font-weight: 700; font-size: .92rem; white-space: nowrap; transition: color .2s ease; }
 .viewAllLink:hover { color: var(--navy-900); }
 
 /* ---------- automatic slider ---------- */
@@ -16,6 +16,7 @@
 .scrollerTrack { display: flex; gap: 1.25rem; }
 .scrollerTrack > * { flex: 0 0 auto; }
 .scrollerTrackAnimated { gap: 0; width: max-content; animation-name: scrollerMarquee; animation-timing-function: linear; animation-iteration-count: infinite; will-change: transform; }
+.scrollerTrackAnimated:hover, .scrollerTrackAnimated:focus-within { animation-play-state: paused; }
 .scrollerGroup { display: flex; gap: 1.25rem; padding-right: 1.25rem; flex-shrink: 0; }
 @keyframes scrollerMarquee {
   from { transform: translateX(0); }
@@ -26,11 +27,14 @@
 }
 
 /* ---------- pet avatar placeholder (shared by pet / adoption cards) ---------- */
-.avatar { display: grid; place-items: center; height: 11rem; border-radius: 1rem 1rem 0 0; font-size: 2.75rem; color: white; }
+.avatar { display: grid; place-items: center; height: 11rem; border-radius: 1rem 1rem 0 0; color: white; }
 .avatarSmall { height: 8.5rem; }
+.avatarIcon { opacity: .92; }
+.inlineIcon { flex-shrink: 0; color: var(--teal-600); }
 
 /* ---------- pet card (mascotas que necesitan ayuda) ---------- */
-.petCard { position: relative; width: 15.5rem; border: 1px solid var(--surface-300); border-radius: 1rem; overflow: hidden; background: white; box-shadow: 0 .6rem 1.6rem rgba(23,34,63,.06); }
+.petCard { position: relative; width: 15.5rem; border: 1px solid var(--surface-300); border-radius: 1rem; overflow: hidden; background: white; box-shadow: 0 .6rem 1.6rem rgba(23,34,63,.06); transition: transform .25s ease, box-shadow .25s ease; }
+.petCard:hover { transform: translateY(-.35rem); box-shadow: 0 1.2rem 2.4rem rgba(23,34,63,.12); }
 .petBadge { position: absolute; top: .75rem; left: .75rem; padding: .25rem .6rem; border-radius: 999px; font-size: .68rem; font-weight: 800; letter-spacing: .03em; text-transform: uppercase; }
 .petBadgeLost { color: #8b3023; background: #fbe4df; }
 .petBadgeFound { color: #1f6fb2; background: #dcecfa; }
@@ -42,13 +46,15 @@
 .petCta:hover { color: var(--navy-900); }
 
 /* ---------- partner strip (fundaciones) ---------- */
-.partnerItem { flex: 0 0 auto; width: 9.5rem; display: grid; justify-items: center; gap: .6rem; padding: 1.25rem .75rem; border: 1px solid var(--surface-300); border-radius: 1rem; background: white; text-align: center; }
+.partnerItem { flex: 0 0 auto; width: 9.5rem; display: grid; justify-items: center; gap: .6rem; padding: 1.25rem .75rem; border: 1px solid var(--surface-300); border-radius: 1rem; background: white; text-align: center; transition: transform .25s ease, box-shadow .25s ease; }
+.partnerItem:hover { transform: translateY(-.3rem); box-shadow: 0 1rem 2rem rgba(23,34,63,.08); }
 .partnerLogo { display: grid; place-items: center; width: 3rem; height: 3rem; border-radius: 50%; color: white; font-weight: 800; font-size: 1rem; background: linear-gradient(135deg, var(--green-500), var(--blue-500)); }
 .partnerName { font-size: .85rem; font-weight: 700; color: var(--navy-900); line-height: 1.3; }
 .partnerKind { font-size: .72rem; color: var(--ink-600); }
 
 /* ---------- veterinary card ---------- */
-.vetCard { flex: 0 0 auto; width: 14rem; padding: 1.25rem; border: 1px solid var(--surface-300); border-radius: 1rem; background: white; box-shadow: 0 .6rem 1.6rem rgba(23,34,63,.05); }
+.vetCard { flex: 0 0 auto; width: 14rem; padding: 1.25rem; border: 1px solid var(--surface-300); border-radius: 1rem; background: white; box-shadow: 0 .6rem 1.6rem rgba(23,34,63,.05); transition: transform .25s ease, box-shadow .25s ease; }
+.vetCard:hover { transform: translateY(-.35rem); box-shadow: 0 1.2rem 2.4rem rgba(23,34,63,.1); }
 .vetLogo { display: grid; place-items: center; width: 2.6rem; height: 2.6rem; border-radius: .7rem; color: white; font-weight: 800; background: linear-gradient(135deg, var(--teal-600), var(--navy-900)); }
 .vetName { margin-top: .8rem; font-weight: 800; color: var(--navy-900); }
 .vetCity { margin-top: .2rem; color: var(--ink-600); font-size: .85rem; }
@@ -57,7 +63,8 @@
 .vetCta:hover { color: var(--navy-900); }
 
 /* ---------- adoption card ---------- */
-.adoptionCard { width: 15.5rem; border: 1px solid var(--surface-300); border-radius: 1rem; overflow: hidden; background: white; box-shadow: 0 .6rem 1.6rem rgba(23,34,63,.06); }
+.adoptionCard { width: 15.5rem; border: 1px solid var(--surface-300); border-radius: 1rem; overflow: hidden; background: white; box-shadow: 0 .6rem 1.6rem rgba(23,34,63,.06); transition: transform .25s ease, box-shadow .25s ease; }
+.adoptionCard:hover { transform: translateY(-.35rem); box-shadow: 0 1.2rem 2.4rem rgba(23,34,63,.12); }
 .adoptionBody { padding: 1rem 1.1rem 1.25rem; }
 .adoptionName { font-size: 1.05rem; font-weight: 800; color: var(--navy-900); }
 .adoptionMeta { margin-top: .25rem; color: var(--ink-600); font-size: .88rem; }
@@ -87,9 +94,9 @@
 .qrFlowStep { display: flex; align-items: center; gap: .6rem; color: var(--navy-900); font-weight: 700; font-size: .92rem; }
 .qrFlowDot { display: grid; place-items: center; width: 1.6rem; height: 1.6rem; border-radius: 50%; background: var(--surface-100); color: var(--teal-600); font-size: .8rem; }
 .qrCtaRow { display:flex; gap:.75rem; flex-wrap:wrap; margin-top: 1.5rem; }
-.qrCta { display: inline-flex; padding: .8rem 1.15rem; border-radius: .7rem; color: white; background: var(--teal-600); font-weight: 700; }
+.qrCta { display: inline-flex; padding: .8rem 1.15rem; border-radius: .7rem; color: white; background: var(--teal-600); font-weight: 700; transition: background-color .2s ease, transform .2s ease; }
 .qrCta:hover { background: var(--navy-900); }
-.qrCtaSecondary { display: inline-flex; padding: .8rem 1.15rem; border-radius: .7rem; border: 1px solid var(--surface-300); background: white; color: var(--navy-900); font-weight: 700; }
+.qrCtaSecondary { display: inline-flex; padding: .8rem 1.15rem; border-radius: .7rem; border: 1px solid var(--surface-300); background: white; color: var(--navy-900); font-weight: 700; transition: border-color .2s ease, color .2s ease; }
 .qrCtaSecondary:hover { border-color: var(--teal-600); color: var(--teal-600); }
 .qrVisual { display: grid; justify-items: center; }
 .qrVisualLink { display: block; }
@@ -107,8 +114,8 @@
 .ctaTitle { color: white; font-size: clamp(1.3rem, 2.6vw, 1.8rem); font-weight: 800; letter-spacing: -.02em; }
 .ctaText { margin-top: .4rem; color: rgba(255,255,255,.92); max-width: 34rem; }
 .ctaButtons { display: flex; gap: .75rem; flex-wrap: wrap; }
-.ctaPrimary { padding: .85rem 1.2rem; border-radius: .7rem; background: var(--navy-900); color: white; font-weight: 800; }
-.ctaPrimary:hover { background: #0e1730; }
+.ctaPrimary { padding: .85rem 1.2rem; border-radius: .7rem; background: var(--navy-900); color: white; font-weight: 800; transition: background-color .2s ease, transform .2s ease; }
+.ctaPrimary:hover { background: #0e1730; transform: translateY(-.15rem); }
 .ctaSecondary { padding: .85rem 1.2rem; border-radius: .7rem; background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.6); color: white; font-weight: 800; }
 .ctaSecondary:hover { background: rgba(255,255,255,.28); }
 
@@ -123,8 +130,8 @@
 .footerLink { font-size: .85rem; }
 .footerLink:hover { color: white; }
 .footerSocial { display: flex; gap: .7rem; }
-.footerSocialIcon { display: grid; place-items: center; width: 2.1rem; height: 2.1rem; border-radius: 50%; background: rgba(255,255,255,.1); color: white; font-size: .85rem; }
-.footerSocialIcon:hover { background: rgba(255,255,255,.2); }
+.footerSocialIcon { display: grid; place-items: center; width: 2.1rem; height: 2.1rem; border-radius: 50%; background: rgba(255,255,255,.1); color: white; font-size: .85rem; transition: background-color .2s ease, transform .2s ease; }
+.footerSocialIcon:hover { background: rgba(255,255,255,.2); transform: translateY(-.15rem); }
 .footerBottom { margin-top: 2.5rem; padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,.12); font-size: .8rem; }
 
 /* ---------- responsive ---------- */

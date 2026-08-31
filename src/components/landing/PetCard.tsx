@@ -1,8 +1,7 @@
 import Link from "next/link";
 import type { MockPet } from "@/data/mock";
+import { PawIcon, PinIcon } from "@/components/icons/Icon";
 import styles from "./landing.module.css";
-
-const speciesIcon: Record<string, string> = { Perro: "🐶", Gato: "🐱" };
 
 export default function PetCard({ pet }: { pet: MockPet }) {
   const isLost = pet.status === "lost";
@@ -13,7 +12,7 @@ export default function PetCard({ pet }: { pet: MockPet }) {
         style={{ background: `linear-gradient(135deg, ${pet.colorFrom}, ${pet.colorTo})` }}
         aria-hidden="true"
       >
-        {speciesIcon[pet.species] ?? "🐾"}
+        <PawIcon size={38} className={styles.avatarIcon} />
       </div>
       <span className={isLost ? `${styles.petBadge} ${styles.petBadgeLost}` : `${styles.petBadge} ${styles.petBadgeFound}`}>
         {isLost ? "Perdido" : "Encontrado"}
@@ -21,7 +20,10 @@ export default function PetCard({ pet }: { pet: MockPet }) {
       <div className={styles.petBody}>
         <p className={styles.petName}>{pet.name}</p>
         <p className={styles.petMeta}>{pet.species} · {pet.breed}</p>
-        <p className={styles.petLocation}>📍 {pet.location} · {pet.reportedAgo}</p>
+        <p className={styles.petLocation}>
+          <PinIcon size={14} className={styles.inlineIcon} />
+          {pet.location} · {pet.reportedAgo}
+        </p>
         <Link className={styles.petCta} href="/auth?mode=sign-up">Ayudar a encontrarla →</Link>
       </div>
     </article>
