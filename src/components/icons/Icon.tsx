@@ -84,3 +84,131 @@ export function WhatsAppIcon({ size = 16, className }: IconProps) {
     </svg>
   );
 }
+
+export function HomeIcon({ size = 22, className }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+      <path d="M4 11.5 12 4l8 7.5" />
+      <path d="M6 10v9.5h12V10" />
+      <path d="M10 19.5V14h4v5.5" />
+    </svg>
+  );
+}
+
+export function ReportIcon({ size = 22, className }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+      <path d="M6 3.5h9l4 4V20a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4.5a1 1 0 0 1 1-1Z" />
+      <path d="M14.5 3.5V8h4" />
+      <path d="M8.5 12.5h7M8.5 15.8h7M8.5 9.2h3" />
+    </svg>
+  );
+}
+
+export function BellIcon({ size = 22, className }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+      <path d="M6 10.5a6 6 0 0 1 12 0c0 4 1.4 5.2 1.4 5.2H4.6S6 14.5 6 10.5Z" />
+      <path d="M10.2 19a1.9 1.9 0 0 0 3.6 0" />
+    </svg>
+  );
+}
+
+export function ActivityIcon({ size = 22, className }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+      <path d="M3 12h3.4l2.1-6 3.6 12 2.2-9 1.6 3h4.1" />
+    </svg>
+  );
+}
+
+export function UserIcon({ size = 22, className }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+      <circle cx="12" cy="8.2" r="3.5" />
+      <path d="M4.8 20c1-3.5 4-5.4 7.2-5.4s6.2 1.9 7.2 5.4" />
+    </svg>
+  );
+}
+
+export function SettingsIcon({ size = 22, className }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+      <circle cx="12" cy="12" r="2.9" />
+      <path d="M12 3.7v2.1M12 18.2v2.1M20.3 12h-2.1M5.8 12H3.7M17.7 6.3l-1.5 1.5M7.8 16.2l-1.5 1.5M17.7 17.7l-1.5-1.5M7.8 7.8 6.3 6.3" />
+    </svg>
+  );
+}
+
+export function ChevronDownIcon({ size = 16, className }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+      <path d="M5.5 8.5 12 15l6.5-6.5" />
+    </svg>
+  );
+}
+
+export function MenuIcon({ size = 22, className }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className={className} aria-hidden="true">
+      <path d="M3 6h18M3 12h18M3 18h18" />
+    </svg>
+  );
+}
+
+export function CloseIcon({ size = 22, className }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className={className} aria-hidden="true">
+      <path d="M6 6l12 12M18 6L6 18" />
+    </svg>
+  );
+}
+
+export function QrIcon({ size = 22, className }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+      <rect x="3.5" y="3.5" width="6" height="6" rx="1" />
+      <rect x="14.5" y="3.5" width="6" height="6" rx="1" />
+      <rect x="3.5" y="14.5" width="6" height="6" rx="1" />
+      <path d="M14.5 14.5h2.6v2.6h-2.6zM19.5 14.5h1v1h-1zM14.5 19.5h1v1h-1zM17.7 17.7h2.8v2.8h-2.8z" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+export function KeyIcon({ size = 22, className }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+      <circle cx="8" cy="15.5" r="3.5" />
+      <path d="M10.4 13.1 17 6.5M15.2 8.3l1.9 1.9M18 5.5l1.9 1.9" />
+    </svg>
+  );
+}
+
+export function ShieldIcon({ size = 22, className }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+      <path d="M12 3.5 19 6v5.5c0 4.5-3 7.6-7 9-4-1.4-7-4.5-7-9V6l7-2.5Z" />
+      <path d="M9 12.2l2 2 4-4.4" />
+    </svg>
+  );
+}
+
+export function IdCardIcon({ size = 22, className }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+      <rect x="3" y="5.5" width="18" height="13" rx="2" />
+      <circle cx="8.3" cy="11" r="1.9" />
+      <path d="M5.8 15.8c.5-1.4 1.6-2.1 2.5-2.1s2 .7 2.5 2.1M14 9.5h5M14 12.5h5M14 15.5h3.4" />
+    </svg>
+  );
+}
+
+export function LogoutIcon({ size = 20, className }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+      <path d="M9 4.5H6a1.5 1.5 0 0 0-1.5 1.5v12A1.5 1.5 0 0 0 6 19.5h3" />
+      <path d="M15.5 8 20 12l-4.5 4" />
+      <path d="M20 12H9.5" />
+    </svg>
+  );
+}

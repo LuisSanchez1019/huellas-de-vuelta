@@ -24,3 +24,9 @@
 .error, .message { padding: .75rem; border-radius: .55rem; font-size: .9rem; line-height: 1.45; }
 .error { color: #8b3023; background: #fbe4df; }
 .message { color: #245a3f; background: #e6f4e5; }
+.forgotRow { display: flex; justify-content: flex-end; margin-top: -.3rem; }
+.forgotLink { color: var(--teal-600); font-weight: 700; font-size: .85rem; }
+.forgotLink:hover { color: var(--navy-900); }
+.submitLink { display: inline-flex; align-items: center; justify-content: center; margin-top: 1.5rem; border: 0; border-radius: .6rem; padding: .85rem 1rem; color: white; background: var(--teal-600); font-weight: 800; text-align: center; }
+.submitLink:hover { background: var(--navy-900); }
+.centerNote { margin-top: 1rem; text-align: center; color: var(--ink-600); }

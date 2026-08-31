@@ -47,10 +47,11 @@ function AuthForm() {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    const form = event.currentTarget;
     setError(null);
     setMessage(null);
 
-    const formData = new FormData(event.currentTarget);
+    const formData = new FormData(form);
     const email = String(formData.get("email") ?? "").trim();
     const password = String(formData.get("password") ?? "");
     const displayName = String(formData.get("displayName") ?? "").trim();
@@ -85,6 +86,13 @@ function AuthForm() {
 
         if (signUpError) throw signUpError;
 
+        // Limpiamos el formulario tanto si la cuenta quedó activa de inmediato
+        // como si falta confirmar el correo, para no dejar datos sensibles
+        // (contraseña) visibles ni pre-cargados en los campos.
+        form.reset();
+        setShowPassword(false);
+        setShowConfirmPassword(false);
+
         if (data.session) {
           router.push("/mascotas");
         } else {
@@ -93,6 +101,8 @@ function AuthForm() {
       } else {
         const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
         if (signInError) throw signInError;
+        form.reset();
+        setShowPassword(false);
         router.push("/mascotas");
       }
     } catch (caughtError) {
@@ -147,6 +157,12 @@ function AuthForm() {
               </button>
             </div>
           </label>
+
+          {mode === "sign-in" && (
+            <div className={styles.forgotRow}>
+              <Link className={styles.forgotLink} href="/auth/recuperar">¿Olvidaste tu contraseña?</Link>
+            </div>
+          )}
 
           {mode === "sign-up" && (
             <label>
