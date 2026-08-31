@@ -4,6 +4,7 @@ import { type FormEvent, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
+import { translateAuthError } from "@/lib/supabase/errors";
 import styles from "../page.module.css";
 
 export default function RecuperarPage() {
@@ -35,7 +36,7 @@ export default function RecuperarPage() {
       form.reset();
       setMessage("Si el correo está registrado, te enviamos un enlace para crear una nueva contraseña. Revisa tu bandeja de entrada y la carpeta de spam.");
     } catch (caughtError) {
-      setError(caughtError instanceof Error ? caughtError.message : "No fue posible enviar el correo de recuperación.");
+      setError(translateAuthError(caughtError));
     } finally {
       setIsSubmitting(false);
     }

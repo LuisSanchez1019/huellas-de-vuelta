@@ -6,6 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
+import { translateAuthError } from "@/lib/supabase/errors";
 import styles from "./page.module.css";
 
 type Mode = "sign-in" | "sign-up";
@@ -106,7 +107,7 @@ function AuthForm() {
         router.push("/mascotas");
       }
     } catch (caughtError) {
-      setError(caughtError instanceof Error ? caughtError.message : "No fue posible completar la operación.");
+      setError(translateAuthError(caughtError));
     } finally {
       setIsSubmitting(false);
     }

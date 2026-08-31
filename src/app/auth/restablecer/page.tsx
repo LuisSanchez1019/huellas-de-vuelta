@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
+import { translateAuthError } from "@/lib/supabase/errors";
 import styles from "../page.module.css";
 
 type Status = "checking" | "ready" | "invalid";
@@ -66,7 +67,7 @@ export default function RestablecerPage() {
       setMessage("Tu contraseña se actualizó correctamente. Redirigiendo…");
       setTimeout(() => router.push("/mascotas"), 1500);
     } catch (caughtError) {
-      setError(caughtError instanceof Error ? caughtError.message : "No fue posible actualizar la contraseña.");
+      setError(translateAuthError(caughtError));
     } finally {
       setIsSubmitting(false);
     }
