@@ -12,8 +12,8 @@
 .meta { margin-top: .3rem; color: var(--ink-600); font-size: .95rem; }
 .detailsGrid { margin-top: 1.5rem; display: grid; gap: .9rem; }
 .detailItem { display: flex; justify-content: space-between; gap: 1rem; padding-bottom: .9rem; border-bottom: 1px solid var(--surface-300); font-size: .9rem; }
-.detailLabel { color: var(--ink-600); }
-.detailValue { color: var(--navy-900); font-weight: 700; text-align: right; }
+.detailLabel { flex: 0 1 45%; min-width: 0; color: var(--ink-600); }
+.detailValue { flex: 0 1 55%; min-width: 0; color: var(--navy-900); font-weight: 700; text-align: right; }
 .privacyNote { margin-top: 1.5rem; padding: 1rem; border-radius: .75rem; background: var(--surface-100); color: var(--ink-600); font-size: .85rem; line-height: 1.55; }
 .contactCta { display: flex; margin-top: 1.25rem; padding: .9rem 1.1rem; border-radius: .7rem; justify-content: center; background: var(--teal-600); color: white; font-weight: 700; }
 .contactCta:hover { background: var(--navy-900); }
