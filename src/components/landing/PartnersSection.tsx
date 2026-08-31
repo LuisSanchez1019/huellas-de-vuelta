@@ -17,7 +17,7 @@ export default function PartnersSection() {
           title="Fundaciones aliadas"
           subtitle="Organizaciones verificadas que ayudan a atender, rehabilitar y proteger mascotas en todo el país."
         />
-        <div className={styles.partnerStrip} role="list" aria-label="Fundaciones aliadas">
+        <HorizontalScroller ariaLabel="Fundaciones aliadas">
           {mockFoundations.map((partner) => (
             <div key={partner.id} className={styles.partnerItem} role="listitem">
               <div className={styles.partnerLogo} aria-hidden="true">{partnerInitials(partner.name)}</div>
@@ -25,7 +25,7 @@ export default function PartnersSection() {
               <p className={styles.partnerKind}>{partner.kind}</p>
             </div>
           ))}
-        </div>
+        </HorizontalScroller>
 
         <div className={styles.subsectionGap}>
           <SectionTitle
