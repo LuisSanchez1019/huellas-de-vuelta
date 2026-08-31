@@ -1,0 +1,23 @@
+import type { ReactNode } from "react";
+import styles from "./DashboardPlaceholder.module.css";
+
+export default function DashboardPlaceholder({
+  icon,
+  title,
+  text,
+  step,
+}: {
+  icon: ReactNode;
+  title: string;
+  text: string;
+  step?: string;
+}) {
+  return (
+    <div className={styles.wrap}>
+      <div className={styles.icon} aria-hidden="true">{icon}</div>
+      <h1 className={styles.title}>{title}</h1>
+      <p className={styles.text}>{text}</p>
+      {step && <span className={styles.step}>{step}</span>}
+    </div>
+  );
+}
