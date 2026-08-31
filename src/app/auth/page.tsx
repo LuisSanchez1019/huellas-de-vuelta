@@ -1,10 +1,10 @@
 "use client";
 
 import type { FormEvent } from "react";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import styles from "./page.module.css";
 
@@ -28,9 +28,11 @@ function EyeIcon({ hidden }: { hidden: boolean }) {
   );
 }
 
-export default function AuthPage() {
+function AuthForm() {
   const router = useRouter();
-  const [mode, setMode] = useState<Mode>("sign-up");
+  const searchParams = useSearchParams();
+  const initialMode: Mode = searchParams.get("mode") === "sign-in" ? "sign-in" : "sign-up";
+  const [mode, setMode] = useState<Mode>(initialMode);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -176,5 +178,13 @@ export default function AuthPage() {
         </form>
       </section>
     </main>
+  );
+}
+
+export default function AuthPage() {
+  return (
+    <Suspense fallback={null}>
+      <AuthForm />
+    </Suspense>
   );
 }

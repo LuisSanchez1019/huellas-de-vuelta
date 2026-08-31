@@ -22,6 +22,7 @@
 - [x] Crear mascota: nombre, especie, raza opcional, color, descripción y estado.
 - [x] Ver, editar y archivar solo las mascotas propias.
 - [x] Validar formularios y proteger todo con RLS.
+- [x] Rediseñar la landing pública (header, hero, mascotas, aliados, adopciones, estadísticas, QR y CTA) con datos mock.
 
 ## V0.5 — MVP privado
 
