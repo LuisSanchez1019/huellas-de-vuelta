@@ -1,5 +1,5 @@
 import SectionTitle from "./SectionTitle";
-import HorizontalScroller from "./HorizontalScroller";
+import AutoScroller from "./AutoScroller";
 import VeterinaryCard from "./VeterinaryCard";
 import { mockFoundations, mockVeterinaries } from "@/data/mock";
 import styles from "./landing.module.css";
@@ -17,7 +17,7 @@ export default function PartnersSection() {
           title="Fundaciones aliadas"
           subtitle="Organizaciones verificadas que ayudan a atender, rehabilitar y proteger mascotas en todo el país."
         />
-        <HorizontalScroller ariaLabel="Fundaciones aliadas">
+        <AutoScroller ariaLabel="Fundaciones aliadas">
           {mockFoundations.map((partner) => (
             <div key={partner.id} className={styles.partnerItem} role="listitem">
               <div className={styles.partnerLogo} aria-hidden="true">{partnerInitials(partner.name)}</div>
@@ -25,7 +25,7 @@ export default function PartnersSection() {
               <p className={styles.partnerKind}>{partner.kind}</p>
             </div>
           ))}
-        </HorizontalScroller>
+        </AutoScroller>
 
         <div className={styles.subsectionGap}>
           <SectionTitle
@@ -33,11 +33,11 @@ export default function PartnersSection() {
             title="Veterinarias aliadas"
             subtitle="Clínicas que colaboran con atención prioritaria para mascotas encontradas y en proceso de reencuentro."
           />
-          <HorizontalScroller ariaLabel="Veterinarias aliadas">
+          <AutoScroller ariaLabel="Veterinarias aliadas">
             {mockVeterinaries.map((vet) => (
               <VeterinaryCard key={vet.id} vet={vet} />
             ))}
-          </HorizontalScroller>
+          </AutoScroller>
         </div>
       </div>
     </section>

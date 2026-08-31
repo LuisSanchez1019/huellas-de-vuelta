@@ -1,5 +1,5 @@
 import SectionTitle from "./SectionTitle";
-import HorizontalScroller from "./HorizontalScroller";
+import AutoScroller from "./AutoScroller";
 import AdoptionCard from "./AdoptionCard";
 import { mockAdoptions } from "@/data/mock";
 import styles from "./landing.module.css";
@@ -13,11 +13,11 @@ export default function AdoptionsSection() {
           title="Adopciones destacadas"
           subtitle="Mascotas que ya pasaron por evaluación y esperan un hogar responsable."
         />
-        <HorizontalScroller ariaLabel="Adopciones destacadas">
+        <AutoScroller ariaLabel="Adopciones destacadas">
           {mockAdoptions.map((pet) => (
             <AdoptionCard key={pet.id} pet={pet} />
           ))}
-        </HorizontalScroller>
+        </AutoScroller>
       </div>
     </section>
   );

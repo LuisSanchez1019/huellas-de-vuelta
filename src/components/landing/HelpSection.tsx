@@ -1,5 +1,5 @@
 import SectionTitle from "./SectionTitle";
-import HorizontalScroller from "./HorizontalScroller";
+import AutoScroller from "./AutoScroller";
 import PetCard from "./PetCard";
 import { mockPets } from "@/data/mock";
 import styles from "./landing.module.css";
@@ -13,11 +13,11 @@ export default function HelpSection() {
           title="Mascotas que necesitan ayuda"
           subtitle="Casos recientes de mascotas perdidas y encontradas cerca de ti. Compártelas o repórtalas para acelerar el reencuentro."
         />
-        <HorizontalScroller ariaLabel="Mascotas que necesitan ayuda">
+        <AutoScroller ariaLabel="Mascotas que necesitan ayuda">
           {mockPets.map((pet) => (
             <PetCard key={pet.id} pet={pet} />
           ))}
-        </HorizontalScroller>
+        </AutoScroller>
       </div>
     </section>
   );
