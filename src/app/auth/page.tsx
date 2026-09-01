@@ -7,6 +7,8 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { translateAuthError } from "@/lib/supabase/errors";
+import { resolvePanelSession } from "@/lib/auth/session";
+import { ACCOUNT_ROLES, isAccountRole, roleHome, roleLabels, type AccountRole } from "@/lib/auth/roles";
 import styles from "./page.module.css";
 
 type Mode = "sign-in" | "sign-up";
@@ -29,33 +31,56 @@ function EyeIcon({ hidden }: { hidden: boolean }) {
   );
 }
 
+const ROLE_HINT: Record<AccountRole, string> = {
+  usuario: "Administra las mascotas a tu cuidado y genera sus placas QR.",
+  fundacion: "Gestiona las mascotas de tu fundación, carga masiva y búsqueda de hogar.",
+  veterinaria: "Registra mascotas y publica el perfil de tu veterinaria.",
+};
+
 function AuthForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialMode: Mode = searchParams.get("mode") === "sign-in" ? "sign-in" : "sign-up";
+  const roleParam = searchParams.get("role");
+  const initialRole: AccountRole = isAccountRole(roleParam) ? roleParam : "usuario";
+
   const [mode, setMode] = useState<Mode>(initialMode);
+  const [role, setRole] = useState<AccountRole>(initialRole);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  function handleModeChange(nextMode: Mode) {
-    setMode(nextMode);
+  function resetFeedback() {
     setError(null);
     setMessage(null);
+  }
+
+  function handleModeChange(nextMode: Mode) {
+    setMode(nextMode);
+    resetFeedback();
+  }
+
+  async function goToRoleHome() {
+    // El panel real siempre se decide por el rol de la cuenta autenticada.
+    const check = await resolvePanelSession();
+    const target =
+      check.status === "unauthenticated" ? roleHome[role] : roleHome[check.session.role];
+    router.push(target);
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = event.currentTarget;
-    setError(null);
-    setMessage(null);
+    resetFeedback();
 
     const formData = new FormData(form);
     const email = String(formData.get("email") ?? "").trim();
     const password = String(formData.get("password") ?? "");
-    const displayName = String(formData.get("displayName") ?? "").trim();
+    const firstName = String(formData.get("firstName") ?? "").trim();
+    const lastName = String(formData.get("lastName") ?? "").trim();
+    const displayName = `${firstName} ${lastName}`.trim();
 
     if (password.length < 8) {
       setError("La contraseña debe tener al menos 8 caracteres.");
@@ -80,22 +105,24 @@ function AuthForm() {
           email,
           password,
           options: {
-            data: { display_name: displayName },
+            data: {
+              display_name: displayName,
+              first_name: firstName,
+              last_name: lastName,
+              role,
+            },
             emailRedirectTo: window.location.origin,
           },
         });
 
         if (signUpError) throw signUpError;
 
-        // Limpiamos el formulario tanto si la cuenta quedó activa de inmediato
-        // como si falta confirmar el correo, para no dejar datos sensibles
-        // (contraseña) visibles ni pre-cargados en los campos.
         form.reset();
         setShowPassword(false);
         setShowConfirmPassword(false);
 
         if (data.session) {
-          router.push("/mascotas");
+          await goToRoleHome();
         } else {
           setMessage("Revisa tu correo para confirmar la cuenta antes de iniciar sesión.");
         }
@@ -104,7 +131,7 @@ function AuthForm() {
         if (signInError) throw signInError;
         form.reset();
         setShowPassword(false);
-        router.push("/mascotas");
+        await goToRoleHome();
       }
     } catch (caughtError) {
       setError(translateAuthError(caughtError));
@@ -124,17 +151,37 @@ function AuthForm() {
 
         <p className={styles.eyebrow}>Acceso seguro</p>
         <h1 id="auth-title">{mode === "sign-up" ? "Crea tu cuenta" : "Bienvenido de vuelta"}</h1>
-        <p className={styles.description}>
-          {mode === "sign-up" ? "Guarda tus datos para administrar las mascotas a tu cuidado." : "Inicia sesión para continuar con tus mascotas."}
-        </p>
+        <p className={styles.description}>{ROLE_HINT[role]}</p>
 
         <div className={styles.tabs} role="tablist" aria-label="Opciones de acceso">
           <button className={mode === "sign-up" ? styles.activeTab : styles.tab} onClick={() => handleModeChange("sign-up")} type="button">Crear cuenta</button>
           <button className={mode === "sign-in" ? styles.activeTab : styles.tab} onClick={() => handleModeChange("sign-in")} type="button">Iniciar sesión</button>
         </div>
 
+        <div className={`${styles.tabs} ${styles.roleTabs}`} role="tablist" aria-label="Tipo de cuenta">
+          {ACCOUNT_ROLES.map((value) => (
+            <button
+              key={value}
+              type="button"
+              className={role === value ? styles.activeTab : styles.tab}
+              aria-pressed={role === value}
+              onClick={() => {
+                setRole(value);
+                resetFeedback();
+              }}
+            >
+              {roleLabels[value]}
+            </button>
+          ))}
+        </div>
+
         <form className={styles.form} onSubmit={handleSubmit}>
-          {mode === "sign-up" && <label>Tu nombre<input name="displayName" autoComplete="name" maxLength={80} required /></label>}
+          {mode === "sign-up" && (
+            <div className={styles.nameRow}>
+              <label>Nombre<input name="firstName" autoComplete="given-name" maxLength={60} required /></label>
+              <label>Apellido<input name="lastName" autoComplete="family-name" maxLength={60} required /></label>
+            </div>
+          )}
           <label>Correo electrónico<input name="email" type="email" autoComplete="email" required /></label>
 
           <label>

@@ -1,0 +1,62 @@
+/* Controles compartidos por los paneles nuevos. Replica el lenguaje visual
+   existente (teal primario, hover navy, inputs con foco verde). Las páginas
+   antiguas conservan sus propios módulos: esto no las toca. */
+
+.pageHead { margin-bottom: 1.5rem; }
+.pageTitle { font-size: 1.6rem; letter-spacing: -.03em; color: var(--navy-900); }
+.pageSubtitle { margin-top: .35rem; color: var(--ink-600); font-size: .95rem; max-width: 44rem; line-height: 1.55; }
+
+.notice {
+  margin-bottom: 1.25rem; padding: .8rem .9rem; border-radius: .6rem;
+  background: #fdf3e2; border: 1px solid #f0d9b5; color: #8a5a12; font-size: .88rem; line-height: 1.45;
+}
+.loading { color: var(--ink-600); }
+.empty {
+  margin-top: 1.5rem; padding: 2rem 1.25rem; border: 1px dashed var(--surface-300); border-radius: 1rem;
+  color: var(--ink-600); text-align: center; line-height: 1.55;
+}
+
+.button, .buttonSecondary, .buttonDanger {
+  display: inline-flex; align-items: center; justify-content: center; gap: .4rem;
+  border-radius: .6rem; padding: .7rem 1.1rem; font: inherit; font-weight: 800; cursor: pointer;
+  border: 1px solid transparent; text-decoration: none;
+}
+.button { background: var(--teal-600); color: white; }
+.button:hover:not(:disabled) { background: var(--navy-900); }
+.buttonSecondary { background: white; color: var(--navy-900); border-color: var(--surface-300); font-weight: 700; }
+.buttonSecondary:hover:not(:disabled) { border-color: var(--teal-600); color: var(--teal-600); }
+.buttonDanger { background: #fbe4df; color: #8b3023; border-color: #f0c6bc; }
+.buttonDanger:hover:not(:disabled) { background: #f6d2c9; }
+.button:disabled, .buttonSecondary:disabled, .buttonDanger:disabled { opacity: .6; cursor: not-allowed; }
+
+.buttonRow { display: flex; gap: .75rem; flex-wrap: wrap; }
+
+.field { display: grid; gap: .4rem; color: var(--navy-900); font-size: .92rem; font-weight: 700; }
+.field .hint { font-weight: 500; font-size: .8rem; color: var(--ink-600); }
+.input, .select, .textarea {
+  width: 100%; padding: .8rem; border: 1px solid var(--surface-300); border-radius: .55rem;
+  color: var(--navy-900); background: white; font: inherit; font-weight: 500;
+}
+.textarea { resize: vertical; min-height: 4.5rem; }
+.input:focus, .select:focus, .textarea:focus { outline: 3px solid rgba(47,191,124,.35); border-color: var(--green-500); }
+.input:disabled, .select:disabled, .textarea:disabled { background: var(--surface-100); color: var(--ink-600); cursor: not-allowed; }
+
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+@media (max-width: 34rem) { .row2 { grid-template-columns: 1fr; } }
+
+.section {
+  margin-top: 1.5rem; padding: 1.25rem; border: 1px solid var(--surface-300); border-radius: 1rem; background: white;
+}
+.sectionTitle { font-weight: 800; color: var(--navy-900); font-size: 1rem; }
+.sectionBody { display: grid; gap: 1rem; margin-top: 1rem; }
+
+.statGrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); gap: 1rem; margin-top: 1.5rem; }
+
+.chips { display: flex; flex-wrap: wrap; gap: .5rem; }
+.chip {
+  display: inline-flex; align-items: center; gap: .4rem;
+  padding: .35rem .7rem; border-radius: 999px; background: var(--surface-100);
+  border: 1px solid var(--surface-300); font-size: .82rem; font-weight: 700; color: var(--navy-900);
+}
+.chipRemove { border: 0; background: transparent; color: var(--ink-600); cursor: pointer; font-weight: 900; line-height: 1; }
+.chipRemove:hover { color: #8b3023; }

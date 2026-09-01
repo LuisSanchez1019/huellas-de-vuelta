@@ -1,11 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
-import { useRouter } from "next/navigation";
-import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import PanelShell from "@/components/panel/PanelShell";
-import type { NavEntry, PanelUser } from "@/components/panel/types";
+import { usePanelGuard, toPanelUser } from "@/components/panel/usePanelGuard";
+import type { NavEntry } from "@/components/panel/types";
 import {
   ActivityIcon,
   BellIcon,
@@ -24,8 +22,8 @@ const DASHBOARD_NAV: NavEntry[] = [
     label: "Mis mascotas",
     icon: <PawIcon size={19} />,
     items: [
-      { label: "Mis mascotas", href: "/dashboard/mascotas" },
       { label: "Registrar mascota", href: "/dashboard/mascotas/nueva" },
+      { label: "Mis mascotas", href: "/dashboard/mascotas" },
       { label: "QR / Placa", href: "/dashboard/mascotas/qr" },
     ],
   },
@@ -54,55 +52,10 @@ const DASHBOARD_NAV: NavEntry[] = [
   },
 ];
 
-// Bypass de solo-desarrollo: permite trabajar en las pantallas del panel sin
-// depender de un inicio de sesión real (útil mientras el límite de correos
-// de Supabase está activo). `process.env.NODE_ENV` es reemplazado en tiempo
-// de compilación por Next.js: en cualquier `next build`/producción esto
-// siempre es "production" y la ruta de abajo nunca se activa.
-const DEV_BYPASS_ENABLED = process.env.NODE_ENV !== "production";
-
-const DEV_USER: PanelUser = {
-  id: "dev-preview",
-  email: null,
-  displayName: "Modo desarrollo",
-};
-
 export default function DashboardLayout({ children }: { children: ReactNode }) {
-  const router = useRouter();
-  const [status, setStatus] = useState<"checking" | "ready">("checking");
-  const [user, setUser] = useState<PanelUser | null>(null);
-  const [isDevSession, setIsDevSession] = useState(false);
+  const guard = usePanelGuard("usuario");
 
-  useEffect(() => {
-    const supabase = createSupabaseBrowserClient();
-
-    supabase.auth.getSession().then(({ data }) => {
-      const session = data.session;
-
-      if (session) {
-        const metadataName = session.user.user_metadata?.display_name;
-        setUser({
-          id: session.user.id,
-          email: session.user.email ?? null,
-          displayName: (typeof metadataName === "string" && metadataName.trim()) || session.user.email || "Tu cuenta",
-        });
-        setIsDevSession(false);
-        setStatus("ready");
-        return;
-      }
-
-      if (DEV_BYPASS_ENABLED) {
-        setUser(DEV_USER);
-        setIsDevSession(true);
-        setStatus("ready");
-        return;
-      }
-
-      router.replace("/auth");
-    });
-  }, [router]);
-
-  if (status !== "ready" || !user) {
+  if (guard.status !== "ready") {
     return (
       <main className={styles.checking}>
         <p>Verificando tu sesión…</p>
@@ -112,7 +65,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
   return (
     <PanelShell
-      user={user}
+      user={toPanelUser(guard.session)}
       nav={DASHBOARD_NAV}
       brandHref="/dashboard"
       brandLabel="Huellas de Vuelta"
@@ -122,8 +75,8 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         { label: "Configuración", href: "/dashboard/configuracion/cuenta", icon: <SettingsIcon size={17} /> },
       ]}
       devBanner={
-        isDevSession
-          ? "Modo desarrollo: viendo el panel sin iniciar sesión real (solo visible en npm run dev, nunca en producción)."
+        guard.isDev
+          ? "Modo desarrollo: viendo el panel de Usuario sin iniciar sesión real (solo visible en npm run dev, nunca en producción)."
           : undefined
       }
     >

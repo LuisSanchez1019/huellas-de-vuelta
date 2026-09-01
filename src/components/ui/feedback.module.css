@@ -1,0 +1,95 @@
+/* ---------- Toast (aviso inferior) ---------- */
+.toastViewport {
+  position: fixed; left: 0; right: 0; bottom: 1.25rem; z-index: 100;
+  display: flex; justify-content: center; padding: 0 1rem;
+  pointer-events: none;
+}
+.toast {
+  pointer-events: auto;
+  display: flex; align-items: flex-start; gap: .7rem;
+  width: min(30rem, 100%); padding: .9rem 1rem;
+  border: 1px solid var(--surface-300); border-radius: .85rem;
+  background: white; color: var(--navy-900);
+  box-shadow: 0 1rem 2.75rem rgba(23, 34, 63, .22);
+  font-family: var(--font-body), "Segoe UI", Arial, sans-serif;
+  font-size: .92rem; line-height: 1.45;
+  animation: toastIn .22s ease-out;
+}
+.toastSuccess { border-color: #b6e2c6; background: #eafaf0; color: #0f5132; }
+.toastError { border-color: #f0c6bc; background: #fdece8; color: #8b3023; }
+.toastIcon {
+  flex-shrink: 0; display: grid; place-items: center;
+  width: 1.4rem; height: 1.4rem; border-radius: 50%;
+  color: white; font-size: .8rem; font-weight: 900; line-height: 1;
+}
+.toastSuccess .toastIcon { background: var(--green-500); }
+.toastError .toastIcon { background: #c0392b; }
+.toastMessage { flex: 1; min-width: 0; font-weight: 600; }
+.toastClose {
+  flex-shrink: 0; display: grid; place-items: center;
+  border: 0; padding: .1rem; margin: -.1rem -.15rem 0 0;
+  background: transparent; color: inherit; opacity: .55; cursor: pointer;
+}
+.toastClose:hover { opacity: 1; }
+
+/* ---------- ConfirmDialog (ventana emergente) ---------- */
+.dialogScrim {
+  position: fixed; inset: 0; z-index: 110;
+  display: grid; place-items: center; padding: 1.5rem;
+  background: rgba(23, 34, 63, .45); backdrop-filter: blur(2px);
+  animation: scrimIn .15s ease-out;
+}
+.dialog {
+  width: min(24rem, 100%); padding: 1.5rem;
+  border-radius: 1rem; background: white;
+  box-shadow: 0 1.5rem 3.5rem rgba(23, 34, 63, .32);
+  animation: dialogIn .18s ease-out;
+}
+.dialogTitle {
+  font-family: var(--font-heading), var(--font-body), sans-serif;
+  font-size: 1.15rem; font-weight: 800; letter-spacing: -.02em; color: var(--navy-900);
+}
+.dialogMessage { margin-top: .5rem; color: var(--ink-600); font-size: .92rem; line-height: 1.55; }
+.dialogActions { display: flex; gap: .6rem; justify-content: flex-end; flex-wrap: wrap; margin-top: 1.5rem; }
+.dialogCancel {
+  border: 1px solid var(--surface-300); border-radius: .55rem; padding: .6rem 1rem;
+  background: white; color: var(--navy-900); font: inherit; font-weight: 700; cursor: pointer;
+}
+.dialogCancel:hover { border-color: var(--teal-600); color: var(--teal-600); }
+.dialogConfirm, .dialogConfirmDanger {
+  border: 0; border-radius: .55rem; padding: .6rem 1.1rem;
+  color: white; font: inherit; font-weight: 800; cursor: pointer;
+}
+.dialogConfirm { background: var(--teal-600); }
+.dialogConfirm:hover { background: var(--navy-900); }
+.dialogConfirmDanger { background: #c0392b; }
+.dialogConfirmDanger:hover { background: #a03225; }
+
+/* ---------- Modal genérico (contenido arbitrario) ---------- */
+.modalCard {
+  width: min(34rem, 100%); max-height: min(85vh, 44rem); display: flex; flex-direction: column;
+  border-radius: 1rem; background: white; box-shadow: 0 1.5rem 3.5rem rgba(23, 34, 63, .32);
+  animation: dialogIn .18s ease-out;
+}
+.modalHeader {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem;
+  padding: 1.25rem 1.25rem .75rem;
+}
+.modalTitle {
+  font-family: var(--font-heading), var(--font-body), sans-serif;
+  font-size: 1.1rem; font-weight: 800; letter-spacing: -.02em; color: var(--navy-900);
+}
+.modalClose {
+  flex-shrink: 0; display: grid; place-items: center; width: 1.9rem; height: 1.9rem;
+  border: 0; border-radius: .5rem; background: transparent; color: var(--ink-600); cursor: pointer;
+}
+.modalClose:hover { background: var(--surface-100); color: var(--navy-900); }
+.modalBody { padding: 0 1.25rem 1.25rem; overflow-y: auto; }
+
+@keyframes toastIn { from { transform: translateY(1rem); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+@keyframes scrimIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes dialogIn { from { transform: scale(.96); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .toast, .dialogScrim, .dialog { animation: none; }
+}

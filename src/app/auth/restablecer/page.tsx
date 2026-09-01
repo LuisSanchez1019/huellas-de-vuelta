@@ -6,6 +6,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { translateAuthError } from "@/lib/supabase/errors";
+import { resolvePanelSession } from "@/lib/auth/session";
+import { roleHome } from "@/lib/auth/roles";
 import styles from "../page.module.css";
 
 type Status = "checking" | "ready" | "invalid";
@@ -65,7 +67,9 @@ export default function RestablecerPage() {
       if (updateError) throw updateError;
       form.reset();
       setMessage("Tu contraseña se actualizó correctamente. Redirigiendo…");
-      setTimeout(() => router.push("/mascotas"), 1500);
+      const check = await resolvePanelSession();
+      const target = check.status === "unauthenticated" ? "/auth?mode=sign-in" : roleHome[check.session.role];
+      setTimeout(() => router.push(target), 1500);
     } catch (caughtError) {
       setError(translateAuthError(caughtError));
     } finally {

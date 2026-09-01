@@ -1,0 +1,33 @@
+.thumb {
+  width: 2.6rem; height: 2.6rem; border-radius: .5rem; object-fit: cover;
+  border: 1px solid var(--surface-300); background: var(--surface-100);
+}
+.thumbPlaceholder {
+  display: grid; place-items: center; width: 2.6rem; height: 2.6rem;
+  border-radius: .5rem; border: 1px solid var(--surface-300); background: var(--surface-100); color: var(--teal-600);
+}
+
+.badgeWrap { display: inline-flex; flex-wrap: wrap; gap: .35rem; }
+.badge {
+  display: inline-flex; padding: .2rem .55rem; border-radius: 999px; font-size: .68rem;
+  font-weight: 800; text-transform: uppercase; letter-spacing: .03em; white-space: nowrap;
+}
+.badgeAvailable { color: #0f5132; background: #d9f2e3; }
+.badgeTreatment { color: #7a4e12; background: #fbeacc; }
+.badgeReserved { color: #1f6fb2; background: #dcecfa; }
+.badgeAdopted { color: #48566a; background: var(--surface-300); }
+.badgeHome { color: #8b3023; background: #fbe4df; }
+.badgeSponsor { color: #0b7a72; background: #d4f1ee; }
+
+.actions { display: flex; flex-wrap: wrap; gap: .4rem; }
+.action, .actionDanger, .actionOn {
+  border: 1px solid var(--surface-300); border-radius: .5rem; padding: .4rem .7rem;
+  font: inherit; font-weight: 700; font-size: .8rem; cursor: pointer; background: white; white-space: nowrap;
+  color: var(--navy-900);
+}
+.action:hover:not(:disabled) { border-color: var(--teal-600); color: var(--teal-600); }
+.actionDanger { color: #8b3023; border-color: #f0c6bc; background: #fbe4df; }
+.actionDanger:hover:not(:disabled) { background: #f6d2c9; }
+.actionOn { color: white; background: var(--teal-600); border-color: var(--teal-600); }
+.actionOn:hover:not(:disabled) { background: var(--navy-900); border-color: var(--navy-900); }
+.action:disabled, .actionDanger:disabled, .actionOn:disabled { opacity: .55; cursor: not-allowed; }

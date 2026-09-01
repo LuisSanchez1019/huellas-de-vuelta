@@ -1,0 +1,15 @@
+.hourRow {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr auto auto;
+  gap: .6rem;
+  align-items: center;
+}
+.closedToggle {
+  display: inline-flex; align-items: center; gap: .35rem;
+  font-size: .82rem; font-weight: 700; color: var(--ink-600); white-space: nowrap;
+}
+.serviceAdd { display: flex; gap: .6rem; align-items: center; }
+
+@media (max-width: 40rem) {
+  .hourRow { grid-template-columns: 1fr 1fr; }
+}

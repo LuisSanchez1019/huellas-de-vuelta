@@ -1,13 +1,16 @@
-import { PawIcon } from "@/components/icons/Icon";
-import DashboardPlaceholder from "@/components/dashboard/DashboardPlaceholder";
+import RegisterPetForm from "@/components/mascotas/RegisterPetForm";
+import styles from "@/components/mascotas/registerPet.module.css";
 
 export default function Page() {
   return (
-    <DashboardPlaceholder
-      icon={<PawIcon size={28} />}
-      title="Registrar mascota"
-      text="Aquí podrás registrar una nueva mascota con fotografías y características."
-      step="Paso 4"
-    />
+    <div>
+      <div className={styles.pageHead}>
+        <h1 className={styles.pageTitle}>Registrar mascota</h1>
+        <p className={styles.pageSubtitle}>
+          Completa los datos básicos de tu mascota. Podrás editarlos y añadir más información después.
+        </p>
+      </div>
+      <RegisterPetForm />
+    </div>
   );
 }

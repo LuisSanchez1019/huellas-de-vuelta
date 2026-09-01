@@ -9,6 +9,16 @@
 .signIn:hover { color: var(--teal-600); }
 .signUp { padding:.6rem 1.05rem; border-radius:.6rem; background: var(--teal-600); color:white; font-weight:700; font-size:.92rem; }
 .signUp:hover { background: var(--navy-900); }
+/* Botón temporal de desarrollo: acceso directo al panel sin login. Solo se
+   renderiza cuando NODE_ENV !== "production". Estilo deliberadamente distinto
+   (borde punteado ámbar) para recordar que hay que quitarlo. */
+.devAccess { padding:.55rem .9rem; border:1px dashed #b7791f; border-radius:.6rem; color:#8a5a12; background:#fdf3e2; font-weight:700; font-size:.85rem; cursor:pointer; font:inherit; }
+.devAccess:hover { background:#f9e7c8; }
+.devMenu { position:relative; }
+.devMenuPanel { position:absolute; top:calc(100% + .35rem); right:0; z-index:60; display:grid; min-width:11rem; padding:.3rem; border:1px solid var(--surface-300); border-radius:.6rem; background:white; box-shadow:0 .8rem 2rem rgba(23,34,63,.14); }
+.devMenuItem { text-align:left; border:0; background:transparent; padding:.55rem .7rem; border-radius:.45rem; cursor:pointer; font:inherit; font-weight:700; font-size:.85rem; color:var(--navy-900); }
+.devMenuItem:hover { background:var(--surface-100); color:var(--teal-600); }
+
 .menuToggle { display:none; border:0; background:transparent; cursor:pointer; padding:.4rem; color: var(--navy-900); }
 .mobilePanel { display:none; }
 

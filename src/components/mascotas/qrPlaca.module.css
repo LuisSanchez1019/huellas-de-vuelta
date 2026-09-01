@@ -1,0 +1,62 @@
+.layout {
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 22rem);
+  gap: 1.5rem; align-items: start; margin-top: 1.5rem;
+}
+
+.petList { display: grid; gap: .75rem; }
+.petButton {
+  width: 100%; text-align: left; cursor: pointer; font: inherit;
+  display: flex; gap: 1rem; align-items: flex-start;
+  padding: 1rem; border: 1px solid var(--surface-300); border-radius: 1rem; background: white;
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+.petButton:hover { border-color: var(--teal-600); }
+.petButtonActive { border-color: var(--teal-600); box-shadow: 0 0 0 2px rgba(11, 122, 114, .25); }
+.thumb {
+  flex-shrink: 0; width: 3.5rem; height: 3.5rem; border-radius: .6rem; object-fit: cover;
+  border: 1px solid var(--surface-300); background: var(--surface-100);
+}
+.thumbPlaceholder {
+  flex-shrink: 0; display: grid; place-items: center; width: 3.5rem; height: 3.5rem;
+  border-radius: .6rem; border: 1px solid var(--surface-300); background: var(--surface-100);
+  color: var(--teal-600);
+}
+.petMain { flex: 1; min-width: 0; }
+.petName { font-weight: 800; color: var(--navy-900); letter-spacing: -.01em; }
+.petMeta { margin-top: .2rem; color: var(--ink-600); font-size: .85rem; }
+
+.previewPanel {
+  position: sticky; top: 1.5rem;
+  display: grid; gap: 1rem; justify-items: center; text-align: center;
+  padding: 1.25rem; border: 1px solid var(--surface-300); border-radius: 1rem; background: white;
+  box-shadow: 0 .6rem 1.6rem rgba(23, 34, 63, .06);
+}
+.previewEmpty {
+  padding: 2.5rem 1.25rem; border: 1px dashed var(--surface-300); border-radius: 1rem;
+  color: var(--ink-600); text-align: center;
+}
+.previewBrand {
+  font-size: .7rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--teal-600);
+}
+.previewName { font-weight: 800; color: var(--navy-900); font-size: 1.1rem; letter-spacing: -.02em; }
+.qrFrame {
+  width: 100%; max-width: 15rem; aspect-ratio: 1 / 1; padding: .75rem;
+  border: 1px solid var(--surface-300); border-radius: .75rem; background: white;
+}
+.qrFrame img { width: 100%; height: 100%; display: block; image-rendering: pixelated; }
+.previewUrl {
+  width: 100%; padding: .5rem .6rem; border-radius: .5rem; background: var(--surface-100);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: .72rem; color: var(--ink-600); word-break: break-all;
+}
+.downloadButton {
+  width: 100%; border: 0; border-radius: .6rem; padding: .8rem 1rem;
+  background: var(--teal-600); color: white; font: inherit; font-weight: 800; cursor: pointer;
+}
+.downloadButton:hover { background: var(--navy-900); }
+.hint { color: var(--ink-600); font-size: .8rem; line-height: 1.5; }
+
+@media (max-width: 52rem) {
+  .layout { grid-template-columns: 1fr; }
+  .previewPanel { position: static; }
+}

@@ -42,3 +42,6 @@ next-env.d.ts
 
 # local Claude Code skill packages (not part of the app)
 /.claude/
+
+# local Claude Code agent skill packages (not part of the app)
+/.agents/

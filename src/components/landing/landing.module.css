@@ -108,6 +108,24 @@
   background-blend-mode: multiply; background-color: white; opacity: .88; }
 .qrBadgeCaption { color: var(--ink-600); font-size: .78rem; line-height: 1.4; }
 
+/* ---------- Map section ---------- */
+.mapSection { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: center; }
+.mapHighlights { margin-top: 1.5rem; display: grid; gap: .6rem; }
+.mapHighlight { display: flex; align-items: center; gap: .6rem; color: var(--navy-900); font-weight: 700; font-size: .92rem; }
+.mapCtaRow { display: flex; gap: .75rem; flex-wrap: wrap; margin-top: 1.5rem; }
+.mapVisual { display: block; }
+.mapCanvas { position: relative; height: 15rem; border-radius: 1.25rem; border: 1px solid var(--surface-300); overflow: hidden; box-shadow: 0 1.5rem 3rem rgba(23,34,63,.12); background:
+    radial-gradient(circle at 22% 30%, rgba(20,168,157,.14), transparent 40%),
+    radial-gradient(circle at 80% 70%, rgba(47,191,124,.12), transparent 42%),
+    repeating-linear-gradient(0deg, rgba(23,34,63,.08) 0 1px, transparent 1px 2.5rem),
+    repeating-linear-gradient(90deg, rgba(23,34,63,.08) 0 1px, transparent 1px 2.5rem),
+    white; }
+.mapPin { position: absolute; display: grid; place-items: center; width: 2.1rem; height: 2.1rem; border-radius: 50%; color: white; box-shadow: 0 .5rem 1rem rgba(23,34,63,.25); }
+.mapPinLost { top: 22%; left: 24%; background: #d1543f; }
+.mapPinFound { top: 58%; left: 52%; background: var(--blue-500); }
+.mapPinAlly { top: 34%; left: 74%; background: var(--teal-600); }
+.mapCanvasCaption { margin-top: .9rem; display: flex; align-items: center; gap: .45rem; color: var(--ink-600); font-size: .82rem; }
+
 /* ---------- CTA band ---------- */
 .ctaSection { padding: 3.5rem 1.5rem; background: linear-gradient(120deg, var(--teal-600), var(--green-500)); }
 .ctaInner { max-width: 72rem; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap; }
@@ -137,6 +155,7 @@
 /* ---------- responsive ---------- */
 @media (max-width: 64rem) {
   .qrSection { grid-template-columns: 1fr; }
+  .mapSection { grid-template-columns: 1fr; }
   .footerGrid { grid-template-columns: 1fr 1fr 1fr; }
 }
 @media (max-width: 40rem) {

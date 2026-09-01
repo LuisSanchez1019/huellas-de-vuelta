@@ -1,0 +1,45 @@
+.page { min-height: 100vh; background: var(--surface-100); padding: 2rem 1.5rem 4rem; }
+.inner { max-width: 34rem; margin: 0 auto; }
+.back { color: var(--teal-600); font-weight: 700; font-size: .92rem; }
+.state { margin-top: 3rem; text-align: center; color: var(--ink-600); }
+
+.card {
+  margin-top: 1.5rem; border-radius: 1.5rem; overflow: hidden; background: white;
+  border: 1px solid var(--surface-300); box-shadow: 0 1.5rem 3rem rgba(23, 34, 63, .1);
+}
+.photo {
+  display: flex; align-items: center; justify-content: center;
+  width: 100%; aspect-ratio: 16 / 10; background: linear-gradient(135deg, var(--navy-900), var(--teal-600));
+}
+.photo img { width: 100%; height: 100%; object-fit: cover; }
+.photoIcon { color: rgba(255, 255, 255, .85); }
+.body { padding: 1.5rem 1.5rem 1.75rem; }
+.badge {
+  display: inline-flex; padding: .3rem .7rem; border-radius: 999px; font-size: .72rem;
+  font-weight: 800; letter-spacing: .03em; text-transform: uppercase;
+}
+.badgeAtHome { color: #0f5132; background: #d9f2e3; }
+.badgeLost { color: #8b3023; background: #fbe4df; }
+.badgeFound { color: #1f6fb2; background: #dcecfa; }
+.badgeForAdoption { color: #7a4e12; background: #fbeacc; }
+.name { margin-top: .7rem; font-size: 1.6rem; font-weight: 800; color: var(--navy-900); letter-spacing: -.03em; }
+.meta { margin-top: .3rem; color: var(--ink-600); font-size: .95rem; }
+.desc { margin-top: 1rem; color: var(--navy-900); line-height: 1.6; }
+.detailsGrid { margin-top: 1.5rem; display: grid; gap: .9rem; }
+.detailItem {
+  display: flex; justify-content: space-between; gap: 1rem; padding-bottom: .9rem;
+  border-bottom: 1px solid var(--surface-300); font-size: .9rem;
+}
+.detailItem:last-child { border-bottom: 0; padding-bottom: 0; }
+.detailLabel { flex: 0 1 45%; color: var(--ink-600); }
+.detailValue { flex: 0 1 55%; color: var(--navy-900); font-weight: 700; text-align: right; }
+.privacyNote {
+  display: flex; align-items: flex-start; gap: .6rem; margin-top: 1.5rem; padding: 1rem;
+  border-radius: .75rem; background: var(--surface-100); color: var(--ink-600); font-size: .85rem; line-height: 1.55;
+}
+.inlineIcon { flex-shrink: 0; margin-top: .15rem; color: var(--teal-600); }
+.cta {
+  display: flex; margin-top: 1.25rem; padding: .9rem 1.1rem; border-radius: .7rem;
+  justify-content: center; background: var(--teal-600); color: white; font-weight: 700;
+}
+.cta:hover { background: var(--navy-900); }

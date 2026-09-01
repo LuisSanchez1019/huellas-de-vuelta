@@ -5,6 +5,7 @@ import PartnersSection from "@/components/landing/PartnersSection";
 import AdoptionsSection from "@/components/landing/AdoptionsSection";
 import StatsSection from "@/components/landing/StatsSection";
 import HowItWorksSection from "@/components/landing/HowItWorksSection";
+import MapSection from "@/components/landing/MapSection";
 import QRSection from "@/components/landing/QRSection";
 import CTASection from "@/components/landing/CTASection";
 import Footer from "@/components/landing/Footer";
@@ -20,6 +21,7 @@ export default function Home() {
         <AdoptionsSection />
         <StatsSection />
         <HowItWorksSection />
+        <MapSection />
         <QRSection />
         <CTASection />
       </main>

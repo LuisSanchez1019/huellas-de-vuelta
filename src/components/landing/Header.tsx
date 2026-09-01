@@ -3,6 +3,9 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { ACCOUNT_ROLES, roleHome, roleLabels } from "@/lib/auth/roles";
+import { setDevRole } from "@/lib/auth/session";
 import styles from "./Header.module.css";
 
 const navItems = [
@@ -13,8 +16,22 @@ const navItems = [
   { href: "/mapa", label: "Mapa" },
 ];
 
+// Acceso directo a cada panel sin iniciar sesión, solo para desarrollo. Next.js
+// reemplaza process.env.NODE_ENV en tiempo de compilación: en cualquier
+// `next build`/producción esto es "production" y el menú no se renderiza.
+const DEV_ACCESS = process.env.NODE_ENV !== "production";
+
 export default function Header() {
+  const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [devMenuOpen, setDevMenuOpen] = useState(false);
+
+  function enterPanelAsDev(role: (typeof ACCOUNT_ROLES)[number]) {
+    setDevRole(role);
+    setDevMenuOpen(false);
+    setMenuOpen(false);
+    router.push(roleHome[role]);
+  }
 
   return (
     <header className={styles.header}>
@@ -30,6 +47,34 @@ export default function Header() {
       </nav>
 
       <div className={styles.actions}>
+        {DEV_ACCESS && (
+          <div className={styles.devMenu}>
+            <button
+              type="button"
+              className={styles.devAccess}
+              onClick={() => setDevMenuOpen((value) => !value)}
+              aria-expanded={devMenuOpen}
+              title="Solo desarrollo: entra a un panel sin login"
+            >
+              Panel (dev) ▾
+            </button>
+            {devMenuOpen && (
+              <div className={styles.devMenuPanel} role="menu">
+                {ACCOUNT_ROLES.map((role) => (
+                  <button
+                    key={role}
+                    type="button"
+                    className={styles.devMenuItem}
+                    role="menuitem"
+                    onClick={() => enterPanelAsDev(role)}
+                  >
+                    {roleLabels[role]}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
         <Link className={styles.signIn} href="/auth?mode=sign-in">Iniciar sesión</Link>
         <Link className={styles.signUp} href="/auth?mode=sign-up">Registrarse</Link>
         <button
@@ -50,6 +95,12 @@ export default function Header() {
           {navItems.map((item) => (
             <Link key={item.href} className={styles.navLink} href={item.href} onClick={() => setMenuOpen(false)}>{item.label}</Link>
           ))}
+          {DEV_ACCESS &&
+            ACCOUNT_ROLES.map((role) => (
+              <button key={role} type="button" className={styles.devAccess} onClick={() => enterPanelAsDev(role)}>
+                Panel {roleLabels[role]} (dev)
+              </button>
+            ))}
           <Link className={styles.signIn} href="/auth?mode=sign-in" onClick={() => setMenuOpen(false)}>Iniciar sesión</Link>
         </div>
       )}
