@@ -2,6 +2,7 @@
 
 import { useOrgScope } from "@/components/panel/useOrgScope";
 import OrgDashboardStats from "@/components/mascotas/OrgDashboardStats";
+import OrgStatusCard from "@/components/organizacion/OrgStatusCard";
 import controls from "@/components/ui/controls.module.css";
 
 export default function VeterinariaHomePage() {
@@ -16,6 +17,7 @@ export default function VeterinariaHomePage() {
           perfil público de tu veterinaria.
         </p>
       </div>
+      <OrgStatusCard role="veterinaria" />
       {scope ? <OrgDashboardStats scope={scope} role="veterinaria" /> : <p className={controls.loading}>Cargando…</p>}
     </div>
   );

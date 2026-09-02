@@ -5,11 +5,23 @@ import { Suspense, useCallback, useEffect, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
-import { fetchPets, getPetPhotoSignedUrl } from "@/lib/supabase/pets";
+import { deletePet, fetchPets, getPetPhotoSignedUrl } from "@/lib/supabase/pets";
+import { fetchActiveReportsByPet } from "@/lib/supabase/reports";
 import type { Pet } from "@/lib/supabase/types";
-import { PawIcon } from "@/components/icons/Icon";
-import { ageUnitLabels, sexLabels, speciesLabels, statusLabels } from "@/lib/pets/labels";
-import Toast from "@/components/ui/Toast";
+import type { PetReport } from "@/lib/pets/reports";
+import { ageUnitLabels, catColorLabels, sexLabels, speciesLabels, statusLabels } from "@/lib/pets/labels";
+import {
+  ClockIcon,
+  GenderIcon,
+  HeartIcon,
+  HomeIcon,
+  PawIcon,
+  PinIcon,
+  TagIcon,
+} from "@/components/icons/Icon";
+import Toast, { type ToastState } from "@/components/ui/Toast";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
+import EditPetModal from "@/components/mascotas/EditPetModal";
 import styles from "@/components/mascotas/petsList.module.css";
 import headStyles from "@/components/mascotas/registerPet.module.css";
 
@@ -20,13 +32,21 @@ const badgeClassByStatus: Record<Pet["status"], string> = {
   for_adoption: styles.badgeForAdoption,
 };
 
-function petMeta(pet: Pet): string {
-  const parts: string[] = [pet.species === "other" ? pet.species_other || "Otro" : speciesLabels[pet.species]];
-  if (pet.age_value != null && pet.age_unit) {
-    parts.push(`${pet.age_value} ${ageUnitLabels[pet.age_unit].toLowerCase()}`);
-  }
-  if (pet.sex) parts.push(sexLabels[pet.sex]);
-  return parts.join(" · ");
+function StatusIcon({ status }: { status: Pet["status"] }) {
+  if (status === "for_adoption") return <HeartIcon size={13} />;
+  if (status === "at_home") return <HomeIcon size={13} />;
+  return <PinIcon size={13} />;
+}
+
+function speciesText(pet: Pet): string {
+  return pet.species === "other" ? pet.species_other || "Otro" : speciesLabels[pet.species];
+}
+
+function catColorsText(pet: Pet): string {
+  return [pet.color_primary, pet.color_secondary, pet.color_tertiary]
+    .filter((value): value is string => Boolean(value))
+    .map((value) => catColorLabels[value] ?? value)
+    .join(", ");
 }
 
 function MascotasPanelContent() {
@@ -38,9 +58,14 @@ function MascotasPanelContent() {
   const [session, setSession] = useState<Session | null>(null);
   const [checking, setChecking] = useState(true);
   const [pets, setPets] = useState<Pet[]>([]);
+  const [reports, setReports] = useState<Record<string, PetReport>>({});
   const [photoUrls, setPhotoUrls] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [toast, setToast] = useState<ToastState | null>(null);
+  const [editingPet, setEditingPet] = useState<Pet | null>(null);
+  const [deletingPet, setDeletingPet] = useState<Pet | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     const supabase = createSupabaseBrowserClient();
@@ -56,16 +81,17 @@ function MascotasPanelContent() {
       setError(null);
       try {
         const supabase = createSupabaseBrowserClient();
-        const data = await fetchPets(supabase, { includeArchived: false });
-        setPets(data);
+        const [petList, reportMap] = await Promise.all([
+          fetchPets(supabase, { includeArchived: false }),
+          fetchActiveReportsByPet(supabase),
+        ]);
+        setPets(petList);
+        setReports(reportMap);
 
         const entries = await Promise.all(
-          data
+          petList
             .filter((pet) => pet.photo_path)
-            .map(async (pet) => {
-              const url = await getPetPhotoSignedUrl(supabase, pet.photo_path as string);
-              return [pet.id, url] as const;
-            }),
+            .map(async (pet) => [pet.id, await getPetPhotoSignedUrl(supabase, pet.photo_path as string)] as const),
         );
         setPhotoUrls(Object.fromEntries(entries.filter((entry): entry is [string, string] => entry[1] !== null)));
       } catch (caughtError) {
@@ -79,12 +105,32 @@ function MascotasPanelContent() {
   useEffect(() => {
     if (checking) return;
     if (!session) {
-      // Diferido para cumplir react-hooks/set-state-in-effect (mismo patrón que loadPets).
       Promise.resolve().then(() => setIsLoading(false));
       return;
     }
     loadPets();
   }, [checking, session, loadPets]);
+
+  async function confirmDelete() {
+    if (!deletingPet) return;
+    setIsDeleting(true);
+    try {
+      const supabase = createSupabaseBrowserClient();
+      await deletePet(supabase, deletingPet.id);
+      setToast({ variant: "success", message: `«${deletingPet.name}» se eliminó.` });
+      setDeletingPet(null);
+      await loadPets();
+    } catch (caughtError) {
+      setToast({
+        variant: "error",
+        message: caughtError instanceof Error ? caughtError.message : "No fue posible eliminar la mascota.",
+      });
+    } finally {
+      setIsDeleting(false);
+    }
+  }
+
+  const hasPets = pets.length > 0;
 
   return (
     <div>
@@ -93,15 +139,127 @@ function MascotasPanelContent() {
         <p className={headStyles.pageSubtitle}>Las mascotas que tienes registradas a tu cuidado.</p>
       </div>
 
-      <Link className={styles.newLink} href="/dashboard/mascotas/nueva">+ Registrar mascota</Link>
-
       {!checking && !session && (
         <p className={styles.empty}>Inicia sesión con una cuenta real para ver y registrar tus mascotas.</p>
       )}
 
+      {session && !isLoading && (
+        pets.length === 0 ? (
+          <p className={styles.empty}>
+            Todavía no has registrado ninguna mascota.
+            <br />
+            <Link className={styles.newLink} href="/dashboard/mascotas/nueva">+ Registrar mascota</Link>
+          </p>
+        ) : (
+          <ul className={styles.grid}>
+            {pets.map((pet) => {
+              const report = reports[pet.id];
+              const colors = pet.species === "cat" ? catColorsText(pet) : "";
+              return (
+                <li key={pet.id} className={styles.card}>
+                  {photoUrls[pet.id] ? (
+                    // eslint-disable-next-line @next/next/no-img-element -- URL firmada temporal de Supabase Storage
+                    <img src={photoUrls[pet.id]} alt={`Foto de ${pet.name}`} className={styles.photo} />
+                  ) : (
+                    <span className={styles.photoPlaceholder} aria-hidden="true"><PawIcon size={34} /></span>
+                  )}
+
+                  <div className={styles.main}>
+                    <div className={styles.head}>
+                      <PawIcon size={17} className={styles.headIcon} />
+                      <span className={styles.petName}>{pet.name}</span>
+                    </div>
+
+                    <div className={styles.info}>
+                      <span className={styles.infoRow}>
+                        <PawIcon size={14} /><span>{speciesText(pet)}</span>
+                      </span>
+                      {pet.age_value != null && pet.age_unit && (
+                        <span className={styles.infoRow}>
+                          <ClockIcon size={15} />
+                          <span>{pet.age_value} {ageUnitLabels[pet.age_unit].toLowerCase()}</span>
+                        </span>
+                      )}
+                      {pet.sex && (
+                        <span className={styles.infoRow}>
+                          <GenderIcon size={15} /><span>{sexLabels[pet.sex]}</span>
+                        </span>
+                      )}
+                      {pet.species === "dog" && pet.breed && (
+                        <span className={styles.infoRow}>
+                          <TagIcon size={15} /><span>{pet.breed}</span>
+                        </span>
+                      )}
+                      {colors && (
+                        <span className={styles.infoRow}>
+                          <TagIcon size={15} /><span>{colors}</span>
+                        </span>
+                      )}
+                      {pet.status === "lost" && report && (
+                        <span className={styles.infoRow}>
+                          <PinIcon size={15} /><span>{report.city} · {report.neighborhood}</span>
+                        </span>
+                      )}
+                    </div>
+
+                    <div className={styles.footer}>
+                      <span className={`${styles.statusBadge} ${badgeClassByStatus[pet.status]}`}>
+                        <StatusIcon status={pet.status} />
+                        {statusLabels[pet.status]}
+                      </span>
+                      <div className={styles.actions}>
+                        <button type="button" className={styles.actionEdit} onClick={() => setEditingPet(pet)}>
+                          Editar
+                        </button>
+                        <button type="button" className={styles.actionDelete} onClick={() => setDeletingPet(pet)}>
+                          Eliminar
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        )
+      )}
+
+      {session && isLoading && <p className={styles.loading}>Cargando mascotas…</p>}
+
+      {editingPet && (
+        <EditPetModal
+          pet={editingPet}
+          activeReport={reports[editingPet.id] ?? null}
+          onClose={() => setEditingPet(null)}
+          onSaved={(name) => {
+            setEditingPet(null);
+            setToast({ variant: "success", message: `Los cambios de «${name}» se guardaron.` });
+            loadPets();
+          }}
+        />
+      )}
+
+      <ConfirmDialog
+        open={Boolean(deletingPet)}
+        title="Eliminar mascota"
+        message={
+          deletingPet
+            ? `Se eliminará «${deletingPet.name}» de forma permanente.` +
+              (reports[deletingPet.id] ? " También se eliminará su reporte de mascota perdida activo." : "")
+            : ""
+        }
+        confirmLabel={isDeleting ? "Eliminando…" : "Sí, eliminar"}
+        cancelLabel="Cancelar"
+        tone="danger"
+        onConfirm={confirmDelete}
+        onCancel={() => setDeletingPet(null)}
+      />
+
       {error ? (
         <Toast variant="error" message={error} onClose={() => setError(null)} />
-      ) : createdName ? (
+      ) : toast ? (
+        <Toast variant={toast.variant} message={toast.message} onClose={() => setToast(null)} />
+      ) : createdName && hasPets ? (
         <Toast
           variant="success"
           message={
@@ -112,35 +270,6 @@ function MascotasPanelContent() {
           duration={7000}
         />
       ) : null}
-
-      {session && (
-        isLoading ? (
-          <p className={styles.loading}>Cargando mascotas…</p>
-        ) : pets.length === 0 ? (
-          <p className={styles.empty}>Todavía no has registrado ninguna mascota.</p>
-        ) : (
-          <ul className={styles.grid}>
-            {pets.map((pet) => (
-              <li key={pet.id} className={styles.card}>
-                {photoUrls[pet.id] ? (
-                  // eslint-disable-next-line @next/next/no-img-element -- URL firmada temporal de Supabase Storage
-                  <img src={photoUrls[pet.id]} alt={`Foto de ${pet.name}`} className={styles.thumb} />
-                ) : (
-                  <span className={styles.thumbPlaceholder} aria-hidden="true"><PawIcon size={26} /></span>
-                )}
-                <div className={styles.cardMain}>
-                  <div className={styles.cardTop}>
-                    <span className={styles.petName}>{pet.name}</span>
-                    <span className={`${styles.badge} ${badgeClassByStatus[pet.status]}`}>{statusLabels[pet.status]}</span>
-                  </div>
-                  <p className={styles.meta}>{petMeta(pet)}</p>
-                  {pet.description && <p className={styles.desc}>{pet.description}</p>}
-                </div>
-              </li>
-            ))}
-          </ul>
-        )
-      )}
     </div>
   );
 }

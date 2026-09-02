@@ -4,7 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { BellIcon, ChevronDownIcon, CloseIcon, LogoutIcon, MenuIcon } from "@/components/icons/Icon";
+import { ChevronDownIcon, CloseIcon, LogoutIcon, MenuIcon } from "@/components/icons/Icon";
+import NotificationsBell from "./NotificationsBell";
 import type { PanelUser } from "./types";
 import styles from "./PanelHeader.module.css";
 
@@ -71,9 +72,7 @@ export default function PanelHeader({
 
       <div className={styles.actions}>
         {notificationsHref && (
-          <Link className={styles.notifButton} href={notificationsHref} aria-label="Notificaciones">
-            <BellIcon size={21} />
-          </Link>
+          <NotificationsBell href={notificationsHref} className={styles.notifButton} />
         )}
 
         <div className={styles.userMenu} ref={menuRef}>

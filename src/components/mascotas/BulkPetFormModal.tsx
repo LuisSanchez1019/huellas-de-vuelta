@@ -2,12 +2,26 @@
 
 import { type FormEvent, useEffect, useState } from "react";
 import Modal from "@/components/ui/Modal";
+import PetPhotoInput, { type PreparedPhoto } from "./PetPhotoInput";
 import { speciesLabels, sexLabels } from "@/lib/pets/labels";
 import { bulkStatusLabels, bulkStatusOptions, type BulkPet, type BulkPetInput } from "@/lib/pets/bulkPets";
 import type { PetSex, PetSpecies } from "@/lib/supabase/types";
 import controls from "@/components/ui/controls.module.css";
 
-type Mode = "view" | "edit";
+type Mode = "view" | "edit" | "create";
+
+const EMPTY_FORM: BulkPetInput = {
+  name: "",
+  species: "dog",
+  speciesOther: null,
+  breed: null,
+  age: null,
+  sex: "unspecified",
+  status: "available",
+  photoUrl: null,
+  photoPath: null,
+  intakeDate: new Date().toISOString().slice(0, 10),
+};
 
 export default function BulkPetFormModal({
   open,
@@ -15,20 +29,32 @@ export default function BulkPetFormModal({
   pet,
   onClose,
   onSave,
+  onCreate,
+  photoPreviewUrl = null,
 }: {
   open: boolean;
   mode: Mode;
   pet: BulkPet | null;
   onClose: () => void;
-  onSave: (id: string, patch: Partial<BulkPetInput>) => Promise<void>;
+  onSave: (id: string, patch: Partial<BulkPetInput>, photo: PreparedPhoto | null) => Promise<void>;
+  onCreate?: (input: BulkPetInput, photo: PreparedPhoto | null) => Promise<void>;
+  photoPreviewUrl?: string | null;
 }) {
   const [form, setForm] = useState<BulkPetInput | null>(null);
+  const [photo, setPhoto] = useState<PreparedPhoto | null>(null);
+  const [photoError, setPhotoError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Diferido para cumplir react-hooks/set-state-in-effect (patrón del repo).
     Promise.resolve().then(() => {
+      setPhoto(null);
+      setPhotoError(null);
+      setError(null);
+      if (mode === "create") {
+        setForm({ ...EMPTY_FORM });
+        return;
+      }
       if (!pet) {
         setForm(null);
         return;
@@ -42,47 +68,14 @@ export default function BulkPetFormModal({
         sex: pet.sex,
         status: pet.status,
         photoUrl: pet.photoUrl,
+        photoPath: pet.photoPath,
         intakeDate: pet.intakeDate,
       });
-      setError(null);
     });
-  }, [pet]);
-
-  if (!pet || !form) return null;
-
-  function update<K extends keyof BulkPetInput>(key: K, value: BulkPetInput[K]) {
-    setForm((current) => (current ? { ...current, [key]: value } : current));
-  }
-
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (!form || !pet) return;
-    if (!form.name.trim()) {
-      setError("El nombre es obligatorio.");
-      return;
-    }
-    setIsSaving(true);
-    setError(null);
-    try {
-      await onSave(pet.id, {
-        name: form.name.trim(),
-        species: form.species,
-        speciesOther: form.species === "other" ? (form.speciesOther ?? null) : null,
-        breed: form.breed?.trim() || null,
-        age: form.age?.trim() || null,
-        sex: form.sex,
-        status: form.status,
-        photoUrl: form.photoUrl?.trim() || null,
-      });
-      onClose();
-    } catch (caughtError) {
-      setError(caughtError instanceof Error ? caughtError.message : "No fue posible guardar los cambios.");
-    } finally {
-      setIsSaving(false);
-    }
-  }
+  }, [pet, mode, open]);
 
   if (mode === "view") {
+    if (!pet) return null;
     return (
       <Modal open={open} title={pet.name} onClose={onClose}>
         <dl className={controls.sectionBody}>
@@ -100,9 +93,61 @@ export default function BulkPetFormModal({
     );
   }
 
+  if (!form) return null;
+
+  function update<K extends keyof BulkPetInput>(key: K, value: BulkPetInput[K]) {
+    setForm((current) => (current ? { ...current, [key]: value } : current));
+  }
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!form) return;
+    if (!form.name.trim()) {
+      setError("El nombre es obligatorio.");
+      return;
+    }
+    if (photoError) {
+      setError(photoError);
+      return;
+    }
+    setIsSaving(true);
+    setError(null);
+    try {
+      const payload: BulkPetInput = {
+        name: form.name.trim(),
+        species: form.species,
+        speciesOther: form.species === "other" ? (form.speciesOther?.trim() || null) : null,
+        breed: form.breed?.trim() || null,
+        age: form.age?.trim() || null,
+        sex: form.sex,
+        status: form.status,
+        photoUrl: form.photoUrl,
+        photoPath: form.photoPath,
+        intakeDate: form.intakeDate,
+      };
+      if (mode === "create") {
+        await onCreate?.(payload, photo);
+      } else if (pet) {
+        await onSave(pet.id, payload, photo);
+      }
+      onClose();
+    } catch (caughtError) {
+      setError(caughtError instanceof Error ? caughtError.message : "No fue posible guardar los cambios.");
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
   return (
-    <Modal open={open} title={`Editar a ${pet.name}`} onClose={onClose}>
+    <Modal open={open} title={mode === "create" ? "Agregar mascota" : `Editar a ${pet?.name ?? ""}`} onClose={onClose}>
       <form className={controls.sectionBody} onSubmit={handleSubmit}>
+        <PetPhotoInput
+          initialPreviewUrl={mode === "edit" ? photoPreviewUrl : null}
+          onChange={setPhoto}
+          onError={setPhotoError}
+          disabled={isSaving}
+        />
+
         <label className={controls.field}>
           Nombre
           <input className={controls.input} value={form.name} onChange={(e) => update("name", e.target.value)} maxLength={80} />
@@ -151,14 +196,16 @@ export default function BulkPetFormModal({
             </select>
           </label>
           <label className={controls.field}>
-            Foto (URL)
-            <input className={controls.input} value={form.photoUrl ?? ""} onChange={(e) => update("photoUrl", e.target.value)} placeholder="https://…" />
+            Fecha de ingreso
+            <input className={controls.input} type="date" value={form.intakeDate ?? ""} onChange={(e) => update("intakeDate", e.target.value)} />
           </label>
         </div>
-        {error && <p style={{ color: "#8b3023", fontWeight: 600, fontSize: ".85rem" }}>{error}</p>}
+        {(error || photoError) && (
+          <p style={{ color: "#8b3023", fontWeight: 600, fontSize: ".85rem" }}>{error || photoError}</p>
+        )}
         <div className={controls.buttonRow}>
           <button type="submit" className={controls.button} disabled={isSaving}>
-            {isSaving ? "Guardando…" : "Guardar cambios"}
+            {isSaving ? "Guardando…" : mode === "create" ? "Guardar mascota" : "Guardar cambios"}
           </button>
           <button type="button" className={controls.buttonSecondary} onClick={onClose} disabled={isSaving}>
             Cancelar

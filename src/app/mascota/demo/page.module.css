@@ -17,7 +17,8 @@
 .detailValue { flex: 0 1 55%; min-width: 0; color: var(--navy-900); font-weight: 700; text-align: right; }
 .privacyNote { display:flex; align-items:flex-start; gap:.6rem; margin-top: 1.5rem; padding: 1rem; border-radius: .75rem; background: var(--surface-100); color: var(--ink-600); font-size: .85rem; line-height: 1.55; }
 .inlineIcon { flex-shrink: 0; margin-top: .15rem; color: var(--teal-600); }
-.contactCta { display: flex; margin-top: 1.25rem; padding: .9rem 1.1rem; border-radius: .7rem; justify-content: center; background: var(--teal-600); color: white; font-weight: 700; }
+.contactCta { display: flex; align-items: center; gap: .45rem; margin-top: 1.25rem; padding: .9rem 1.1rem; border-radius: .7rem; justify-content: center; background: var(--teal-600); color: white; font-weight: 700; }
+.contactCta svg { flex-shrink: 0; }
 .contactCta:hover { background: var(--navy-900); }
 .explainer { margin-top: 1.5rem; padding: 1rem 1.25rem; border-radius: .9rem; background: white; border: 1px dashed var(--surface-300); color: var(--ink-600); font-size: .85rem; line-height: 1.6; }
 .explainer strong { color: var(--navy-900); }

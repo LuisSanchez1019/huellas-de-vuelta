@@ -48,7 +48,25 @@ export default function VeterinariaMiPerfilPage() {
           <div className={controls.buttonRow}>
             <Link href="/veterinaria/perfil/crear" className={controls.buttonSecondary}>Editar perfil</Link>
             <span className={controls.chip}>{profile.status === "published" ? "Publicado" : "Borrador"}</span>
+            <span className={controls.chip}>
+              {profile.approvalStatus === "approved" && profile.isActive
+                ? "Verificado por administrador"
+                : profile.approvalStatus === "approved" && !profile.isActive
+                  ? "Inactiva"
+                  : profile.approvalStatus === "rejected"
+                    ? "Revisión rechazada"
+                    : "En revisión"}
+            </span>
           </div>
+          {profile.status === "published" && !(profile.approvalStatus === "approved" && profile.isActive) && (
+            <p className={controls.notice}>
+              {profile.approvalStatus === "rejected"
+                ? `Huellas de Vuelta no aprobó este perfil${profile.rejectionReason ? `: ${profile.rejectionReason}` : "."}`
+                : profile.approvalStatus === "approved" && !profile.isActive
+                  ? "Tu organización está actualmente inactiva y no aparece públicamente."
+                  : "Tu perfil está publicado y en revisión. Aparecerá en el directorio público cuando el equipo de Huellas de Vuelta lo apruebe."}
+            </p>
+          )}
 
           <section className={controls.section}>
             <p className={controls.sectionTitle}>{profile.name}</p>

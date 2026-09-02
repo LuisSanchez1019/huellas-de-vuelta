@@ -34,10 +34,20 @@ export async function createPet(supabase: SupabaseClient, ownerId: string, input
   return data as Pet;
 }
 
-export async function updatePet(supabase: SupabaseClient, id: string, input: PetInput): Promise<Pet> {
+export async function updatePet(
+  supabase: SupabaseClient,
+  id: string,
+  input: Partial<PetInput>,
+): Promise<Pet> {
   const { data, error } = await supabase.from(TABLE).update(input).eq("id", id).select().single();
   if (error) throw error;
   return data as Pet;
+}
+
+/** Borra la mascota. `pet_reports` se elimina en cascada, evitando reportes huerfanos. */
+export async function deletePet(supabase: SupabaseClient, id: string): Promise<void> {
+  const { error } = await supabase.from(TABLE).delete().eq("id", id);
+  if (error) throw error;
 }
 
 export async function setPetArchived(supabase: SupabaseClient, id: string, isArchived: boolean): Promise<Pet> {
@@ -98,6 +108,13 @@ export interface PublicPet {
   description: string | null;
   status: PetStatus;
   photoPath: string | null;
+  /** Datos del reporte de pérdida activo (solo si `status === "lost"`). */
+  reportId: string | null;
+  reportStage: string | null;
+  lostCity: string | null;
+  lostNeighborhood: string | null;
+  lostDetails: string | null;
+  reportedAt: string | null;
 }
 
 /**
@@ -124,6 +141,12 @@ export async function fetchPublicPet(supabase: SupabaseClient, publicId: string)
     description: (row.description as string) ?? null,
     status: row.status as PetStatus,
     photoPath: (row.photo_path as string) ?? null,
+    reportId: (row.report_id as string) ?? null,
+    reportStage: (row.report_stage as string) ?? null,
+    lostCity: (row.lost_city as string) ?? null,
+    lostNeighborhood: (row.lost_neighborhood as string) ?? null,
+    lostDetails: (row.lost_details as string) ?? null,
+    reportedAt: (row.reported_at as string) ?? null,
   };
 }
 

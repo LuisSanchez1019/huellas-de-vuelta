@@ -6,9 +6,13 @@ import DataTable, { type DataTableColumn, type DataTableFilter } from "@/compone
 import Toast, { type ToastState } from "@/components/ui/Toast";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import BulkPetFormModal from "./BulkPetFormModal";
+import type { PreparedPhoto } from "./PetPhotoInput";
 import { speciesLabels, sexLabels } from "@/lib/pets/labels";
-import { bulkPetRepository } from "@/lib/pets/bulkPetRepository";
+import { bulkPetRepository, uploadOrgPetPhoto } from "@/lib/pets/bulkPetRepository";
 import { bulkStatusLabels, type BulkPet, type BulkPetInput, type OrgKind, type OrgScope } from "@/lib/pets/bulkPets";
+import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
+import { getPetPhotoSignedUrl } from "@/lib/supabase/pets";
+import { getSupabaseUserId } from "@/lib/auth/session";
 import controls from "@/components/ui/controls.module.css";
 import styles from "./bulkPetTable.module.css";
 
@@ -21,11 +25,13 @@ const STATUS_BADGE: Record<BulkPet["status"], string> = {
 
 export default function BulkPetTable({ scope, role }: { scope: OrgScope; role: OrgKind }) {
   const [pets, setPets] = useState<BulkPet[]>([]);
+  const [photoUrls, setPhotoUrls] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [toast, setToast] = useState<ToastState | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [viewPet, setViewPet] = useState<BulkPet | null>(null);
   const [editPet, setEditPet] = useState<BulkPet | null>(null);
+  const [createOpen, setCreateOpen] = useState(false);
   const [deletePet, setDeletePet] = useState<BulkPet | null>(null);
 
   const scopeKey = `${scope.kind}:${scope.id}`;
@@ -34,7 +40,17 @@ export default function BulkPetTable({ scope, role }: { scope: OrgScope; role: O
     return Promise.resolve().then(async () => {
       setIsLoading(true);
       try {
-        setPets(await bulkPetRepository.list(scope));
+        const list = await bulkPetRepository.list(scope);
+        setPets(list);
+        if (await getSupabaseUserId()) {
+          const supabase = createSupabaseBrowserClient();
+          const entries = await Promise.all(
+            list
+              .filter((pet) => pet.photoPath)
+              .map(async (pet) => [pet.id, await getPetPhotoSignedUrl(supabase, pet.photoPath as string)] as const),
+          );
+          setPhotoUrls(Object.fromEntries(entries.filter((e): e is [string, string] => e[1] !== null)));
+        }
       } catch {
         setToast({ variant: "error", message: "No fue posible cargar las mascotas." });
       } finally {
@@ -71,10 +87,27 @@ export default function BulkPetTable({ scope, role }: { scope: OrgScope; role: O
     }
   }
 
-  async function handleSave(id: string, patch: Partial<BulkPetInput>) {
-    await bulkPetRepository.update(scope, id, patch);
+  async function handleSave(id: string, patch: Partial<BulkPetInput>, photo: PreparedPhoto | null) {
+    let nextPatch = patch;
+    if (photo && (await getSupabaseUserId())) {
+      const supabase = createSupabaseBrowserClient();
+      const path = await uploadOrgPetPhoto(supabase, scope.id, id, photo.blob, photo.contentType);
+      nextPatch = { ...patch, photoPath: path };
+    }
+    await bulkPetRepository.update(scope, id, nextPatch);
     await reload();
     setToast({ variant: "success", message: "Mascota actualizada." });
+  }
+
+  async function handleCreate(input: BulkPetInput, photo: PreparedPhoto | null) {
+    const [created] = await bulkPetRepository.createMany(scope, [input]);
+    if (created && photo && (await getSupabaseUserId())) {
+      const supabase = createSupabaseBrowserClient();
+      const path = await uploadOrgPetPhoto(supabase, scope.id, created.id, photo.blob, photo.contentType);
+      await bulkPetRepository.update(scope, created.id, { photoPath: path });
+    }
+    await reload();
+    setToast({ variant: "success", message: `${input.name} se agregó a la lista.` });
   }
 
   async function confirmDelete() {
@@ -97,13 +130,15 @@ export default function BulkPetTable({ scope, role }: { scope: OrgScope; role: O
       {
         key: "photo",
         header: "Foto",
-        render: (pet) =>
-          pet.photoUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element -- URL provista por la organización
-            <img src={pet.photoUrl} alt={pet.name} className={styles.thumb} />
+        render: (pet) => {
+          const url = photoUrls[pet.id] ?? pet.photoUrl;
+          return url ? (
+            // eslint-disable-next-line @next/next/no-img-element -- URL firmada de Storage o URL de la organización
+            <img src={url} alt={pet.name} className={styles.thumb} />
           ) : (
             <span className={styles.thumbPlaceholder} aria-hidden="true"><PawIcon size={18} /></span>
-          ),
+          );
+        },
       },
       { key: "name", header: "Nombre", render: (pet) => <strong>{pet.name}</strong> },
       {
@@ -163,7 +198,7 @@ export default function BulkPetTable({ scope, role }: { scope: OrgScope; role: O
     });
     return base;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [role, busyId]);
+  }, [role, busyId, photoUrls]);
 
   const filters = useMemo<DataTableFilter<BulkPet>[] | undefined>(() => {
     if (role !== "fundacion") return undefined;
@@ -173,12 +208,21 @@ export default function BulkPetTable({ scope, role }: { scope: OrgScope; role: O
     ];
   }, [role]);
 
-  if (isLoading) return <p className={controls.loading}>Cargando mascotas…</p>;
-
   return (
     <>
-      {pets.length === 0 ? (
-        <p className={controls.empty}>Todavía no hay mascotas cargadas. Usa “Cargar mascotas” para importarlas desde Excel.</p>
+      <div className={controls.buttonRow} style={{ marginBottom: "1.25rem" }}>
+        <button type="button" className={controls.button} onClick={() => setCreateOpen(true)}>
+          Agregar mascota
+        </button>
+      </div>
+
+      {isLoading ? (
+        <p className={controls.loading}>Cargando mascotas…</p>
+      ) : pets.length === 0 ? (
+        <p className={controls.empty}>
+          Todavía no hay mascotas. Usa “Agregar mascota” para registrarlas una por una, o “Cargar
+          mascotas” para importarlas desde Excel.
+        </p>
       ) : (
         <DataTable
           columns={columns}
@@ -192,7 +236,22 @@ export default function BulkPetTable({ scope, role }: { scope: OrgScope; role: O
       )}
 
       <BulkPetFormModal open={Boolean(viewPet)} mode="view" pet={viewPet} onClose={() => setViewPet(null)} onSave={handleSave} />
-      <BulkPetFormModal open={Boolean(editPet)} mode="edit" pet={editPet} onClose={() => setEditPet(null)} onSave={handleSave} />
+      <BulkPetFormModal
+        open={Boolean(editPet)}
+        mode="edit"
+        pet={editPet}
+        photoPreviewUrl={editPet ? (photoUrls[editPet.id] ?? editPet.photoUrl) : null}
+        onClose={() => setEditPet(null)}
+        onSave={handleSave}
+      />
+      <BulkPetFormModal
+        open={createOpen}
+        mode="create"
+        pet={null}
+        onClose={() => setCreateOpen(false)}
+        onSave={handleSave}
+        onCreate={handleCreate}
+      />
 
       <ConfirmDialog
         open={Boolean(deletePet)}

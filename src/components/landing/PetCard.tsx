@@ -1,30 +1,64 @@
 import Link from "next/link";
-import type { MockPet } from "@/data/mock";
-import { PawIcon, PinIcon } from "@/components/icons/Icon";
+import { ClockIcon, GenderIcon, PawIcon, PinIcon, TagIcon } from "@/components/icons/Icon";
 import styles from "./landing.module.css";
 
-export default function PetCard({ pet }: { pet: MockPet }) {
-  const isLost = pet.status === "lost";
+export interface LostPetCardData {
+  publicId: string;
+  name: string;
+  typeLabel: string;
+  breed: string | null;
+  age: string | null;
+  sex: string | null;
+  location: string;
+  reportedAgo: string;
+  photoUrl?: string | null;
+}
+
+export default function PetCard({ pet }: { pet: LostPetCardData }) {
   return (
     <article className={styles.petCard} role="listitem">
-      <div
-        className={styles.avatar}
-        style={{ background: `linear-gradient(135deg, ${pet.colorFrom}, ${pet.colorTo})` }}
-        aria-hidden="true"
-      >
-        <PawIcon size={38} className={styles.avatarIcon} />
-      </div>
-      <span className={isLost ? `${styles.petBadge} ${styles.petBadgeLost}` : `${styles.petBadge} ${styles.petBadgeFound}`}>
-        {isLost ? "Perdido" : "Encontrado"}
-      </span>
-      <div className={styles.petBody}>
-        <p className={styles.petName}>{pet.name}</p>
-        <p className={styles.petMeta}>{pet.species} · {pet.breed}</p>
-        <p className={styles.petLocation}>
-          <PinIcon size={14} className={styles.inlineIcon} />
-          {pet.location} · {pet.reportedAgo}
-        </p>
-        <Link className={styles.petCta} href="/auth?mode=sign-up">Ayudar a encontrarla →</Link>
+      {pet.photoUrl ? (
+        // eslint-disable-next-line @next/next/no-img-element -- URL firmada temporal de Supabase Storage
+        <img src={pet.photoUrl} alt={`Foto de ${pet.name}`} className={styles.petPhoto} />
+      ) : (
+        <span className={styles.petPhotoPlaceholder} aria-hidden="true"><PawIcon size={30} /></span>
+      )}
+
+      <div className={styles.petMain}>
+        <div className={styles.petHead}>
+          <span className={styles.petName}>{pet.name}</span>
+          <span className={`${styles.petBadge} ${styles.petBadgeLost}`}>Perdido</span>
+        </div>
+
+        <div className={styles.petInfo}>
+          <span className={styles.petInfoRow}>
+            <PawIcon size={13} /><span>{pet.typeLabel}</span>
+          </span>
+          {pet.age && (
+            <span className={styles.petInfoRow}>
+              <ClockIcon size={13} /><span>{pet.age}</span>
+            </span>
+          )}
+          {pet.sex && (
+            <span className={styles.petInfoRow}>
+              <GenderIcon size={13} /><span>{pet.sex}</span>
+            </span>
+          )}
+          {pet.breed && (
+            <span className={styles.petInfoRow}>
+              <TagIcon size={13} /><span>{pet.breed}</span>
+            </span>
+          )}
+          <span className={styles.petInfoRow}>
+            <PinIcon size={13} /><span>{pet.location}</span>
+          </span>
+        </div>
+
+        <p className={styles.petDate}>Reportada {pet.reportedAgo}</p>
+        <Link className={styles.petFoundCta} href={`/m/${pet.publicId}`}>
+          <PawIcon size={14} />
+          Encontré esta mascota
+        </Link>
       </div>
     </article>
   );

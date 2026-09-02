@@ -1,39 +1,95 @@
 .newLink {
-  display: inline-flex; margin-top: 1.5rem; padding: .75rem 1.1rem; border-radius: .6rem;
-  color: white; background: var(--teal-600); font-weight: 700;
+  display: inline-flex; align-items: center; gap: .4rem;
+  margin-top: 1rem; padding: .7rem 1.15rem; border-radius: .65rem;
+  color: white; background: var(--teal-600); font-weight: 800;
 }
 .newLink:hover { background: var(--navy-900); }
 
 .loading, .empty {
-  margin-top: 2rem; padding: 1.5rem; border: 1px dashed var(--surface-300); border-radius: 1rem;
-  color: var(--ink-600); text-align: center;
+  margin-top: 2rem; padding: 2rem 1.5rem; border: 1px dashed var(--surface-300); border-radius: 1rem;
+  color: var(--ink-600); text-align: center; line-height: 1.6;
 }
 
-.grid { display: grid; gap: 1rem; margin-top: 1.5rem; list-style: none; }
+/* ---------- cuadrícula de tarjetas (compactas y horizontales) ---------- */
+.grid {
+  list-style: none;
+  margin: 1.75rem 0 0;
+  display: grid;
+  gap: 1.25rem;
+  grid-template-columns: repeat(auto-fill, minmax(19rem, 1fr));
+}
+
 .card {
-  padding: 1.25rem; border: 1px solid var(--surface-300); border-radius: 1rem;
-  background: rgba(255,255,255,.9); box-shadow: 0 .6rem 1.6rem rgba(23,34,63,.06);
-  display: flex; gap: 1rem; align-items: flex-start;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--surface-300);
+  border-radius: 1rem;
+  background: white;
+  box-shadow: 0 .6rem 1.6rem rgba(23, 34, 63, .06);
+  transition: transform .18s ease, box-shadow .18s ease;
 }
-.thumb {
-  flex-shrink: 0; width: 4.5rem; height: 4.5rem; border-radius: .75rem; object-fit: cover;
-  border: 1px solid var(--surface-300); background: var(--surface-100);
+.card:hover { transform: translateY(-.15rem); box-shadow: 0 1rem 2.2rem rgba(23, 34, 63, .11); }
+
+.photo,
+.photoPlaceholder {
+  width: 7.5rem;
+  height: 7.5rem;
+  border-radius: .8rem;
+  align-self: start;
 }
-.thumbPlaceholder {
-  flex-shrink: 0; display: grid; place-items: center; width: 4.5rem; height: 4.5rem;
-  border-radius: .75rem; border: 1px solid var(--surface-300); background: var(--surface-100);
-  color: var(--teal-600);
+.photo { object-fit: cover; border: 1px solid var(--surface-300); background: var(--surface-100); }
+.photoPlaceholder {
+  display: grid; place-items: center;
+  border: 1px solid var(--surface-300);
+  background: linear-gradient(135deg, var(--navy-900), var(--teal-600));
+  color: rgba(255, 255, 255, .9);
 }
-.cardMain { flex: 1; min-width: 0; }
-.cardTop { display: flex; align-items: baseline; justify-content: space-between; gap: .75rem; }
-.petName { font-size: 1.15rem; font-weight: 800; letter-spacing: -.02em; }
-.badge {
-  padding: .25rem .6rem; border-radius: 999px; font-size: .72rem; font-weight: 800;
-  text-transform: uppercase; letter-spacing: .04em; white-space: nowrap;
+
+.main { min-width: 0; display: flex; flex-direction: column; gap: .5rem; }
+
+.head { display: flex; align-items: center; gap: .45rem; }
+.headIcon { flex-shrink: 0; color: var(--teal-600); }
+.petName {
+  font-size: 1.1rem; font-weight: 800; color: var(--navy-900); letter-spacing: -.02em;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+.info { display: grid; gap: .3rem; }
+.infoRow { display: flex; align-items: center; gap: .5rem; color: var(--navy-900); font-size: .88rem; min-width: 0; }
+.infoRow svg { flex-shrink: 0; color: var(--ink-600); }
+.infoRow span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.footer {
+  margin-top: auto;
+  display: flex; align-items: center; justify-content: space-between; gap: .5rem; flex-wrap: wrap;
+  padding-top: .3rem;
+}
+
+.statusBadge {
+  display: inline-flex; align-items: center; gap: .3rem;
+  padding: .3rem .6rem; border-radius: 999px; font-size: .7rem; font-weight: 800;
+  text-transform: uppercase; letter-spacing: .03em; white-space: nowrap;
 }
 .badgeAtHome { color: #0f5132; background: #d9f2e3; }
 .badgeLost { color: #8b3023; background: #fbe4df; }
 .badgeFound { color: #1f6fb2; background: #dcecfa; }
 .badgeForAdoption { color: #7a4e12; background: #fbeacc; }
-.meta { margin-top: .4rem; color: var(--ink-600); font-size: .9rem; }
-.desc { margin-top: .6rem; color: var(--ink-600); font-size: .92rem; line-height: 1.5; }
+
+.actions { display: flex; gap: .4rem; }
+.actionEdit,
+.actionDelete {
+  display: inline-flex; align-items: center; gap: .3rem;
+  border-radius: .55rem; padding: .4rem .7rem; font: inherit; font-weight: 700;
+  font-size: .82rem; cursor: pointer; border: 1px solid var(--surface-300); background: white;
+}
+.actionEdit { color: var(--teal-600); border-color: rgba(11, 122, 114, .35); }
+.actionEdit:hover { background: rgba(11, 122, 114, .08); }
+.actionDelete { color: #8b3023; border-color: #f0c6bc; background: #fdecea; }
+.actionDelete:hover { background: #f8dcd6; }
+
+@media (max-width: 27rem) {
+  .card { grid-template-columns: 1fr; }
+  .photo, .photoPlaceholder { width: 100%; height: 10rem; }
+}

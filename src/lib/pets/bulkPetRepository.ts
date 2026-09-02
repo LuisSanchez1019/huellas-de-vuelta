@@ -1,11 +1,35 @@
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { getSupabaseUserId } from "@/lib/auth/session";
+import { PET_PHOTO_BUCKET } from "@/lib/supabase/pets";
 import type { Database } from "@/lib/supabase/database.types";
 import type { PetSex, PetSpecies } from "@/lib/supabase/types";
 import { isBulkPetStatus, type BulkPet, type BulkPetInput, type OrgScope } from "./bulkPets";
 import { seedBulkPets } from "./mockBulkPets";
 
 type OrgPetRow = Database["public"]["Tables"]["organization_pets"]["Row"];
+
+/**
+ * Sube la foto de una mascota de organización al mismo bucket privado que las
+ * mascotas de usuario (`pet-photos`), en la carpeta de la organización
+ * (`<org_id>/orgpet/<petId>.<ext>`). Las políticas RLS de Storage ya lo permiten
+ * porque `org_id === auth.uid()`. Devuelve la ruta del objeto.
+ */
+export async function uploadOrgPetPhoto(
+  supabase: SupabaseClient,
+  orgId: string,
+  petId: string,
+  blob: Blob,
+  contentType: string,
+): Promise<string> {
+  const extension = contentType === "image/jpeg" ? "jpg" : "webp";
+  const path = `${orgId}/orgpet/${petId}.${extension}`;
+  const { error } = await supabase.storage
+    .from(PET_PHOTO_BUCKET)
+    .upload(path, blob, { contentType, upsert: true });
+  if (error) throw error;
+  return path;
+}
 
 /**
  * Contrato de acceso a datos de mascotas de organizaciones (fundación /
@@ -68,6 +92,7 @@ function materialize(scope: OrgScope, input: BulkPetInput): BulkPet {
     sex: input.sex,
     status: input.status ?? "available",
     photoUrl: input.photoUrl ?? null,
+    photoPath: input.photoPath ?? null,
     intakeDate: input.intakeDate ?? now.toISOString().slice(0, 10),
     orgKind: scope.kind,
     orgId: scope.id,
@@ -108,6 +133,7 @@ class LocalBulkPetRepository implements BulkPetRepository {
       breed: patch.breed ?? previous.breed,
       age: patch.age ?? previous.age,
       photoUrl: patch.photoUrl ?? previous.photoUrl,
+      photoPath: patch.photoPath ?? previous.photoPath,
       intakeDate: patch.intakeDate ?? previous.intakeDate,
     };
     const next = current.slice();
@@ -154,6 +180,7 @@ class SupabaseBulkPetRepository implements BulkPetRepository {
       sex: row.sex as PetSex,
       status: isBulkPetStatus(row.status) ? row.status : "available",
       photoUrl: row.photo_url,
+      photoPath: row.photo_path,
       intakeDate: row.intake_date ?? row.created_at.slice(0, 10),
       orgKind: (row.org_kind === "veterinaria" ? "veterinaria" : "fundacion"),
       orgId: row.org_id,
@@ -189,6 +216,7 @@ class SupabaseBulkPetRepository implements BulkPetRepository {
       sex: input.sex,
       status: input.status ?? "available",
       photo_url: input.photoUrl ?? null,
+      photo_path: input.photoPath ?? null,
       intake_date: input.intakeDate ?? null,
     }));
     const { data, error } = await supabase.from("organization_pets").insert(payload).select("*");
@@ -207,6 +235,7 @@ class SupabaseBulkPetRepository implements BulkPetRepository {
     if (patch.sex !== undefined) payload.sex = patch.sex;
     if (patch.status !== undefined) payload.status = patch.status;
     if (patch.photoUrl !== undefined) payload.photo_url = patch.photoUrl;
+    if (patch.photoPath !== undefined) payload.photo_path = patch.photoPath;
     if (patch.intakeDate !== undefined) payload.intake_date = patch.intakeDate;
     const { data, error } = await supabase
       .from("organization_pets")

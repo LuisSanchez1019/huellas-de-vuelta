@@ -45,10 +45,13 @@ export default function ScannedPetProfileDemo() {
 
             <p className={styles.privacyNote}>
               <LockIcon size={16} className={styles.inlineIcon} />
-              Los datos del propietario están protegidos. Al contactar, tu mensaje se envía de forma segura sin mostrar su número ni su dirección.
+              Los datos del propietario están protegidos. Si encuentras a la mascota, avisas a su familia sin ver ni compartir su número ni su dirección.
             </p>
 
-            <Link className={styles.contactCta} href="/auth?mode=sign-up">Contactar al propietario de forma segura</Link>
+            <Link className={styles.contactCta} href="/auth?mode=sign-up">
+              <PawIcon size={16} />
+              Encontré esta mascota
+            </Link>
           </div>
         </div>
 

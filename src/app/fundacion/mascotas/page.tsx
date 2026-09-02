@@ -11,13 +11,14 @@ export default function FundacionMascotasPage() {
   return (
     <div>
       <div className={controls.pageHead}>
-        <h1 className={controls.pageTitle}>Mascotas de la fundación</h1>
+        <h1 className={controls.pageTitle}>Mascotas / Listados</h1>
         <p className={controls.pageSubtitle}>
-          Consulta, edita y marca cada mascota como disponible para adopción o para recibir un padrino
-          monetario.
+          Agrega mascotas una por una o impórtalas desde Excel, y marca cada una como disponible para
+          adopción o para recibir un padrino. Cada mascota queda relacionada con tu fundación; otras
+          organizaciones no pueden verlas ni editarlas.
         </p>
       </div>
-      <Link href="/fundacion/mascotas/cargar" className={controls.button}>Cargar mascotas (Excel)</Link>
+      <Link href="/fundacion/mascotas/cargar" className={controls.buttonSecondary}>Cargar mascotas (Excel)</Link>
       {scope ? (
         <div style={{ marginTop: "1.25rem" }}>
           <BulkPetTable scope={scope} role="fundacion" />

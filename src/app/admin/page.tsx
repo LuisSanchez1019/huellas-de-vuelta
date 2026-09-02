@@ -1,27 +1,44 @@
-import { ActivityIcon, PawIcon, UserIcon } from "@/components/icons/Icon";
+"use client";
+
+import { useEffect, useState } from "react";
+import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
+import { adminCounts, type AdminCounts } from "@/lib/supabase/adminUsers";
+import { ActivityIcon, PawIcon, ReportIcon, UserIcon } from "@/components/icons/Icon";
 import AdminStatCard from "@/components/admin/AdminStatCard";
-import { mockAdminUsers } from "@/data/mockAdminUsers";
+import controls from "@/components/ui/controls.module.css";
 import styles from "./admin.module.css";
 
 export default function AdminHomePage() {
-  const total = mockAdminUsers.length;
-  const active = mockAdminUsers.filter((user) => user.status === "active").length;
-  const suspended = total - active;
-  const totalPets = mockAdminUsers.reduce((sum, user) => sum + user.petsCount, 0);
+  const [counts, setCounts] = useState<AdminCounts | null>(null);
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    const supabase = createSupabaseBrowserClient();
+    adminCounts(supabase)
+      .then(setCounts)
+      .catch(() => setError(true));
+  }, []);
 
   return (
     <div>
-      <h1 className={styles.title}>Panel de administración</h1>
-      <p className={styles.subtitle}>
-        Resumen general de la plataforma. Los datos que ves aquí son de ejemplo mientras se conecta este módulo a la base de datos real.
-      </p>
-
-      <div className={styles.statGrid}>
-        <AdminStatCard icon={<UserIcon size={22} />} label="Usuarios totales" value={total} />
-        <AdminStatCard icon={<ActivityIcon size={22} />} label="Usuarios activos" value={active} />
-        <AdminStatCard icon={<UserIcon size={22} />} label="Usuarios suspendidos" value={suspended} />
-        <AdminStatCard icon={<PawIcon size={20} />} label="Mascotas registradas" value={totalPets} />
+      <div className={controls.pageHead}>
+        <h1 className={controls.pageTitle}>Administración</h1>
+        <p className={controls.pageSubtitle}>
+          Resumen general de la plataforma. Revisa y aprueba las organizaciones aliadas desde la
+          sección «Organizaciones».
+        </p>
       </div>
+
+      {error ? (
+        <p className={controls.empty}>No fue posible cargar las estadísticas.</p>
+      ) : (
+        <div className={styles.statGrid}>
+          <AdminStatCard icon={<UserIcon size={22} />} label="Usuarios registrados" value={counts?.users ?? "—"} />
+          <AdminStatCard icon={<PawIcon size={20} />} label="Mascotas activas" value={counts?.pets ?? "—"} />
+          <AdminStatCard icon={<ReportIcon size={20} />} label="Reportes de pérdida activos" value={counts?.activeReports ?? "—"} />
+          <AdminStatCard icon={<ActivityIcon size={22} />} label="Organizaciones por revisar" value={counts?.pendingOrgs ?? "—"} />
+        </div>
+      )}
     </div>
   );
 }

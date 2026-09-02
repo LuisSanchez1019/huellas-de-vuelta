@@ -2,17 +2,30 @@
 
 import { type FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import Toast, { type ToastState } from "@/components/ui/Toast";
 import { veterinaryRepository } from "@/lib/veterinaries/repository";
 import {
   EMPTY_VETERINARY_INPUT,
+  type OrgCategory,
   type VeterinaryHours,
   type VeterinaryProfileInput,
 } from "@/lib/veterinaries/types";
+import {
+  deleteOrgLogo,
+  getOrgLogoPublicUrl,
+  uploadOrgLogo,
+} from "@/lib/supabase/orgProfiles";
+import OrgLogoInput, { type PreparedOrgLogo } from "@/components/organizacion/OrgLogoInput";
 import controls from "@/components/ui/controls.module.css";
 import styles from "./vetProfileForm.module.css";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+const CATEGORY_OPTIONS: { value: OrgCategory; label: string }[] = [
+  { value: "veterinaria", label: "Veterinaria" },
+  { value: "otro_aliado", label: "Otro aliado" },
+];
 
 export default function VeterinaryProfileForm({ ownerId }: { ownerId: string }) {
   const router = useRouter();
@@ -22,18 +35,28 @@ export default function VeterinaryProfileForm({ ownerId }: { ownerId: string }) 
   const [isSaving, setIsSaving] = useState(false);
   const [toast, setToast] = useState<ToastState | null>(null);
 
+  const [logo, setLogo] = useState<PreparedOrgLogo | null>(null);
+  const [logoRemoved, setLogoRemoved] = useState(false);
+  const [logoError, setLogoError] = useState<string | null>(null);
+  const [initialLogoPreview, setInitialLogoPreview] = useState<string | null>(null);
+
   useEffect(() => {
     veterinaryRepository
       .getMine(ownerId)
       .then((profile) => {
         if (profile) {
-          const { id, ownerId: _ownerId, slug, createdAt, updatedAt, ...input } = profile;
-          void id;
-          void _ownerId;
-          void slug;
-          void createdAt;
-          void updatedAt;
+          const {
+            id, ownerId: _ownerId, slug, createdAt, updatedAt,
+            approvalStatus, isActive, rejectionReason, ...input
+          } = profile;
+          void id; void _ownerId; void slug; void createdAt; void updatedAt;
+          void approvalStatus; void isActive; void rejectionReason;
           setForm(input);
+          if (input.logoPath) {
+            setInitialLogoPreview(getOrgLogoPublicUrl(createSupabaseBrowserClient(), input.logoPath));
+          } else if (input.logoUrl) {
+            setInitialLogoPreview(input.logoUrl);
+          }
         }
       })
       .finally(() => setIsLoading(false));
@@ -85,9 +108,29 @@ export default function VeterinaryProfileForm({ ownerId }: { ownerId: string }) 
       setToast({ variant: "error", message: "El correo no tiene un formato válido." });
       return;
     }
+    if (logoError) {
+      setToast({ variant: "error", message: logoError });
+      return;
+    }
     setIsSaving(true);
     try {
-      await veterinaryRepository.saveMine(ownerId, { ...form, name: form.name.trim() });
+      const supabase = createSupabaseBrowserClient();
+      let logoPath = form.logoPath;
+      if (logo) {
+        const newPath = await uploadOrgLogo(supabase, ownerId, logo.blob, logo.contentType);
+        if (form.logoPath && form.logoPath !== newPath) await deleteOrgLogo(supabase, form.logoPath);
+        logoPath = newPath;
+      } else if (logoRemoved && form.logoPath) {
+        await deleteOrgLogo(supabase, form.logoPath);
+        logoPath = "";
+      }
+
+      await veterinaryRepository.saveMine(ownerId, {
+        ...form,
+        name: form.name.trim(),
+        logoPath,
+        logoUrl: logoPath ? "" : form.logoUrl,
+      });
       setToast({ variant: "success", message: "Perfil guardado correctamente." });
       setTimeout(() => router.push("/veterinaria/perfil"), 900);
     } catch {
@@ -100,23 +143,46 @@ export default function VeterinaryProfileForm({ ownerId }: { ownerId: string }) 
 
   return (
     <form onSubmit={handleSubmit}>
+      <p className={controls.notice}>
+        Será público en el directorio del Landing: nombre, tipo de organización, logo, descripción,
+        ciudad, barrio o zona, dirección, teléfono, horario, servicios y ubicación del mapa. Tu correo
+        de acceso y los datos privados de la cuenta no se publican.
+      </p>
+
       <section className={controls.section}>
         <p className={controls.sectionTitle}>Identidad</p>
         <div className={controls.sectionBody}>
-          <label className={controls.field}>
-            Nombre de la veterinaria
-            <input className={controls.input} value={form.name} onChange={(e) => set("name", e.target.value)} maxLength={120} required />
-          </label>
           <div className={controls.row2}>
             <label className={controls.field}>
-              Logo (URL)
-              <input className={controls.input} value={form.logoUrl} onChange={(e) => set("logoUrl", e.target.value)} placeholder="https://…" />
+              Nombre de la veterinaria
+              <input className={controls.input} value={form.name} onChange={(e) => set("name", e.target.value)} maxLength={120} required />
             </label>
             <label className={controls.field}>
-              Imagen principal (URL)
-              <input className={controls.input} value={form.coverImageUrl} onChange={(e) => set("coverImageUrl", e.target.value)} placeholder="https://…" />
+              Tipo de organización
+              <select className={controls.select} value={form.category} onChange={(e) => set("category", e.target.value as OrgCategory)}>
+                {CATEGORY_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
             </label>
           </div>
+
+          <OrgLogoInput
+            initialPreviewUrl={initialLogoPreview}
+            onChange={(next, removed) => {
+              setLogo(next);
+              setLogoRemoved(removed);
+              setLogoError(null);
+            }}
+            onError={setLogoError}
+            disabled={isSaving}
+          />
+          {logoError && <p className={controls.field} style={{ color: "#8b3023", fontWeight: 700 }}>{logoError}</p>}
+
+          <label className={controls.field}>
+            Imagen principal (URL, opcional)
+            <input className={controls.input} value={form.coverImageUrl} onChange={(e) => set("coverImageUrl", e.target.value)} placeholder="https://…" />
+          </label>
           <label className={controls.field}>
             Descripción
             <textarea className={controls.textarea} value={form.description} onChange={(e) => set("description", e.target.value)} maxLength={600} rows={4} />
@@ -226,6 +292,7 @@ export default function VeterinaryProfileForm({ ownerId }: { ownerId: string }) 
             <label className={controls.field}>Dirección<input className={controls.input} value={form.location.address} onChange={(e) => setLocation("address", e.target.value)} /></label>
             <label className={controls.field}>Ciudad<input className={controls.input} value={form.location.city} onChange={(e) => setLocation("city", e.target.value)} /></label>
           </div>
+          <label className={controls.field}>Barrio o zona<input className={controls.input} value={form.location.neighborhood} onChange={(e) => setLocation("neighborhood", e.target.value)} /></label>
           <label className={controls.field}>Enlace del mapa<input className={controls.input} value={form.location.mapUrl} onChange={(e) => setLocation("mapUrl", e.target.value)} placeholder="https://maps.google.com/…" /></label>
           <div className={controls.row2}>
             <label className={controls.field}>

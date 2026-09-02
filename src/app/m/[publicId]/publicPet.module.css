@@ -25,6 +25,20 @@
 .name { margin-top: .7rem; font-size: 1.6rem; font-weight: 800; color: var(--navy-900); letter-spacing: -.03em; }
 .meta { margin-top: .3rem; color: var(--ink-600); font-size: .95rem; }
 .desc { margin-top: 1rem; color: var(--navy-900); line-height: 1.6; }
+
+/* Limita el texto libre (características / detalles) para que no domine la pantalla. */
+.clamp {
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.plateId {
+  margin-top: 1rem; color: var(--ink-600); font-size: .72rem; letter-spacing: .02em;
+  opacity: .7;
+}
 .detailsGrid { margin-top: 1.5rem; display: grid; gap: .9rem; }
 .detailItem {
   display: flex; justify-content: space-between; gap: 1rem; padding-bottom: .9rem;
@@ -43,3 +57,19 @@
   justify-content: center; background: var(--teal-600); color: white; font-weight: 700;
 }
 .cta:hover { background: var(--navy-900); }
+
+.lostAlert {
+  display: flex; gap: .75rem; align-items: flex-start; margin-top: 1.5rem;
+  padding: 1rem 1.1rem; border-radius: 1rem;
+  background: #fbe4df; border: 1px solid #f0c6bc;
+}
+.lostAlertIcon { flex-shrink: 0; color: #8b3023; margin-top: .05rem; }
+.lostAlertTitle { font-weight: 800; color: #8b3023; font-size: .95rem; letter-spacing: .01em; }
+.lostAlertText { margin-top: .25rem; color: #8b3023; font-size: .85rem; line-height: 1.5; }
+
+.lostDetails {
+  display: flex; align-items: flex-start; gap: .5rem; margin-top: 1rem;
+  padding: .8rem .9rem; border-radius: .7rem; background: var(--surface-100);
+  color: var(--navy-900); font-size: .88rem; line-height: 1.5;
+}
+.lostDetails .inlineIcon { margin-top: .15rem; }

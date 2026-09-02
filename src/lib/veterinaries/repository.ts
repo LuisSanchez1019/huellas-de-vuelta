@@ -8,6 +8,7 @@ import {
   type OrgProfileWrite,
 } from "@/lib/supabase/orgProfiles";
 import type {
+  OrgCategory,
   VeterinaryHours,
   VeterinaryProfile,
   VeterinaryProfileInput,
@@ -42,7 +43,9 @@ function slugify(value: string): string {
 function toWrite(input: VeterinaryProfileInput): OrgProfileWrite {
   return {
     name: input.name,
+    category: input.category,
     logoUrl: input.logoUrl,
+    logoPath: input.logoPath,
     coverImageUrl: input.coverImageUrl,
     description: input.description,
     phone: input.phone,
@@ -53,6 +56,7 @@ function toWrite(input: VeterinaryProfileInput): OrgProfileWrite {
     social: { ...input.social },
     address: input.location.address,
     city: input.location.city,
+    neighborhood: input.location.neighborhood,
     mapUrl: input.location.mapUrl,
     lat: input.location.lat,
     lng: input.location.lng,
@@ -68,7 +72,9 @@ function rowToProfile(row: OrgProfileRow): VeterinaryProfile {
     ownerId: row.owner_id,
     slug: row.slug,
     name: row.name,
+    category: toOrgCategory(row.category),
     logoUrl: row.logo_url ?? "",
+    logoPath: row.logo_path ?? "",
     coverImageUrl: row.cover_image_url ?? "",
     description: row.description ?? "",
     phone: row.phone ?? "",
@@ -80,15 +86,31 @@ function rowToProfile(row: OrgProfileRow): VeterinaryProfile {
     location: {
       address: row.address ?? "",
       city: row.city ?? "",
+      neighborhood: row.neighborhood ?? "",
       mapUrl: row.map_url ?? "",
       lat: row.lat,
       lng: row.lng,
     },
     extraInfo: row.extra_info ?? "",
     status: row.status === "published" ? "published" : "draft",
+    approvalStatus:
+      row.approval_status === "approved" || row.approval_status === "rejected"
+        ? row.approval_status
+        : "pending",
+    isActive: row.is_active !== false,
+    rejectionReason: row.rejection_reason ?? "",
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
+}
+
+function toOrgCategory(value: string | null): OrgCategory {
+  return value === "veterinaria" ||
+    value === "fundacion" ||
+    value === "refugio" ||
+    value === "otro_aliado"
+    ? value
+    : "veterinaria";
 }
 
 // ---------- implementación local (localStorage) ----------
@@ -118,7 +140,9 @@ function seedPublic(): VeterinaryProfile[] {
     ownerId: `seed-${vet.id}`,
     slug: vet.id,
     name: vet.name,
+    category: "veterinaria",
     logoUrl: "",
+    logoPath: "",
     coverImageUrl: "",
     description: vet.description,
     phone: "",
@@ -127,9 +151,12 @@ function seedPublic(): VeterinaryProfile[] {
     hours: [{ day: "Lunes a viernes", open: "08:00", close: "18:00", closed: false }],
     services: [],
     social: { ...EMPTY_SOCIAL },
-    location: { address: "", city: vet.city, mapUrl: "", lat: null, lng: null },
+    location: { address: "", city: vet.city, neighborhood: "", mapUrl: "", lat: null, lng: null },
     extraInfo: "",
     status: "published",
+    approvalStatus: "approved",
+    isActive: true,
+    rejectionReason: "",
     createdAt: now,
     updatedAt: now,
   }));
@@ -146,6 +173,9 @@ const local: VeterinaryRepository = {
       id: existing?.id ?? `vet_${ownerId}`,
       ownerId,
       slug: slugify(input.name),
+      approvalStatus: existing?.approvalStatus ?? "approved",
+      isActive: existing?.isActive ?? true,
+      rejectionReason: existing?.rejectionReason ?? "",
       createdAt: existing?.createdAt ?? now,
       updatedAt: now,
       ...input,

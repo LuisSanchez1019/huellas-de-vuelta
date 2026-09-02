@@ -6,7 +6,8 @@ import { useParams } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { fetchPublicPet, PET_PHOTO_BUCKET, type PublicPet } from "@/lib/supabase/pets";
 import { speciesLabels, statusLabels, sexLabels, ageUnitLabels, catColorLabels } from "@/lib/pets/labels";
-import { LockIcon, PawIcon } from "@/components/icons/Icon";
+import { AlertIcon, LockIcon, PawIcon, PinIcon } from "@/components/icons/Icon";
+import FoundPetWizard from "@/components/reencuentro/FoundPetWizard";
 import styles from "./publicPet.module.css";
 
 const BADGE_CLASS: Record<PublicPet["status"], string> = {
@@ -21,6 +22,10 @@ function colorList(pet: PublicPet): string {
     .filter((value): value is string => Boolean(value))
     .map((value) => catColorLabels[value] ?? value)
     .join(", ");
+}
+
+function formatDate(iso: string): string {
+  return new Date(iso).toLocaleDateString("es-CO", { day: "2-digit", month: "long", year: "numeric" });
 }
 
 export default function PublicPetPage() {
@@ -52,6 +57,8 @@ export default function PublicPetPage() {
       .catch(() => setState("error"));
   }, [publicId]);
 
+  const isLost = pet?.status === "lost" && Boolean(pet.reportId);
+
   return (
     <main className={styles.page}>
       <div className={styles.inner}>
@@ -67,6 +74,19 @@ export default function PublicPetPage() {
 
         {state === "found" && pet && (
           <>
+            {isLost && (
+              <div className={styles.lostAlert} role="alert">
+                <span className={styles.lostAlertIcon} aria-hidden="true"><AlertIcon size={20} /></span>
+                <div>
+                  <p className={styles.lostAlertTitle}>Esta mascota está reportada como PERDIDA</p>
+                  <p className={styles.lostAlertText}>
+                    Si la viste o la tienes contigo, avísale a su familia con el botón de abajo. No
+                    necesitas crear una cuenta.
+                  </p>
+                </div>
+              </div>
+            )}
+
             <div className={styles.card}>
               <div className={styles.photo}>
                 {photoUrl ? (
@@ -83,7 +103,7 @@ export default function PublicPetPage() {
                   {pet.species === "other" ? pet.speciesOther || "Otro" : speciesLabels[pet.species]}
                   {pet.breed ? ` · ${pet.breed}` : ""}
                 </p>
-                {pet.description && <p className={styles.desc}>{pet.description}</p>}
+                {pet.description && <p className={`${styles.desc} ${styles.clamp}`}>{pet.description}</p>}
 
                 <div className={styles.detailsGrid}>
                   {pet.ageValue != null && pet.ageUnit && (
@@ -106,23 +126,48 @@ export default function PublicPetPage() {
                       <span className={styles.detailValue}>{colorList(pet)}</span>
                     </div>
                   )}
-                  <div className={styles.detailItem}>
-                    <span className={styles.detailLabel}>Código de placa</span>
-                    <span className={styles.detailValue}>{pet.publicId}</span>
-                  </div>
+                  {isLost && pet.lostCity && (
+                    <div className={styles.detailItem}>
+                      <span className={styles.detailLabel}>Vista por última vez</span>
+                      <span className={styles.detailValue}>
+                        {pet.lostCity}
+                        {pet.lostNeighborhood ? ` · ${pet.lostNeighborhood}` : ""}
+                      </span>
+                    </div>
+                  )}
+                  {isLost && pet.reportedAt && (
+                    <div className={styles.detailItem}>
+                      <span className={styles.detailLabel}>Reportada</span>
+                      <span className={styles.detailValue}>{formatDate(pet.reportedAt)}</span>
+                    </div>
+                  )}
                 </div>
+
+                {isLost && pet.lostDetails && (
+                  <p className={styles.lostDetails}>
+                    <PinIcon size={15} className={styles.inlineIcon} />
+                    <span className={styles.clamp}>{pet.lostDetails}</span>
+                  </p>
+                )}
 
                 <p className={styles.privacyNote}>
                   <LockIcon size={16} className={styles.inlineIcon} />
-                  Los datos de contacto del propietario están protegidos. Si encontraste a esta mascota,
-                  crea una cuenta para avisar de forma segura.
+                  Los datos de contacto del propietario están protegidos. Huellas de Vuelta nunca
+                  muestra su teléfono, correo ni dirección.
                 </p>
 
-                <Link className={styles.cta} href="/auth?mode=sign-up">
-                  Contactar al propietario de forma segura
-                </Link>
+                <p className={styles.plateId}>ID de placa: {pet.publicId}</p>
               </div>
             </div>
+
+            {isLost && pet.reportId && (
+              <FoundPetWizard
+                publicId={pet.publicId}
+                reportId={pet.reportId}
+                petName={pet.name}
+                defaultCity={pet.lostCity}
+              />
+            )}
           </>
         )}
       </div>

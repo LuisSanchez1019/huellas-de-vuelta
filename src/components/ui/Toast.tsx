@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { AlertIcon, CheckIcon } from "@/components/icons/Icon";
 import styles from "./feedback.module.css";
 
 export type ToastVariant = "success" | "error";
@@ -44,7 +45,9 @@ export default function Toast({
         role={variant === "error" ? "alert" : "status"}
         aria-live={variant === "error" ? "assertive" : "polite"}
       >
-        <span className={styles.toastIcon} aria-hidden="true">{variant === "error" ? "!" : "✓"}</span>
+        <span className={styles.toastIcon} aria-hidden="true">
+          {variant === "error" ? <AlertIcon size={14} /> : <CheckIcon size={14} />}
+        </span>
         <p className={styles.toastMessage}>{message}</p>
         <button type="button" className={styles.toastClose} onClick={onClose} aria-label="Cerrar aviso">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true">

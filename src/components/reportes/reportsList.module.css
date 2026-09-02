@@ -1,0 +1,77 @@
+.list { list-style: none; margin: 1.5rem 0 0; display: grid; gap: 1rem; }
+.item {
+  padding: 1rem; border: 1px solid var(--surface-300); border-radius: 1rem; background: white;
+  box-shadow: 0 .6rem 1.6rem rgba(23, 34, 63, .06);
+}
+.itemHead { display: flex; gap: 1rem; align-items: flex-start; }
+.thumb {
+  flex-shrink: 0; width: 4rem; height: 4rem; border-radius: .75rem; object-fit: cover;
+  border: 1px solid var(--surface-300); background: var(--surface-100);
+}
+.thumbPlaceholder {
+  flex-shrink: 0; display: grid; place-items: center; width: 4rem; height: 4rem;
+  border-radius: .75rem; border: 1px solid var(--surface-300); background: var(--surface-100); color: var(--teal-600);
+}
+.body { flex: 1; min-width: 0; }
+.top { display: flex; align-items: baseline; justify-content: space-between; gap: .75rem; }
+.name { font-weight: 800; color: var(--navy-900); letter-spacing: -.01em; }
+.badge {
+  padding: .2rem .55rem; border-radius: 999px; font-size: .68rem; font-weight: 800;
+  text-transform: uppercase; letter-spacing: .04em; white-space: nowrap;
+}
+.badgeActive { color: #8b3023; background: #fbe4df; }
+.badgeClosed { color: #48566a; background: var(--surface-300); }
+.meta { margin-top: .2rem; color: var(--ink-600); font-size: .86rem; }
+.loc {
+  display: inline-flex; align-items: center; gap: .3rem; margin-top: .3rem;
+  color: var(--navy-900); font-size: .85rem; font-weight: 700;
+}
+.locIcon { color: var(--teal-600); flex-shrink: 0; }
+.details { margin-top: .35rem; color: var(--ink-600); font-size: .85rem; line-height: 1.45; }
+.date { margin-top: .4rem; color: var(--ink-600); font-size: .78rem; }
+
+/* ---------- avisos recibidos ---------- */
+.events { margin-top: 1rem; border-top: 1px dashed var(--surface-300); padding-top: .85rem; display: grid; gap: .7rem; }
+.eventsTitle { font-weight: 800; color: var(--navy-900); font-size: .82rem; }
+.event {
+  border: 1px solid var(--surface-300); border-radius: .7rem; padding: .75rem .85rem;
+  background: var(--surface-100); display: grid; gap: .3rem;
+}
+.eventTop { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
+.evBadge {
+  padding: .16rem .5rem; border-radius: 999px; font-size: .64rem; font-weight: 800;
+  text-transform: uppercase; letter-spacing: .03em; white-space: nowrap;
+}
+.evBadgeSighting { color: #7a4e12; background: #fbeacc; }
+.evBadgeFound { color: #1f6fb2; background: #dcecfa; }
+.evBadgeHelp { color: #8b3023; background: #fbe4df; }
+.evDate { color: var(--ink-600); font-size: .74rem; }
+.evLine { display: flex; align-items: center; gap: .3rem; color: var(--navy-900); font-size: .82rem; }
+.evDesc { color: var(--ink-600); font-size: .82rem; line-height: 1.45; }
+.evContact {
+  margin-top: .1rem; padding: .5rem .6rem; border-radius: .5rem; background: white;
+  border: 1px solid var(--surface-300); color: var(--navy-900); font-size: .82rem;
+}
+.evPhoto {
+  margin-top: .3rem; width: 100%; max-width: 14rem; border-radius: .55rem;
+  border: 1px solid var(--surface-300);
+}
+.evSeen {
+  justify-self: start; margin-top: .2rem; border: 1px solid var(--surface-300); border-radius: .5rem;
+  padding: .3rem .65rem; background: white; color: var(--teal-600); font: inherit; font-weight: 700;
+  font-size: .76rem; cursor: pointer;
+}
+.evSeen:hover { background: rgba(11, 122, 114, .08); }
+.evSeenDone { justify-self: start; margin-top: .2rem; color: var(--green-500); font-size: .76rem; font-weight: 800; }
+
+.resolveButton {
+  margin-top: 1rem; width: 100%; border: 0; border-radius: .6rem; padding: .7rem 1rem;
+  background: var(--teal-600); color: white; font: inherit; font-weight: 800; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center; gap: .45rem;
+}
+.resolveButton:hover { background: var(--navy-900); }
+.resolveButton svg { flex-shrink: 0; }
+
+@media (max-width: 34rem) {
+  .itemHead { flex-wrap: wrap; }
+}

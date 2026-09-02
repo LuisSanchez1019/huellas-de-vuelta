@@ -1,0 +1,98 @@
+/* Asistente "Encontré esta mascota" — se muestra dentro de /m/[publicId].
+   Reutiliza el lenguaje visual de la app (teal primario, navy, bordes redondeados). */
+
+.wizard {
+  margin-top: 1.25rem;
+  border: 1px solid var(--surface-300);
+  border-radius: 1rem;
+  background: white;
+  overflow: hidden;
+}
+
+.head {
+  padding: 1rem 1.25rem;
+  background: linear-gradient(135deg, var(--navy-900), var(--teal-600));
+  color: white;
+}
+.headTitle {
+  display: flex; align-items: center; gap: .5rem;
+  font-size: 1.05rem; font-weight: 800; letter-spacing: -.02em;
+}
+.headIcon { flex-shrink: 0; }
+.headStep { margin-top: .2rem; font-size: .78rem; opacity: .85; }
+
+.body { padding: 1.25rem; display: grid; gap: 1rem; }
+
+.prompt { font-weight: 800; color: var(--navy-900); font-size: 1rem; }
+.help { color: var(--ink-600); font-size: .88rem; line-height: 1.5; }
+
+/* Paso 0: opciones grandes */
+.choices { display: grid; gap: .75rem; }
+.choice {
+  display: flex; align-items: flex-start; gap: .8rem; width: 100%;
+  padding: 1rem; border-radius: .8rem; border: 1px solid var(--surface-300);
+  background: white; text-align: left; cursor: pointer; font: inherit;
+  transition: border-color .15s ease, background .15s ease, transform .15s ease;
+}
+.choice:hover { border-color: var(--teal-600); background: rgba(11, 122, 114, .04); transform: translateY(-.1rem); }
+.choiceActive { border-color: var(--teal-600); background: rgba(11, 122, 114, .08); }
+.choiceIcon {
+  flex-shrink: 0; display: grid; place-items: center;
+  width: 2.4rem; height: 2.4rem; border-radius: .6rem;
+  background: rgba(11, 122, 114, .1); color: var(--teal-600);
+}
+.choiceMain { display: grid; gap: .2rem; min-width: 0; }
+.choiceTitle { font-weight: 800; color: var(--navy-900); font-size: .95rem; }
+.choiceHint { color: var(--ink-600); font-size: .82rem; line-height: 1.4; }
+
+/* Grupos de opciones tipo "radio" en fila */
+.optionGrid { display: grid; gap: .5rem; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); }
+.option {
+  padding: .7rem .8rem; border-radius: .6rem; border: 1px solid var(--surface-300);
+  background: white; font: inherit; font-weight: 700; font-size: .85rem; color: var(--navy-900);
+  cursor: pointer; text-align: center;
+}
+.option:hover { border-color: var(--teal-600); }
+.optionActive { border-color: var(--teal-600); background: rgba(11, 122, 114, .08); color: var(--teal-600); }
+
+.notice {
+  padding: .8rem .9rem; border-radius: .6rem;
+  background: #fdf3e2; border: 1px solid #f0d9b5; color: #8a5a12;
+  font-size: .84rem; line-height: 1.45;
+}
+.privacyNote {
+  display: flex; align-items: flex-start; gap: .5rem;
+  padding: .8rem .9rem; border-radius: .6rem; background: var(--surface-100);
+  color: var(--ink-600); font-size: .82rem; line-height: 1.45;
+}
+.privacyIcon { flex-shrink: 0; margin-top: .1rem; color: var(--teal-600); }
+
+.error { color: #8b3023; font-weight: 700; font-size: .85rem; }
+
+.actions { display: flex; gap: .6rem; flex-wrap: wrap; margin-top: .25rem; }
+.spacer { flex: 1; }
+
+/* Lista de organizaciones (paso 3) */
+.orgList { display: grid; gap: .6rem; max-height: 22rem; overflow-y: auto; }
+.orgCard {
+  display: grid; gap: .3rem; padding: .9rem; border-radius: .7rem;
+  border: 1px solid var(--surface-300); background: white; text-align: left; cursor: pointer; font: inherit;
+}
+.orgCard:hover { border-color: var(--teal-600); }
+.orgCardActive { border-color: var(--teal-600); background: rgba(11, 122, 114, .08); }
+.orgName { font-weight: 800; color: var(--navy-900); font-size: .92rem; }
+.orgMeta { color: var(--ink-600); font-size: .8rem; }
+.orgTag {
+  display: inline-flex; align-self: start; padding: .12rem .5rem; border-radius: 999px;
+  background: var(--surface-100); border: 1px solid var(--surface-300);
+  font-size: .68rem; font-weight: 800; text-transform: uppercase; letter-spacing: .03em; color: var(--navy-900);
+}
+
+/* Pantalla de éxito */
+.done { padding: 2rem 1.5rem; text-align: center; display: grid; gap: .6rem; justify-items: center; }
+.doneMark {
+  width: 3rem; height: 3rem; border-radius: 999px; display: grid; place-items: center;
+  background: #d9f2e3; color: #0f5132;
+}
+.doneTitle { font-weight: 800; color: var(--navy-900); font-size: 1.1rem; }
+.doneText { color: var(--ink-600); font-size: .9rem; line-height: 1.55; max-width: 24rem; }

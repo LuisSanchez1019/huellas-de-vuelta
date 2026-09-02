@@ -2,6 +2,7 @@
 
 import { useOrgScope } from "@/components/panel/useOrgScope";
 import OrgDashboardStats from "@/components/mascotas/OrgDashboardStats";
+import OrgStatusCard from "@/components/organizacion/OrgStatusCard";
 import controls from "@/components/ui/controls.module.css";
 
 export default function FundacionHomePage() {
@@ -16,6 +17,7 @@ export default function FundacionHomePage() {
           desde el menú lateral.
         </p>
       </div>
+      <OrgStatusCard role="fundacion" />
       {scope ? <OrgDashboardStats scope={scope} role="fundacion" /> : <p className={controls.loading}>Cargando…</p>}
     </div>
   );

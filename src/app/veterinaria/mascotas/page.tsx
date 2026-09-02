@@ -11,10 +11,13 @@ export default function VeterinariaMascotasPage() {
   return (
     <div>
       <div className={controls.pageHead}>
-        <h1 className={controls.pageTitle}>Mascotas de la veterinaria</h1>
-        <p className={controls.pageSubtitle}>Consulta, edita y elimina las mascotas registradas por tu veterinaria.</p>
+        <h1 className={controls.pageTitle}>Mascotas / Listados</h1>
+        <p className={controls.pageSubtitle}>
+          Agrega mascotas una por una o impórtalas desde Excel. Cada mascota queda relacionada con tu
+          veterinaria; otras organizaciones no pueden verlas ni editarlas.
+        </p>
       </div>
-      <Link href="/veterinaria/mascotas/cargar" className={controls.button}>Cargar mascotas (Excel)</Link>
+      <Link href="/veterinaria/mascotas/cargar" className={controls.buttonSecondary}>Cargar mascotas (Excel)</Link>
       {scope ? (
         <div style={{ marginTop: "1.25rem" }}>
           <BulkPetTable scope={scope} role="veterinaria" />

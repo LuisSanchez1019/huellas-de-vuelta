@@ -1,13 +1,14 @@
-import { ReportIcon } from "@/components/icons/Icon";
-import DashboardPlaceholder from "@/components/dashboard/DashboardPlaceholder";
+import ReportsList from "@/components/reportes/ReportsList";
+import controls from "@/components/ui/controls.module.css";
 
 export default function Page() {
   return (
-    <DashboardPlaceholder
-      icon={<ReportIcon size={28} />}
-      title="Historial de reportes"
-      text="Aquí verás el historial de reportes cerrados o resueltos."
-      step="Paso 7"
-    />
+    <div>
+      <div className={controls.pageHead}>
+        <h1 className={controls.pageTitle}>Historial de reportes</h1>
+        <p className={controls.pageSubtitle}>Reportes de mascota perdida que ya se cerraron.</p>
+      </div>
+      <ReportsList status="closed" />
+    </div>
   );
 }

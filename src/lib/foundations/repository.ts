@@ -8,7 +8,7 @@ import {
   type OrgProfileWrite,
 } from "@/lib/supabase/orgProfiles";
 import type { FoundationProfile, FoundationProfileInput } from "./types";
-import type { VeterinarySocial } from "@/lib/veterinaries/types";
+import type { OrgCategory, VeterinaryHours, VeterinarySocial } from "@/lib/veterinaries/types";
 
 export interface FoundationRepository {
   getMine(ownerId: string): Promise<FoundationProfile | null>;
@@ -32,17 +32,20 @@ function slugify(value: string): string {
 function toWrite(input: FoundationProfileInput): OrgProfileWrite {
   return {
     name: input.name,
+    category: input.category,
     logoUrl: input.logoUrl,
+    logoPath: input.logoPath,
     coverImageUrl: "",
     description: input.description,
     phone: input.phone,
     whatsapp: input.whatsapp,
     email: input.email,
-    hours: [],
-    services: [],
+    hours: input.hours,
+    services: input.services,
     social: { ...input.social },
     address: input.location.address,
     city: input.location.city,
+    neighborhood: input.location.neighborhood,
     mapUrl: input.location.mapUrl,
     lat: input.location.lat,
     lng: input.location.lng,
@@ -58,24 +61,44 @@ function rowToProfile(row: OrgProfileRow): FoundationProfile {
     ownerId: row.owner_id,
     slug: row.slug,
     name: row.name,
+    category: toOrgCategory(row.category),
     logoUrl: row.logo_url ?? "",
+    logoPath: row.logo_path ?? "",
     description: row.description ?? "",
     phone: row.phone ?? "",
     whatsapp: row.whatsapp ?? "",
     email: row.email ?? "",
+    hours: Array.isArray(row.hours) ? (row.hours as unknown as VeterinaryHours[]) : [],
+    services: Array.isArray(row.services) ? row.services : [],
     social: { ...EMPTY_SOCIAL, ...social },
     location: {
       address: row.address ?? "",
       city: row.city ?? "",
+      neighborhood: row.neighborhood ?? "",
       mapUrl: row.map_url ?? "",
       lat: row.lat,
       lng: row.lng,
     },
     extraInfo: row.extra_info ?? "",
     status: row.status === "published" ? "published" : "draft",
+    approvalStatus:
+      row.approval_status === "approved" || row.approval_status === "rejected"
+        ? row.approval_status
+        : "pending",
+    isActive: row.is_active !== false,
+    rejectionReason: row.rejection_reason ?? "",
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
+}
+
+function toOrgCategory(value: string | null): OrgCategory {
+  return value === "veterinaria" ||
+    value === "fundacion" ||
+    value === "refugio" ||
+    value === "otro_aliado"
+    ? value
+    : "fundacion";
 }
 
 function read(ownerId: string): FoundationProfile | null {
@@ -95,15 +118,22 @@ function seedPublic(): FoundationProfile[] {
     ownerId: `seed-${foundation.id}`,
     slug: foundation.id,
     name: foundation.name,
+    category: "fundacion",
     logoUrl: "",
+    logoPath: "",
     description: `${foundation.kind} aliada de Huellas de Vuelta.`,
     phone: "",
     whatsapp: "",
     email: "",
+    hours: [],
+    services: [],
     social: { ...EMPTY_SOCIAL },
-    location: { address: "", city: "", mapUrl: "", lat: null, lng: null },
+    location: { address: "", city: "", neighborhood: "", mapUrl: "", lat: null, lng: null },
     extraInfo: "",
     status: "published",
+    approvalStatus: "approved",
+    isActive: true,
+    rejectionReason: "",
     createdAt: now,
     updatedAt: now,
   }));
@@ -120,6 +150,9 @@ const local: FoundationRepository = {
       id: existing?.id ?? `fnd_${ownerId}`,
       ownerId,
       slug: slugify(input.name),
+      approvalStatus: existing?.approvalStatus ?? "approved",
+      isActive: existing?.isActive ?? true,
+      rejectionReason: existing?.rejectionReason ?? "",
       createdAt: existing?.createdAt ?? now,
       updatedAt: now,
       ...input,

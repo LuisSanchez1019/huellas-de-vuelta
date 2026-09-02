@@ -16,13 +16,16 @@ export default function PetPhotoInput({
   onChange,
   onError,
   disabled = false,
+  initialPreviewUrl = null,
 }: {
   onChange: (photo: PreparedPhoto | null) => void;
   onError: (message: string | null) => void;
   disabled?: boolean;
+  /** URL de una foto ya guardada, para mostrarla como vista previa inicial. */
+  initialPreviewUrl?: string | null;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
-  const [preview, setPreview] = useState<string | null>(null);
+  const [preview, setPreview] = useState<string | null>(initialPreviewUrl);
   const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {

@@ -17,12 +17,16 @@ export interface ResizedImage {
  * No sube nada: solo transforma el archivo y devuelve un blob listo para subir
  * más una URL de objeto para la vista previa (recuerda revocarla al descartarla).
  */
-export async function resizeImage(file: File): Promise<ResizedImage> {
+export async function resizeImage(
+  file: File,
+  options: { maxDimension?: number } = {},
+): Promise<ResizedImage> {
+  const maxDimension = options.maxDimension ?? MAX_IMAGE_DIMENSION;
   const bitmapUrl = URL.createObjectURL(file);
   try {
     const image = await loadImage(bitmapUrl);
 
-    const scale = Math.min(1, MAX_IMAGE_DIMENSION / Math.max(image.width, image.height));
+    const scale = Math.min(1, maxDimension / Math.max(image.width, image.height));
     const width = Math.max(1, Math.round(image.width * scale));
     const height = Math.max(1, Math.round(image.height * scale));
 

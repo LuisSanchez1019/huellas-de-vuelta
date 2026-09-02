@@ -10,6 +10,7 @@ function seed(orgKind: OrgKind, orgId: string, orgName: string, rows: Array<Part
     breed: null,
     age: null,
     photoUrl: null,
+    photoPath: null,
     needsHome: false,
     needsSponsor: false,
     createdAt: `${row.intakeDate}T09:00:00.000Z`,

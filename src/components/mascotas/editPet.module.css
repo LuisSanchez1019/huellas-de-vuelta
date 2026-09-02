@@ -1,0 +1,8 @@
+.lostBlock {
+  display: grid;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid #f0d9b5;
+  border-radius: .8rem;
+  background: #fffaf1;
+}

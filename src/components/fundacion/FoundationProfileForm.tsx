@@ -1,31 +1,58 @@
 "use client";
 
 import { type FormEvent, useEffect, useState } from "react";
+import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import Toast, { type ToastState } from "@/components/ui/Toast";
 import { foundationRepository } from "@/lib/foundations/repository";
 import { EMPTY_FOUNDATION_INPUT, type FoundationProfileInput } from "@/lib/foundations/types";
+import type { OrgCategory, VeterinaryHours } from "@/lib/veterinaries/types";
+import {
+  deleteOrgLogo,
+  getOrgLogoPublicUrl,
+  uploadOrgLogo,
+} from "@/lib/supabase/orgProfiles";
+import OrgLogoInput, { type PreparedOrgLogo } from "@/components/organizacion/OrgLogoInput";
 import controls from "@/components/ui/controls.module.css";
+import styles from "@/components/veterinaria/vetProfileForm.module.css";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+const CATEGORY_OPTIONS: { value: OrgCategory; label: string }[] = [
+  { value: "fundacion", label: "Fundación" },
+  { value: "refugio", label: "Refugio" },
+  { value: "otro_aliado", label: "Otro aliado" },
+];
+
 export default function FoundationProfileForm({ ownerId }: { ownerId: string }) {
   const [form, setForm] = useState<FoundationProfileInput>(EMPTY_FOUNDATION_INPUT);
+  const [serviceDraft, setServiceDraft] = useState("");
+  const [approval, setApproval] = useState<{ status: string; reason: string; published: boolean } | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [toast, setToast] = useState<ToastState | null>(null);
+
+  const [logo, setLogo] = useState<PreparedOrgLogo | null>(null);
+  const [logoRemoved, setLogoRemoved] = useState(false);
+  const [logoError, setLogoError] = useState<string | null>(null);
+  const [initialLogoPreview, setInitialLogoPreview] = useState<string | null>(null);
 
   useEffect(() => {
     foundationRepository
       .getMine(ownerId)
       .then((profile) => {
         if (profile) {
-          const { id, ownerId: _o, slug, createdAt, updatedAt, ...input } = profile;
-          void id;
-          void _o;
-          void slug;
-          void createdAt;
-          void updatedAt;
+          const {
+            id, ownerId: _o, slug, createdAt, updatedAt,
+            approvalStatus, isActive, rejectionReason, ...input
+          } = profile;
+          void id; void _o; void slug; void createdAt; void updatedAt; void isActive;
           setForm(input);
+          setApproval({ status: approvalStatus, reason: rejectionReason, published: profile.status === "published" });
+          if (input.logoPath) {
+            setInitialLogoPreview(getOrgLogoPublicUrl(createSupabaseBrowserClient(), input.logoPath));
+          } else if (input.logoUrl) {
+            setInitialLogoPreview(input.logoUrl);
+          }
         }
       })
       .finally(() => setIsLoading(false));
@@ -44,6 +71,28 @@ export default function FoundationProfileForm({ ownerId }: { ownerId: string }) 
     setForm((current) => ({ ...current, location: { ...current.location, [key]: value } }));
   }
 
+  function updateHour(index: number, patch: Partial<VeterinaryHours>) {
+    setForm((current) => ({
+      ...current,
+      hours: current.hours.map((hour, i) => (i === index ? { ...hour, ...patch } : hour)),
+    }));
+  }
+  function addHour() {
+    set("hours", [...form.hours, { day: "", open: "08:00", close: "18:00", closed: false }]);
+  }
+  function removeHour(index: number) {
+    set("hours", form.hours.filter((_, i) => i !== index));
+  }
+  function addService() {
+    const value = serviceDraft.trim();
+    if (!value || form.services.includes(value)) {
+      setServiceDraft("");
+      return;
+    }
+    set("services", [...form.services, value]);
+    setServiceDraft("");
+  }
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!form.name.trim()) {
@@ -54,9 +103,29 @@ export default function FoundationProfileForm({ ownerId }: { ownerId: string }) 
       setToast({ variant: "error", message: "El correo no tiene un formato válido." });
       return;
     }
+    if (logoError) {
+      setToast({ variant: "error", message: logoError });
+      return;
+    }
     setIsSaving(true);
     try {
-      await foundationRepository.saveMine(ownerId, { ...form, name: form.name.trim() });
+      const supabase = createSupabaseBrowserClient();
+      let logoPath = form.logoPath;
+      if (logo) {
+        const newPath = await uploadOrgLogo(supabase, ownerId, logo.blob, logo.contentType);
+        if (form.logoPath && form.logoPath !== newPath) await deleteOrgLogo(supabase, form.logoPath);
+        logoPath = newPath;
+      } else if (logoRemoved && form.logoPath) {
+        await deleteOrgLogo(supabase, form.logoPath);
+        logoPath = "";
+      }
+
+      await foundationRepository.saveMine(ownerId, {
+        ...form,
+        name: form.name.trim(),
+        logoPath,
+        logoUrl: logoPath ? "" : form.logoUrl,
+      });
       setToast({ variant: "success", message: "Perfil de la fundación guardado." });
     } catch {
       setToast({ variant: "error", message: "No fue posible guardar el perfil." });
@@ -69,17 +138,50 @@ export default function FoundationProfileForm({ ownerId }: { ownerId: string }) 
 
   return (
     <form onSubmit={handleSubmit}>
+      {approval && approval.published && approval.status !== "approved" && (
+        <p className={controls.notice}>
+          {approval.status === "rejected"
+            ? `Huellas de Vuelta no aprobó este perfil${approval.reason ? `: ${approval.reason}` : "."}`
+            : "Tu perfil está publicado y en revisión. Aparecerá en el directorio público cuando el equipo de Huellas de Vuelta lo apruebe."}
+        </p>
+      )}
+
+      <p className={controls.notice}>
+        Será público en el directorio del Landing: nombre, tipo de organización, logo, descripción,
+        ciudad, barrio o zona, dirección, teléfono, horario, servicios y ubicación del mapa. Tu correo
+        de acceso y los datos privados de la cuenta no se publican.
+      </p>
+
       <section className={controls.section}>
         <p className={controls.sectionTitle}>Identidad</p>
         <div className={controls.sectionBody}>
-          <label className={controls.field}>
-            Nombre de la fundación
-            <input className={controls.input} value={form.name} onChange={(e) => set("name", e.target.value)} maxLength={120} required />
-          </label>
-          <label className={controls.field}>
-            Logo (URL)
-            <input className={controls.input} value={form.logoUrl} onChange={(e) => set("logoUrl", e.target.value)} placeholder="https://…" />
-          </label>
+          <div className={controls.row2}>
+            <label className={controls.field}>
+              Nombre de la fundación
+              <input className={controls.input} value={form.name} onChange={(e) => set("name", e.target.value)} maxLength={120} required />
+            </label>
+            <label className={controls.field}>
+              Tipo de organización
+              <select className={controls.select} value={form.category} onChange={(e) => set("category", e.target.value as OrgCategory)}>
+                {CATEGORY_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
+            </label>
+          </div>
+
+          <OrgLogoInput
+            initialPreviewUrl={initialLogoPreview}
+            onChange={(next, removed) => {
+              setLogo(next);
+              setLogoRemoved(removed);
+              setLogoError(null);
+            }}
+            onError={setLogoError}
+            disabled={isSaving}
+          />
+          {logoError && <p className={controls.field} style={{ color: "#8b3023", fontWeight: 700 }}>{logoError}</p>}
+
           <label className={controls.field}>
             Descripción
             <textarea className={controls.textarea} value={form.description} onChange={(e) => set("description", e.target.value)} maxLength={600} rows={4} />
@@ -106,12 +208,70 @@ export default function FoundationProfileForm({ ownerId }: { ownerId: string }) 
       </section>
 
       <section className={controls.section}>
+        <p className={controls.sectionTitle}>Horarios</p>
+        <div className={controls.sectionBody}>
+          {form.hours.map((hour, index) => (
+            <div key={index} className={styles.hourRow}>
+              <input className={controls.input} value={hour.day} placeholder="Lunes a viernes" onChange={(e) => updateHour(index, { day: e.target.value })} />
+              <input className={controls.input} type="time" value={hour.open} disabled={hour.closed} onChange={(e) => updateHour(index, { open: e.target.value })} />
+              <input className={controls.input} type="time" value={hour.close} disabled={hour.closed} onChange={(e) => updateHour(index, { close: e.target.value })} />
+              <label className={styles.closedToggle}>
+                <input type="checkbox" checked={hour.closed} onChange={(e) => updateHour(index, { closed: e.target.checked })} />
+                Cerrado
+              </label>
+              <button type="button" className={controls.buttonSecondary} onClick={() => removeHour(index)}>Quitar</button>
+            </div>
+          ))}
+          <button type="button" className={controls.buttonSecondary} onClick={addHour}>+ Agregar horario</button>
+        </div>
+      </section>
+
+      <section className={controls.section}>
+        <p className={controls.sectionTitle}>Servicios</p>
+        <div className={controls.sectionBody}>
+          <div className={styles.serviceAdd}>
+            <input
+              className={controls.input}
+              value={serviceDraft}
+              onChange={(e) => setServiceDraft(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  addService();
+                }
+              }}
+              placeholder="Rescate, adopción, esterilización…"
+            />
+            <button type="button" className={controls.buttonSecondary} onClick={addService}>Agregar</button>
+          </div>
+          {form.services.length > 0 && (
+            <div className={controls.chips}>
+              {form.services.map((service) => (
+                <span key={service} className={controls.chip}>
+                  {service}
+                  <button
+                    type="button"
+                    className={controls.chipRemove}
+                    aria-label={`Quitar ${service}`}
+                    onClick={() => set("services", form.services.filter((s) => s !== service))}
+                  >
+                    ×
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
+      <section className={controls.section}>
         <p className={controls.sectionTitle}>Ubicación</p>
         <div className={controls.sectionBody}>
           <div className={controls.row2}>
             <label className={controls.field}>Dirección<input className={controls.input} value={form.location.address} onChange={(e) => setLocation("address", e.target.value)} /></label>
             <label className={controls.field}>Ciudad<input className={controls.input} value={form.location.city} onChange={(e) => setLocation("city", e.target.value)} /></label>
           </div>
+          <label className={controls.field}>Barrio o zona<input className={controls.input} value={form.location.neighborhood} onChange={(e) => setLocation("neighborhood", e.target.value)} /></label>
           <label className={controls.field}>Enlace del mapa<input className={controls.input} value={form.location.mapUrl} onChange={(e) => setLocation("mapUrl", e.target.value)} placeholder="https://maps.google.com/…" /></label>
           <div className={controls.row2}>
             <label className={controls.field}>

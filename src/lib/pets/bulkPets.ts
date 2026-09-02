@@ -34,6 +34,8 @@ export interface BulkPet {
   sex: PetSex;
   status: BulkPetStatus;
   photoUrl: string | null;
+  /** Ruta en el bucket `pet-photos` cuando la foto se subió por el formulario. */
+  photoPath: string | null;
   intakeDate: string; // ISO (YYYY-MM-DD)
   orgKind: OrgKind;
   orgId: string;
@@ -52,6 +54,7 @@ export interface BulkPetInput {
   sex: PetSex;
   status?: BulkPetStatus;
   photoUrl?: string | null;
+  photoPath?: string | null;
   intakeDate?: string | null;
 }
 
