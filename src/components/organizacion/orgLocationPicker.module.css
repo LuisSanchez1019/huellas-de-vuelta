@@ -1,5 +1,12 @@
 .wrap { display: grid; gap: .8rem; }
 .hint { color: var(--ink-600); font-size: .84rem; line-height: 1.5; }
+.searchRow { display: flex; gap: .5rem; align-items: stretch; }
+.searchRow input { flex: 1; min-width: 0; }
+.searchRow button { flex-shrink: 0; display: inline-flex; align-items: center; gap: .4rem; white-space: nowrap; }
+
+@media (max-width: 34rem) {
+  .searchRow { flex-direction: column; }
+}
 .mapBox {
   height: 20rem;
   border-radius: 1rem;

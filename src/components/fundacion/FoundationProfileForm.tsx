@@ -310,6 +310,9 @@ export default function FoundationProfileForm({ ownerId }: { ownerId: string }) 
           <OrgLocationPicker
             lat={form.location.lat}
             lng={form.location.lng}
+            address={form.location.address}
+            city={form.location.city}
+            neighborhood={form.location.neighborhood}
             onChange={(lat, lng) =>
               setForm((current) => ({ ...current, location: { ...current.location, lat, lng } }))
             }

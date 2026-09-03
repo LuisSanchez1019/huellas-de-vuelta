@@ -19,16 +19,7 @@
   outline: none;
 }
 
-/* Modo oscuro sin proveedor de tiles extra: filtro sobre el panel de tiles.
-   Los marcadores y popups quedan fuera del filtro (están en otros panes). */
-:root[data-theme="dark"] .hdv-map .leaflet-tile-pane {
-  filter: invert(1) hue-rotate(180deg) brightness(0.92) contrast(0.95);
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .hdv-map .leaflet-tile-pane {
-    filter: invert(1) hue-rotate(180deg) brightness(0.92) contrast(0.95);
-  }
-}
+/* El modo oscuro usa su propio juego de tiles (CARTO Dark Matter), no un filtro. */
 
 /* Controles de zoom */
 .hdv-map .leaflet-bar a {
@@ -49,14 +40,25 @@
   color: var(--ink-600);
 }
 
-/* Atribución */
+/* Atribución: crédito de datos mínimo obligatorio por licencia (OSM + CARTO).
+   Se deja lo más discreto posible: sin la marca "Leaflet", diminuto y translúcido. */
 .hdv-map .leaflet-control-attribution {
-  background: color-mix(in srgb, var(--card) 82%, transparent);
+  margin: 0;
+  padding: 0 4px;
+  background: color-mix(in srgb, var(--card) 60%, transparent);
   color: var(--ink-600);
-  font-size: 0.68rem;
+  font-size: 9px;
+  line-height: 1.5;
+  opacity: 0.55;
+  border-radius: 3px 0 0 0;
+  transition: opacity 0.15s ease;
+}
+.hdv-map .leaflet-control-attribution:hover {
+  opacity: 1;
 }
 .hdv-map .leaflet-control-attribution a {
-  color: var(--primary);
+  color: var(--ink-600);
+  text-decoration: none;
 }
 
 /* --------- Marcadores --------- */
