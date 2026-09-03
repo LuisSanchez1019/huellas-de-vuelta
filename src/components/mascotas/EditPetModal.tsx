@@ -277,7 +277,7 @@ export default function EditPetModal({
         )}
 
         {(error || photoError) && (
-          <p style={{ color: "#8b3023", fontWeight: 600, fontSize: ".85rem" }}>{error || photoError}</p>
+          <p className={controls.errorText}>{error || photoError}</p>
         )}
 
         <div className={controls.buttonRow}>

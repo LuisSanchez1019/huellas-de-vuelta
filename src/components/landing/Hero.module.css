@@ -1,13 +1,13 @@
-.hero { position: relative; overflow: hidden; padding: 4.5rem 1.5rem 4.5rem; background: radial-gradient(circle at 50% -10%, rgba(20,168,157,.18), transparent 32rem), radial-gradient(circle at 90% 100%, rgba(47,191,124,.12), transparent 26rem), radial-gradient(rgba(23,34,63,.08) 1.5px, transparent 1.5px), var(--surface-100); background-size: auto, auto, 26px 26px; background-position: 0 0, 0 0, 0 0; }
+.hero { position: relative; overflow: hidden; padding: 4.5rem 1.5rem 4.5rem; background: radial-gradient(circle at 50% -10%, rgba(20,168,157,.18), transparent 32rem), radial-gradient(circle at 90% 100%, rgba(47,191,124,.12), transparent 26rem), radial-gradient(rgba(var(--shadow-rgb),.08) 1.5px, transparent 1.5px), var(--surface-100); background-size: auto, auto, 26px 26px; background-position: 0 0, 0 0, 0 0; }
 .hero::after { content:''; position:absolute; inset:0; pointer-events:none; background: linear-gradient(180deg, transparent 60%, var(--surface-100) 100%); }
 .inner { position: relative; z-index: 1; max-width: 46rem; margin: 0 auto; text-align: center; }
 .eyebrow { display:inline-flex; align-items:center; gap:.4rem; color: var(--teal-600); background: rgba(15,140,130,.1); padding:.4rem .8rem; border-radius:999px; font-size:.75rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
 .title { margin-top:1.25rem; color: var(--navy-900); font-size: clamp(2.2rem, 6vw, 3.4rem); font-weight:800; letter-spacing:-.04em; line-height:1.08; }
 .description { margin:1.25rem auto 0; max-width: 34rem; color: var(--ink-600); font-size:1.08rem; line-height:1.65; }
 .ctaRow { display:flex; justify-content:center; gap:.9rem; flex-wrap:wrap; margin-top:2rem; }
-.ctaPrimary { padding:.9rem 1.3rem; border-radius:.7rem; background: var(--teal-600); color:white; font-weight:700; transition: background-color .2s ease, transform .2s ease; }
-.ctaPrimary:hover { background: var(--navy-900); transform: translateY(-.15rem); }
-.ctaSecondary { padding:.9rem 1.3rem; border-radius:.7rem; border:1px solid var(--surface-300); background:white; color: var(--navy-900); font-weight:700; transition: border-color .2s ease, color .2s ease, transform .2s ease; }
+.ctaPrimary { padding:.9rem 1.3rem; border-radius:.7rem; background: var(--teal-600); color: var(--primary-contrast); font-weight:700; transition: background-color .2s ease, transform .2s ease; }
+.ctaPrimary:hover { background: var(--primary-hover); transform: translateY(-.15rem); }
+.ctaSecondary { padding:.9rem 1.3rem; border-radius:.7rem; border:1px solid var(--surface-300); background: var(--card); color: var(--navy-900); font-weight:700; transition: border-color .2s ease, color .2s ease, transform .2s ease; }
 .ctaSecondary:hover { border-color: var(--teal-600); color: var(--teal-600); transform: translateY(-.15rem); }
 .trustRow { display:flex; justify-content:center; gap:1.5rem; flex-wrap:wrap; margin-top:2.25rem; }
 .trustItem { display:flex; align-items:center; gap:.5rem; color: var(--ink-600); font-size:.85rem; font-weight:600; }

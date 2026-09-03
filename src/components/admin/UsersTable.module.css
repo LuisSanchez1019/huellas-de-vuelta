@@ -6,7 +6,7 @@
   border: 1px solid var(--surface-300);
   border-radius: .6rem;
   color: var(--navy-900);
-  background: white;
+  background: var(--card);
   font: inherit;
 }
 .search:focus { outline: 3px solid rgba(47, 191, 124, .35); border-color: var(--green-500); }
@@ -23,9 +23,9 @@
   font-size: .85rem;
   white-space: nowrap;
 }
-.activeTab { color: var(--navy-900); background: white; box-shadow: 0 .1rem .5rem rgba(23, 34, 63, .1); }
+.activeTab { color: var(--navy-900); background: var(--card); box-shadow: 0 .1rem .5rem rgba(var(--shadow-rgb), .1); }
 
-.tableWrap { margin-top: 1.25rem; overflow-x: auto; border: 1px solid var(--surface-300); border-radius: 1rem; background: white; }
+.tableWrap { margin-top: 1.25rem; overflow-x: auto; border: 1px solid var(--surface-300); border-radius: 1rem; background: var(--card); }
 .table { width: 100%; border-collapse: collapse; min-width: 42rem; }
 .table th {
   text-align: left;
@@ -44,8 +44,8 @@
 .userName { font-weight: 700; }
 .userEmail { color: var(--ink-600); font-size: .82rem; }
 .badge { display: inline-flex; padding: .25rem .6rem; border-radius: 999px; font-size: .72rem; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; white-space: nowrap; }
-.badgeActive { color: #0f5132; background: #d9f2e3; }
-.badgeSuspended { color: #8b3023; background: #fbe4df; }
+.badgeActive { color: var(--success-fg); background: var(--success-bg); }
+.badgeSuspended { color: var(--danger-fg); background: var(--danger-bg); }
 .actions { display: flex; gap: .5rem; flex-wrap: wrap; }
 .actionLink, .actionButton {
   border: 1px solid var(--surface-300);
@@ -55,7 +55,7 @@
   font-weight: 700;
   font-size: .82rem;
   color: var(--navy-900);
-  background: white;
+  background: var(--card);
   cursor: pointer;
   white-space: nowrap;
 }

@@ -5,14 +5,14 @@
   margin-top: 1.25rem;
   border: 1px solid var(--surface-300);
   border-radius: 1rem;
-  background: white;
+  background: var(--card);
   overflow: hidden;
 }
 
 .head {
   padding: 1rem 1.25rem;
-  background: linear-gradient(135deg, var(--navy-900), var(--teal-600));
-  color: white;
+  background: linear-gradient(135deg, var(--brand-navy), var(--teal-600));
+  color: var(--primary-contrast);
 }
 .headTitle {
   display: flex; align-items: center; gap: .5rem;
@@ -31,7 +31,7 @@
 .choice {
   display: flex; align-items: flex-start; gap: .8rem; width: 100%;
   padding: 1rem; border-radius: .8rem; border: 1px solid var(--surface-300);
-  background: white; text-align: left; cursor: pointer; font: inherit;
+  background: var(--card); text-align: left; cursor: pointer; font: inherit;
   transition: border-color .15s ease, background .15s ease, transform .15s ease;
 }
 .choice:hover { border-color: var(--teal-600); background: rgba(11, 122, 114, .04); transform: translateY(-.1rem); }
@@ -49,7 +49,7 @@
 .optionGrid { display: grid; gap: .5rem; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); }
 .option {
   padding: .7rem .8rem; border-radius: .6rem; border: 1px solid var(--surface-300);
-  background: white; font: inherit; font-weight: 700; font-size: .85rem; color: var(--navy-900);
+  background: var(--card); font: inherit; font-weight: 700; font-size: .85rem; color: var(--navy-900);
   cursor: pointer; text-align: center;
 }
 .option:hover { border-color: var(--teal-600); }
@@ -57,7 +57,7 @@
 
 .notice {
   padding: .8rem .9rem; border-radius: .6rem;
-  background: #fdf3e2; border: 1px solid #f0d9b5; color: #8a5a12;
+  background: var(--warning-bg); border: 1px solid var(--warning-border); color: var(--warning-fg);
   font-size: .84rem; line-height: 1.45;
 }
 .privacyNote {
@@ -67,7 +67,7 @@
 }
 .privacyIcon { flex-shrink: 0; margin-top: .1rem; color: var(--teal-600); }
 
-.error { color: #8b3023; font-weight: 700; font-size: .85rem; }
+.error { color: var(--danger-fg); font-weight: 700; font-size: .85rem; }
 
 .actions { display: flex; gap: .6rem; flex-wrap: wrap; margin-top: .25rem; }
 .spacer { flex: 1; }
@@ -76,7 +76,7 @@
 .orgList { display: grid; gap: .6rem; max-height: 22rem; overflow-y: auto; }
 .orgCard {
   display: grid; gap: .3rem; padding: .9rem; border-radius: .7rem;
-  border: 1px solid var(--surface-300); background: white; text-align: left; cursor: pointer; font: inherit;
+  border: 1px solid var(--surface-300); background: var(--card); text-align: left; cursor: pointer; font: inherit;
 }
 .orgCard:hover { border-color: var(--teal-600); }
 .orgCardActive { border-color: var(--teal-600); background: rgba(11, 122, 114, .08); }
@@ -92,7 +92,7 @@
 .done { padding: 2rem 1.5rem; text-align: center; display: grid; gap: .6rem; justify-items: center; }
 .doneMark {
   width: 3rem; height: 3rem; border-radius: 999px; display: grid; place-items: center;
-  background: #d9f2e3; color: #0f5132;
+  background: var(--success-bg); color: var(--success-fg);
 }
 .doneTitle { font-weight: 800; color: var(--navy-900); font-size: 1.1rem; }
 .doneText { color: var(--ink-600); font-size: .9rem; line-height: 1.55; max-width: 24rem; }

@@ -7,7 +7,7 @@
 .petButton {
   width: 100%; text-align: left; cursor: pointer; font: inherit;
   display: flex; gap: 1rem; align-items: flex-start;
-  padding: 1rem; border: 1px solid var(--surface-300); border-radius: 1rem; background: white;
+  padding: 1rem; border: 1px solid var(--surface-300); border-radius: 1rem; background: var(--card);
   transition: border-color .15s ease, box-shadow .15s ease;
 }
 .petButton:hover { border-color: var(--teal-600); }
@@ -28,8 +28,8 @@
 .previewPanel {
   position: sticky; top: 1.5rem;
   display: grid; gap: 1rem; justify-items: center; text-align: center;
-  padding: 1.25rem; border: 1px solid var(--surface-300); border-radius: 1rem; background: white;
-  box-shadow: 0 .6rem 1.6rem rgba(23, 34, 63, .06);
+  padding: 1.25rem; border: 1px solid var(--surface-300); border-radius: 1rem; background: var(--card);
+  box-shadow: 0 .6rem 1.6rem rgba(var(--shadow-rgb), .06);
 }
 .previewEmpty {
   padding: 2.5rem 1.25rem; border: 1px dashed var(--surface-300); border-radius: 1rem;
@@ -41,7 +41,7 @@
 .previewName { font-weight: 800; color: var(--navy-900); font-size: 1.1rem; letter-spacing: -.02em; }
 .qrFrame {
   width: 100%; max-width: 15rem; aspect-ratio: 1 / 1; padding: .75rem;
-  border: 1px solid var(--surface-300); border-radius: .75rem; background: white;
+  border: 1px solid var(--surface-300); border-radius: .75rem; background: var(--card);
 }
 .qrFrame img { width: 100%; height: 100%; display: block; image-rendering: pixelated; }
 .previewUrl {
@@ -51,9 +51,9 @@
 }
 .downloadButton {
   width: 100%; border: 0; border-radius: .6rem; padding: .8rem 1rem;
-  background: var(--teal-600); color: white; font: inherit; font-weight: 800; cursor: pointer;
+  background: var(--teal-600); color: var(--primary-contrast); font: inherit; font-weight: 800; cursor: pointer;
 }
-.downloadButton:hover { background: var(--navy-900); }
+.downloadButton:hover { background: var(--primary-hover); }
 .hint { color: var(--ink-600); font-size: .8rem; line-height: 1.5; }
 
 @media (max-width: 52rem) {

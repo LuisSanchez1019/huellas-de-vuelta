@@ -201,7 +201,7 @@ export default function BulkPetFormModal({
           </label>
         </div>
         {(error || photoError) && (
-          <p style={{ color: "#8b3023", fontWeight: 600, fontSize: ".85rem" }}>{error || photoError}</p>
+          <p className={controls.errorText}>{error || photoError}</p>
         )}
         <div className={controls.buttonRow}>
           <button type="submit" className={controls.button} disabled={isSaving}>

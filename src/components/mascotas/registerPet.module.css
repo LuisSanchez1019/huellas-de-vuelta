@@ -6,7 +6,7 @@
 .form label { display: grid; gap: .4rem; color: var(--navy-900); font-size: .92rem; font-weight: 700; }
 .form input, .form select, .form textarea {
   width: 100%; padding: .8rem; border: 1px solid var(--surface-300); border-radius: .55rem;
-  color: var(--navy-900); background: white; font: inherit; font-weight: 500;
+  color: var(--navy-900); background: var(--card); font: inherit; font-weight: 500;
 }
 .form textarea { resize: vertical; min-height: 4.5rem; }
 .form input:focus, .form select:focus, .form textarea:focus {
@@ -20,27 +20,27 @@
 
 .help { font-weight: 500; font-size: .8rem; color: var(--ink-600); }
 .statusHint {
-  padding: .7rem .85rem; border-radius: .55rem; background: #d9f2e3; color: #0f5132;
+  padding: .7rem .85rem; border-radius: .55rem; background: var(--success-bg); color: var(--success-fg);
   font-size: .88rem; font-weight: 600;
 }
 .loading { color: var(--ink-600); }
 
 .notice {
-  padding: .8rem .9rem; border-radius: .6rem; background: #fdf3e2; border: 1px solid #f0d9b5;
-  color: #8a5a12; font-size: .88rem; line-height: 1.45;
+  padding: .8rem .9rem; border-radius: .6rem; background: var(--warning-bg); border: 1px solid var(--warning-border);
+  color: var(--warning-fg); font-size: .88rem; line-height: 1.45;
 }
-.fieldError { color: #8b3023; font-size: .82rem; font-weight: 600; margin-top: -.5rem; }
+.fieldError { color: var(--danger-fg); font-size: .82rem; font-weight: 600; margin-top: -.5rem; }
 
 .actions { display: flex; gap: .75rem; flex-wrap: wrap; margin-top: .25rem; }
 .submit {
   border: 0; border-radius: .6rem; padding: .85rem 1.3rem; cursor: pointer;
-  color: white; background: var(--teal-600); font: inherit; font-weight: 800;
+  color: var(--primary-contrast); background: var(--teal-600); font: inherit; font-weight: 800;
 }
-.submit:hover:not(:disabled) { background: var(--navy-900); }
+.submit:hover:not(:disabled) { background: var(--primary-hover); }
 .submit:disabled { cursor: not-allowed; opacity: .6; }
 .clear {
   border: 1px solid var(--surface-300); border-radius: .6rem; padding: .85rem 1.3rem; cursor: pointer;
-  color: var(--navy-900); background: white; font: inherit; font-weight: 700;
+  color: var(--navy-900); background: var(--card); font: inherit; font-weight: 700;
 }
 .clear:hover:not(:disabled) { border-color: var(--teal-600); color: var(--teal-600); }
 .clear:disabled { cursor: not-allowed; opacity: .6; }
@@ -71,12 +71,12 @@
 .photoActions { display: flex; gap: .6rem; flex-wrap: wrap; }
 .photoActionButton, .photoActionButtonDanger {
   border: 1px solid var(--surface-300); border-radius: .5rem; padding: .5rem .85rem;
-  font: inherit; font-weight: 700; font-size: .84rem; cursor: pointer; background: white;
+  font: inherit; font-weight: 700; font-size: .84rem; cursor: pointer; background: var(--card);
 }
 .photoActionButton { color: var(--navy-900); }
 .photoActionButton:hover:not(:disabled) { border-color: var(--teal-600); color: var(--teal-600); }
-.photoActionButtonDanger { color: #8b3023; border-color: #f0c6bc; background: #fbe4df; }
-.photoActionButtonDanger:hover:not(:disabled) { background: #f6d2c9; }
+.photoActionButtonDanger { color: var(--danger-fg); border-color: var(--danger-border); background: var(--danger-bg); }
+.photoActionButtonDanger:hover:not(:disabled) { background: var(--danger-border); }
 .photoActionButton:disabled, .photoActionButtonDanger:disabled { cursor: not-allowed; opacity: .6; }
 
 @media (max-width: 34rem) {

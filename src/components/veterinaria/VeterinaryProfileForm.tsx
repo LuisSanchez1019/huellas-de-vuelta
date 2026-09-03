@@ -18,6 +18,8 @@ import {
   uploadOrgLogo,
 } from "@/lib/supabase/orgProfiles";
 import OrgLogoInput, { type PreparedOrgLogo } from "@/components/organizacion/OrgLogoInput";
+import OrgLocationPicker from "@/components/organizacion/OrgLocationPicker";
+import { isValidLatLng } from "@/lib/map/config";
 import controls from "@/components/ui/controls.module.css";
 import styles from "./vetProfileForm.module.css";
 
@@ -107,6 +109,15 @@ export default function VeterinaryProfileForm({ ownerId }: { ownerId: string }) 
     }
     if (form.email && !EMAIL_RE.test(form.email)) {
       setToast({ variant: "error", message: "El correo no tiene un formato válido." });
+      return;
+    }
+    const { lat, lng } = form.location;
+    if ((lat === null) !== (lng === null)) {
+      setToast({ variant: "error", message: "Indica latitud y longitud de la ubicación, o deja ambas vacías." });
+      return;
+    }
+    if (lat !== null && lng !== null && !isValidLatLng(lat, lng)) {
+      setToast({ variant: "error", message: "Las coordenadas de la ubicación no son válidas." });
       return;
     }
     if (logoError) {
@@ -201,7 +212,7 @@ export default function VeterinaryProfileForm({ ownerId }: { ownerId: string }) 
             onError={setLogoError}
             disabled={isSaving}
           />
-          {logoError && <p className={controls.field} style={{ color: "#8b3023", fontWeight: 700 }}>{logoError}</p>}
+          {logoError && <p className={controls.errorText}>{logoError}</p>}
 
           <label className={controls.field}>
             Imagen principal (URL, opcional)
@@ -318,17 +329,14 @@ export default function VeterinaryProfileForm({ ownerId }: { ownerId: string }) 
           </div>
           <label className={controls.field}>Barrio o zona<input className={controls.input} value={form.location.neighborhood} onChange={(e) => setLocation("neighborhood", e.target.value)} /></label>
           <label className={controls.field}>Enlace del mapa<input className={controls.input} value={form.location.mapUrl} onChange={(e) => setLocation("mapUrl", e.target.value)} placeholder="https://maps.google.com/…" /></label>
-          <div className={controls.row2}>
-            <label className={controls.field}>
-              Latitud
-              <input className={controls.input} type="number" step="any" inputMode="decimal" value={form.location.lat ?? ""} onChange={(e) => setLocation("lat", e.target.value === "" ? null : Number(e.target.value))} placeholder="7.1193" />
-            </label>
-            <label className={controls.field}>
-              Longitud
-              <input className={controls.input} type="number" step="any" inputMode="decimal" value={form.location.lng ?? ""} onChange={(e) => setLocation("lng", e.target.value === "" ? null : Number(e.target.value))} placeholder="-73.1227" />
-            </label>
-          </div>
-          <p className={controls.field}><span className={controls.hint}>Latitud y longitud se usarán para ubicar tu veterinaria en el mapa de la página principal.</span></p>
+          <OrgLocationPicker
+            lat={form.location.lat}
+            lng={form.location.lng}
+            onChange={(lat, lng) =>
+              setForm((current) => ({ ...current, location: { ...current.location, lat, lng } }))
+            }
+            disabled={isSaving}
+          />
         </div>
       </section>
 

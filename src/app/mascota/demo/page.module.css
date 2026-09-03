@@ -1,14 +1,15 @@
 .page { min-height: 100vh; background: var(--surface-100); padding: 2rem 1.5rem 4rem; }
 .inner { max-width: 34rem; margin: 0 auto; }
+.topBar { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
 .back { color: var(--teal-600); font-weight: 700; font-size: .92rem; }
 .previewBanner { display:flex; align-items:center; gap:.6rem; margin-top:1.5rem; padding: .85rem 1.1rem; border-radius: .75rem; background: rgba(31,111,178,.1); border: 1px solid rgba(31,111,178,.25); color: var(--blue-600); font-size: .85rem; font-weight: 700; }
 .previewIcon { flex-shrink: 0; }
-.card { margin-top: 1.5rem; border-radius: 1.5rem; overflow: hidden; background: white; border: 1px solid var(--surface-300); box-shadow: 0 1.5rem 3rem rgba(23,34,63,.1); }
-.photo { display:flex; align-items:center; justify-content:center; width: 100%; height: 14rem; background: linear-gradient(135deg, var(--navy-900), var(--teal-600)); }
+.card { margin-top: 1.5rem; border-radius: 1.5rem; overflow: hidden; background: var(--card); border: 1px solid var(--surface-300); box-shadow: 0 1.5rem 3rem rgba(var(--shadow-rgb),.1); }
+.photo { display:flex; align-items:center; justify-content:center; width: 100%; height: 14rem; background: linear-gradient(135deg, var(--brand-navy), var(--teal-600)); }
 .photoIcon { color: rgba(255,255,255,.85); }
 .body { padding: 1.5rem 1.5rem 1.75rem; }
 .badgeRow { display:flex; align-items:center; gap: .6rem; }
-.badge { padding: .3rem .7rem; border-radius: 999px; font-size: .72rem; font-weight: 800; letter-spacing: .03em; text-transform: uppercase; color: #8b3023; background: #fbe4df; }
+.badge { padding: .3rem .7rem; border-radius: 999px; font-size: .72rem; font-weight: 800; letter-spacing: .03em; text-transform: uppercase; color: var(--danger-fg); background: var(--danger-bg); }
 .name { margin-top: .7rem; font-size: 1.6rem; font-weight: 800; color: var(--navy-900); letter-spacing: -.03em; }
 .meta { margin-top: .3rem; color: var(--ink-600); font-size: .95rem; }
 .detailsGrid { margin-top: 1.5rem; display: grid; gap: .9rem; }
@@ -17,8 +18,8 @@
 .detailValue { flex: 0 1 55%; min-width: 0; color: var(--navy-900); font-weight: 700; text-align: right; }
 .privacyNote { display:flex; align-items:flex-start; gap:.6rem; margin-top: 1.5rem; padding: 1rem; border-radius: .75rem; background: var(--surface-100); color: var(--ink-600); font-size: .85rem; line-height: 1.55; }
 .inlineIcon { flex-shrink: 0; margin-top: .15rem; color: var(--teal-600); }
-.contactCta { display: flex; align-items: center; gap: .45rem; margin-top: 1.25rem; padding: .9rem 1.1rem; border-radius: .7rem; justify-content: center; background: var(--teal-600); color: white; font-weight: 700; }
+.contactCta { display: flex; align-items: center; gap: .45rem; margin-top: 1.25rem; padding: .9rem 1.1rem; border-radius: .7rem; justify-content: center; background: var(--teal-600); color: var(--primary-contrast); font-weight: 700; }
 .contactCta svg { flex-shrink: 0; }
-.contactCta:hover { background: var(--navy-900); }
-.explainer { margin-top: 1.5rem; padding: 1rem 1.25rem; border-radius: .9rem; background: white; border: 1px dashed var(--surface-300); color: var(--ink-600); font-size: .85rem; line-height: 1.6; }
+.contactCta:hover { background: var(--primary-hover); }
+.explainer { margin-top: 1.5rem; padding: 1rem 1.25rem; border-radius: .9rem; background: var(--card); border: 1px dashed var(--surface-300); color: var(--ink-600); font-size: .85rem; line-height: 1.6; }
 .explainer strong { color: var(--navy-900); }

@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ChevronDownIcon, CloseIcon, LogoutIcon, MenuIcon } from "@/components/icons/Icon";
+import ThemeToggle from "@/components/theme/ThemeToggle";
 import NotificationsBell from "./NotificationsBell";
 import type { PanelUser } from "./types";
 import styles from "./PanelHeader.module.css";
@@ -71,6 +72,7 @@ export default function PanelHeader({
       </Link>
 
       <div className={styles.actions}>
+        <ThemeToggle />
         {notificationsHref && (
           <NotificationsBell href={notificationsHref} className={styles.notifButton} />
         )}

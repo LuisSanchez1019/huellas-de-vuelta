@@ -1,12 +1,16 @@
 import Link from "next/link";
 import { LockIcon, PawIcon, SearchIcon } from "@/components/icons/Icon";
+import ThemeToggle from "@/components/theme/ThemeToggle";
 import styles from "./page.module.css";
 
 export default function ScannedPetProfileDemo() {
   return (
     <main className={styles.page}>
       <div className={styles.inner}>
-        <Link className={styles.back} href="/">← Volver al inicio</Link>
+        <div className={styles.topBar}>
+          <Link className={styles.back} href="/">← Volver al inicio</Link>
+          <ThemeToggle />
+        </div>
 
         <div className={styles.previewBanner}>
           <SearchIcon size={18} className={styles.previewIcon} />

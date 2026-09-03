@@ -4,8 +4,8 @@
   padding: 1.75rem;
   border: 1px solid var(--surface-300);
   border-radius: 1.1rem;
-  background: white;
-  box-shadow: 0 .6rem 1.6rem rgba(23, 34, 63, .06);
+  background: var(--card);
+  box-shadow: 0 .6rem 1.6rem rgba(var(--shadow-rgb), .06);
 }
 .head { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
 .avatar {
@@ -14,8 +14,8 @@
   width: 3.4rem;
   height: 3.4rem;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--navy-900), var(--teal-600));
-  color: white;
+  background: linear-gradient(135deg, var(--brand-navy), var(--teal-600));
+  color: var(--primary-contrast);
   font-weight: 800;
   font-size: 1.05rem;
   flex-shrink: 0;
@@ -23,8 +23,8 @@
 .name { font-size: 1.25rem; font-weight: 800; letter-spacing: -.02em; color: var(--navy-900); }
 .email { color: var(--ink-600); font-size: .9rem; }
 .badge { display: inline-flex; margin-top: .4rem; padding: .25rem .6rem; border-radius: 999px; font-size: .72rem; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; }
-.badgeActive { color: #0f5132; background: #d9f2e3; }
-.badgeSuspended { color: #8b3023; background: #fbe4df; }
+.badgeActive { color: var(--success-fg); background: var(--success-bg); }
+.badgeSuspended { color: var(--danger-fg); background: var(--danger-bg); }
 .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); gap: 1rem; margin-top: 1.75rem; }
 .field { padding: .9rem 1rem; border-radius: .7rem; background: var(--surface-100); }
 .fieldLabel { font-size: .74rem; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; color: var(--ink-600); }
@@ -38,7 +38,7 @@
   font-weight: 800;
   font-size: .88rem;
   color: var(--navy-900);
-  background: white;
+  background: var(--card);
   cursor: not-allowed;
   opacity: .6;
 }

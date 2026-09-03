@@ -1,7 +1,8 @@
-.page { min-height: 100vh; display: grid; place-items: center; padding: 2rem; text-align: center; background: var(--surface-100); }
+.page { position: relative; min-height: 100vh; display: grid; place-items: center; padding: 2rem; text-align: center; background: var(--surface-100); }
+.themeSlot { position: absolute; top: 1.25rem; right: 1.25rem; }
 .inner { max-width: 30rem; }
 .icon { display:inline-grid; place-items:center; width:4rem; height:4rem; border-radius:50%; background: rgba(15,140,130,.12); color: var(--teal-600); font-size:1.8rem; margin-bottom:1.25rem; }
 .title { color: var(--navy-900); font-size:1.8rem; font-weight:800; letter-spacing:-.03em; }
 .text { margin-top:.75rem; color: var(--ink-600); line-height:1.6; }
-.back { display:inline-flex; margin-top:1.75rem; padding:.75rem 1.15rem; border-radius:.65rem; background: var(--teal-600); color:white; font-weight:700; }
-.back:hover { background: var(--navy-900); }
+.back { display:inline-flex; margin-top:1.75rem; padding:.75rem 1.15rem; border-radius:.65rem; background: var(--teal-600); color: var(--primary-contrast); font-weight:700; }
+.back:hover { background: var(--primary-hover); }

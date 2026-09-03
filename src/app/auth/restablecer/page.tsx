@@ -82,7 +82,7 @@ export default function RestablecerPage() {
       <main className={styles.page}>
         <section className={styles.card}>
           <div className={styles.logoWrap}>
-            <Image className={styles.logo} src="/logo.png" alt="Huellas de Vuelta" width={180} height={180} priority />
+            <Image className={styles.logo} src="/logo-emblem.png" alt="Huellas de Vuelta" width={797} height={805} priority />
           </div>
           <p className={styles.centerNote}>Verificando el enlace…</p>
         </section>
@@ -95,7 +95,7 @@ export default function RestablecerPage() {
       <main className={styles.page}>
         <section className={styles.card}>
           <div className={styles.logoWrap}>
-            <Image className={styles.logo} src="/logo.png" alt="Huellas de Vuelta" width={180} height={180} priority />
+            <Image className={styles.logo} src="/logo-emblem.png" alt="Huellas de Vuelta" width={797} height={805} priority />
           </div>
           <p className={styles.eyebrow}>Enlace inválido</p>
           <h1>Este enlace ya no es válido</h1>
@@ -110,7 +110,7 @@ export default function RestablecerPage() {
     <main className={styles.page}>
       <section className={styles.card} aria-labelledby="reset-title">
         <div className={styles.logoWrap}>
-          <Image className={styles.logo} src="/logo.png" alt="Huellas de Vuelta" width={180} height={180} priority />
+          <Image className={styles.logo} src="/logo-emblem.png" alt="Huellas de Vuelta" width={797} height={805} priority />
         </div>
         <p className={styles.eyebrow}>Nueva contraseña</p>
         <h1 id="reset-title">Crea una nueva contraseña</h1>

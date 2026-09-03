@@ -151,6 +151,25 @@ export default function AdminOrganizacionesPage() {
               <dl className={styles.details}>
                 <div><dt>Responsable</dt><dd>{org.ownerDisplayName ?? "—"} · {org.ownerEmail ?? "sin correo"}</dd></div>
                 <div><dt>Ubicación</dt><dd>{[org.address, org.neighborhood, org.city].filter(Boolean).join(", ") || "No indicada"}</dd></div>
+                <div>
+                  <dt>Coordenadas</dt>
+                  <dd>
+                    {org.lat != null && org.lng != null ? (
+                      <>
+                        {org.lat.toFixed(5)}, {org.lng.toFixed(5)}{" "}
+                        <a
+                          href={`https://www.openstreetmap.org/?mlat=${org.lat}&mlon=${org.lng}#map=16/${org.lat}/${org.lng}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          ver en el mapa
+                        </a>
+                      </>
+                    ) : (
+                      "Sin coordenadas · no aparecerá en el mapa del Landing"
+                    )}
+                  </dd>
+                </div>
                 <div><dt>Contacto</dt><dd>{[org.phone, org.whatsapp, org.email].filter(Boolean).join(" · ") || "No indicado"}</dd></div>
                 <div><dt>Publicación</dt><dd>{org.status === "published" ? "Publicada por la organización" : "Borrador"}</dd></div>
                 {org.description && <div><dt>Descripción</dt><dd>{org.description}</dd></div>}

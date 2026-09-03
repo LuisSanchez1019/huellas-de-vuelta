@@ -16,18 +16,18 @@
 .fileLabel { color: var(--ink-600); font-size: .9rem; }
 .fatal {
   margin-top: 1rem; padding: .85rem 1rem; border-radius: .6rem;
-  background: #fbe4df; color: #8b3023; font-size: .9rem; line-height: 1.5;
+  background: var(--danger-bg); color: var(--danger-fg); font-size: .9rem; line-height: 1.5;
 }
 
 .counts { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: 1rem; }
 .countOk, .countBad, .countTotal {
   display: inline-flex; padding: .3rem .7rem; border-radius: 999px; font-size: .8rem; font-weight: 800;
 }
-.countOk { color: #0f5132; background: #d9f2e3; }
-.countBad { color: #8b3023; background: #fbe4df; }
+.countOk { color: var(--success-fg); background: var(--success-bg); }
+.countBad { color: var(--danger-fg); background: var(--danger-bg); }
 .countTotal { color: var(--ink-600); background: var(--surface-100); }
 
-.tableWrap { margin-top: 1rem; overflow-x: auto; border: 1px solid var(--surface-300); border-radius: .8rem; background: white; }
+.tableWrap { margin-top: 1rem; overflow-x: auto; border: 1px solid var(--surface-300); border-radius: .8rem; background: var(--card); }
 .previewTable, .schemaTable { width: 100%; border-collapse: collapse; min-width: 32rem; }
 .previewTable th, .schemaTable th {
   text-align: left; padding: .7rem .9rem; font-size: .72rem; font-weight: 800; text-transform: uppercase;
@@ -36,8 +36,8 @@
 .previewTable td, .schemaTable td { padding: .65rem .9rem; border-bottom: 1px solid var(--surface-300); font-size: .88rem; color: var(--navy-900); }
 .previewTable tr:last-child td, .schemaTable tr:last-child td { border-bottom: 0; }
 
-.errorBox { margin-top: 1rem; padding: 1rem; border: 1px solid #f0c6bc; border-radius: .8rem; background: #fdf0ed; }
-.errorTitle { font-weight: 800; color: #8b3023; font-size: .9rem; }
-.errorList { margin-top: .5rem; display: grid; gap: .3rem; padding-left: 1.1rem; color: #8b3023; font-size: .84rem; line-height: 1.45; list-style: disc; }
+.errorBox { margin-top: 1rem; padding: 1rem; border: 1px solid var(--danger-border); border-radius: .8rem; background: var(--danger-bg); }
+.errorTitle { font-weight: 800; color: var(--danger-fg); font-size: .9rem; }
+.errorList { margin-top: .5rem; display: grid; gap: .3rem; padding-left: 1.1rem; color: var(--danger-fg); font-size: .84rem; line-height: 1.45; list-style: disc; }
 
-.doneTitle { font-weight: 800; color: #0f5132; font-size: 1.05rem; }
+.doneTitle { font-weight: 800; color: var(--success-fg); font-size: 1.05rem; }

@@ -12,22 +12,22 @@
   display: inline-flex; padding: .2rem .55rem; border-radius: 999px; font-size: .68rem;
   font-weight: 800; text-transform: uppercase; letter-spacing: .03em; white-space: nowrap;
 }
-.badgeAvailable { color: #0f5132; background: #d9f2e3; }
-.badgeTreatment { color: #7a4e12; background: #fbeacc; }
-.badgeReserved { color: #1f6fb2; background: #dcecfa; }
-.badgeAdopted { color: #48566a; background: var(--surface-300); }
-.badgeHome { color: #8b3023; background: #fbe4df; }
-.badgeSponsor { color: #0b7a72; background: #d4f1ee; }
+.badgeAvailable { color: var(--success-fg); background: var(--success-bg); }
+.badgeTreatment { color: var(--warning-fg); background: var(--warning-bg); }
+.badgeReserved { color: var(--info-fg); background: var(--info-bg); }
+.badgeAdopted { color: var(--ink-600); background: var(--surface-300); }
+.badgeHome { color: var(--danger-fg); background: var(--danger-bg); }
+.badgeSponsor { color: var(--teal-600); background: rgba(20, 168, 157, .14); }
 
 .actions { display: flex; flex-wrap: wrap; gap: .4rem; }
 .action, .actionDanger, .actionOn {
   border: 1px solid var(--surface-300); border-radius: .5rem; padding: .4rem .7rem;
-  font: inherit; font-weight: 700; font-size: .8rem; cursor: pointer; background: white; white-space: nowrap;
+  font: inherit; font-weight: 700; font-size: .8rem; cursor: pointer; background: var(--card); white-space: nowrap;
   color: var(--navy-900);
 }
 .action:hover:not(:disabled) { border-color: var(--teal-600); color: var(--teal-600); }
-.actionDanger { color: #8b3023; border-color: #f0c6bc; background: #fbe4df; }
-.actionDanger:hover:not(:disabled) { background: #f6d2c9; }
-.actionOn { color: white; background: var(--teal-600); border-color: var(--teal-600); }
-.actionOn:hover:not(:disabled) { background: var(--navy-900); border-color: var(--navy-900); }
+.actionDanger { color: var(--danger-fg); border-color: var(--danger-border); background: var(--danger-bg); }
+.actionDanger:hover:not(:disabled) { background: var(--danger-border); }
+.actionOn { color: var(--primary-contrast); background: var(--teal-600); border-color: var(--teal-600); }
+.actionOn:hover:not(:disabled) { background: var(--primary-hover); border-color: var(--primary-hover); }
 .action:disabled, .actionDanger:disabled, .actionOn:disabled { opacity: .55; cursor: not-allowed; }

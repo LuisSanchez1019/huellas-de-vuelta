@@ -1,0 +1,188 @@
+/* Tema de Leaflet integrado con los tokens de Huellas de Vuelta.
+   Archivo CSS global (no módulo) porque los marcadores y popups se inyectan
+   como HTML crudo por Leaflet y necesitan nombres de clase estables. */
+
+.hdv-map {
+  width: 100%;
+  height: 100%;
+  border-radius: 1.25rem;
+  overflow: hidden;
+  background: var(--surface-100);
+}
+
+/* Contenedor Leaflet */
+.hdv-map .leaflet-container {
+  width: 100%;
+  height: 100%;
+  background: var(--surface-100);
+  font: inherit;
+  outline: none;
+}
+
+/* Modo oscuro sin proveedor de tiles extra: filtro sobre el panel de tiles.
+   Los marcadores y popups quedan fuera del filtro (están en otros panes). */
+:root[data-theme="dark"] .hdv-map .leaflet-tile-pane {
+  filter: invert(1) hue-rotate(180deg) brightness(0.92) contrast(0.95);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .hdv-map .leaflet-tile-pane {
+    filter: invert(1) hue-rotate(180deg) brightness(0.92) contrast(0.95);
+  }
+}
+
+/* Controles de zoom */
+.hdv-map .leaflet-bar a {
+  background: var(--card);
+  color: var(--navy-900);
+  border-color: var(--border);
+  width: 2rem;
+  height: 2rem;
+  line-height: 2rem;
+  font-weight: 700;
+}
+.hdv-map .leaflet-bar a:hover {
+  background: var(--surface-100);
+  color: var(--primary);
+}
+.hdv-map .leaflet-bar a.leaflet-disabled {
+  background: var(--surface-100);
+  color: var(--ink-600);
+}
+
+/* Atribución */
+.hdv-map .leaflet-control-attribution {
+  background: color-mix(in srgb, var(--card) 82%, transparent);
+  color: var(--ink-600);
+  font-size: 0.68rem;
+}
+.hdv-map .leaflet-control-attribution a {
+  color: var(--primary);
+}
+
+/* --------- Marcadores --------- */
+.hdv-marker {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  border: 2px solid var(--card);
+  box-shadow: 0 0.35rem 0.9rem rgba(0, 0, 0, 0.35);
+}
+.hdv-marker svg {
+  transform: rotate(45deg);
+  width: 1rem;
+  height: 1rem;
+  color: #fff;
+}
+.hdv-marker--veterinaria {
+  background: var(--teal-600);
+}
+.hdv-marker--fundacion {
+  background: var(--blue-600);
+}
+.hdv-marker--pick {
+  background: var(--primary);
+}
+:root[data-theme="dark"] .hdv-marker--veterinaria { background: var(--teal-500); }
+:root[data-theme="dark"] .hdv-marker--fundacion { background: var(--blue-500); }
+
+/* --------- Popup --------- */
+.hdv-map .leaflet-popup-content-wrapper {
+  background: var(--card);
+  color: var(--navy-900);
+  border-radius: 0.9rem;
+  box-shadow: 0 1rem 2.5rem rgba(0, 0, 0, 0.28);
+}
+.hdv-map .leaflet-popup-tip {
+  background: var(--card);
+}
+.hdv-map .leaflet-popup-content {
+  margin: 0;
+  width: 16rem !important;
+  font: inherit;
+}
+.hdv-map .leaflet-popup-close-button {
+  color: var(--ink-600);
+  padding: 0.4rem 0.4rem 0 0;
+}
+.hdv-map .leaflet-popup-close-button:hover {
+  color: var(--navy-900);
+}
+
+.hdv-popup {
+  padding: 0.9rem 1rem 1rem;
+  display: grid;
+  gap: 0.5rem;
+}
+.hdv-popup__head {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.hdv-popup__logo {
+  flex-shrink: 0;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.6rem;
+  object-fit: cover;
+  background: var(--surface-100);
+  border: 1px solid var(--border);
+}
+.hdv-popup__logo--fallback {
+  display: grid;
+  place-items: center;
+  color: var(--primary);
+  font-weight: 800;
+  font-size: 0.9rem;
+}
+.hdv-popup__name {
+  font-weight: 800;
+  font-size: 0.98rem;
+  letter-spacing: -0.01em;
+  color: var(--navy-900);
+  line-height: 1.2;
+}
+.hdv-popup__type {
+  display: inline-block;
+  margin-top: 0.15rem;
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ink-600);
+}
+.hdv-popup__row {
+  display: flex;
+  gap: 0.4rem;
+  font-size: 0.82rem;
+  line-height: 1.4;
+  color: var(--ink-600);
+}
+.hdv-popup__row strong {
+  color: var(--navy-900);
+  font-weight: 700;
+  white-space: nowrap;
+}
+.hdv-popup__services {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-top: 0.1rem;
+}
+.hdv-popup__chip {
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  background: var(--surface-100);
+  border: 1px solid var(--border);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--navy-900);
+}
+.hdv-popup__link {
+  margin-top: 0.15rem;
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: var(--primary);
+}

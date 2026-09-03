@@ -1,12 +1,9 @@
-import PlaceholderPage from "@/components/PlaceholderPage";
-import { MapIcon } from "@/components/icons/Icon";
+import { redirect } from "next/navigation";
 
+/**
+ * El mapa interactivo vive dentro del Landing (sección `#mapa`), no en una
+ * página aparte. Esta ruta antigua redirige allí.
+ */
 export default function MapaPage() {
-  return (
-    <PlaceholderPage
-      icon={<MapIcon size={28} />}
-      title="Mapa en construcción"
-      text="Muy pronto podrás ver mascotas perdidas, encontradas y organizaciones aliadas cerca de ti en un mapa interactivo."
-    />
-  );
+  redirect("/#mapa");
 }

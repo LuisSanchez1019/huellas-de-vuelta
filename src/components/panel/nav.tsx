@@ -41,6 +41,7 @@ const BASE_NAV: NavEntry[] = [
     icon: <SettingsIcon size={20} />,
     items: [
       { label: "Cuenta", href: "/dashboard/configuracion/cuenta" },
+      { label: "Apariencia", href: "/dashboard/configuracion/apariencia" },
       { label: "Seguridad", href: "/dashboard/configuracion/seguridad" },
       { label: "Notificaciones", href: "/dashboard/configuracion/notificaciones" },
       { label: "Privacidad", href: "/dashboard/configuracion/privacidad" },

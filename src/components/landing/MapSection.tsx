@@ -1,22 +1,24 @@
-import Link from "next/link";
-import { MapIcon, PinIcon } from "@/components/icons/Icon";
+import { PinIcon } from "@/components/icons/Icon";
+import LandingOrgMap from "./LandingOrgMap";
 import styles from "./landing.module.css";
 
 const mapHighlights = [
-  "Mascotas perdidas y encontradas reportadas cerca de ti",
-  "Veterinarias y fundaciones aliadas por zona",
-  "Filtros por estado del caso y fecha del reporte",
+  "Veterinarias y fundaciones aliadas verificadas por Huellas de Vuelta",
+  "Ubicación real de cada organización, con su información pública",
+  "Filtra por tipo y abre cada punto para ver horario y contacto",
 ];
 
 export default function MapSection() {
   return (
-    <section id="mapa" className={styles.section} aria-label="Mapa de la comunidad">
-      <div className={`${styles.sectionInner} ${styles.mapSection}`}>
-        <div>
+    <section id="mapa" className={styles.section} aria-label="Mapa de organizaciones aliadas">
+      <div className={styles.sectionInner}>
+        <div className={styles.mapIntro}>
           <p className={styles.eyebrow}>Cobertura local</p>
-          <h2 className={styles.sectionTitleText}>Explora lo que pasa cerca de ti en el mapa</h2>
+          <h2 className={styles.sectionTitleText}>Organizaciones aliadas en el mapa</h2>
           <p className={styles.sectionSubtitle}>
-            El mapa interactivo reúne los casos activos y las organizaciones aliadas de tu zona para que puedas ayudar (o pedir ayuda) sin salir de tu barrio.
+            Explora las veterinarias y fundaciones aprobadas que forman parte de Huellas de Vuelta.
+            Son las mismas organizaciones que aparecen cuando alguien encuentra una mascota y busca
+            ayuda cerca.
           </p>
           <div className={styles.mapHighlights}>
             {mapHighlights.map((item) => (
@@ -26,23 +28,9 @@ export default function MapSection() {
               </p>
             ))}
           </div>
-          <div className={styles.mapCtaRow}>
-            <Link className={styles.qrCta} href="/mapa">Abrir el mapa</Link>
-            <Link className={styles.qrCtaSecondary} href="/auth?mode=sign-up">Reportar una mascota</Link>
-          </div>
         </div>
 
-        <Link className={styles.mapVisual} href="/mapa" aria-label="Abrir el mapa de la comunidad">
-          <div className={styles.mapCanvas} aria-hidden="true">
-            <span className={`${styles.mapPin} ${styles.mapPinLost}`}><PinIcon size={18} /></span>
-            <span className={`${styles.mapPin} ${styles.mapPinFound}`}><PinIcon size={18} /></span>
-            <span className={`${styles.mapPin} ${styles.mapPinAlly}`}><PinIcon size={18} /></span>
-          </div>
-          <p className={styles.mapCanvasCaption}>
-            <MapIcon size={18} className={styles.inlineIcon} />
-            Vista previa · el mapa interactivo llega muy pronto
-          </p>
-        </Link>
+        <LandingOrgMap />
       </div>
     </section>
   );

@@ -7,6 +7,7 @@ import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { fetchPublicPet, PET_PHOTO_BUCKET, type PublicPet } from "@/lib/supabase/pets";
 import { speciesLabels, statusLabels, sexLabels, ageUnitLabels, catColorLabels } from "@/lib/pets/labels";
 import { AlertIcon, LockIcon, PawIcon, PinIcon } from "@/components/icons/Icon";
+import ThemeToggle from "@/components/theme/ThemeToggle";
 import FoundPetWizard from "@/components/reencuentro/FoundPetWizard";
 import styles from "./publicPet.module.css";
 
@@ -62,7 +63,10 @@ export default function PublicPetPage() {
   return (
     <main className={styles.page}>
       <div className={styles.inner}>
-        <Link className={styles.back} href="/">← Huellas de Vuelta</Link>
+        <div className={styles.topBar}>
+          <Link className={styles.back} href="/">← Huellas de Vuelta</Link>
+          <ThemeToggle />
+        </div>
 
         {state === "loading" && <p className={styles.state}>Cargando…</p>}
         {state === "not-found" && (

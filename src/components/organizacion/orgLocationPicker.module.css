@@ -1,0 +1,22 @@
+.wrap { display: grid; gap: .8rem; }
+.hint { color: var(--ink-600); font-size: .84rem; line-height: 1.5; }
+.mapBox {
+  height: 20rem;
+  border-radius: 1rem;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+.mapBox[aria-disabled="true"] { opacity: .6; pointer-events: none; }
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+  flex-wrap: wrap;
+  min-height: 1.5rem;
+}
+.ok { color: var(--success-fg); font-size: .82rem; font-weight: 700; }
+
+@media (max-width: 34rem) {
+  .mapBox { height: 16rem; }
+}

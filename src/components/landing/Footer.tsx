@@ -24,7 +24,7 @@ const columns = [
   {
     title: "Recursos",
     links: [
-      { href: "/mapa", label: "Mapa" },
+      { href: "/#mapa", label: "Mapa" },
       { href: "/ayuda", label: "Centro de ayuda" },
       { href: "/ayuda", label: "Preguntas frecuentes" },
     ],

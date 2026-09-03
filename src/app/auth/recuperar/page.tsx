@@ -48,7 +48,7 @@ export default function RecuperarPage() {
         <Link className={styles.back} href="/auth?mode=sign-in">← Volver a iniciar sesión</Link>
 
         <div className={styles.logoWrap}>
-          <Image className={styles.logo} src="/logo.png" alt="Huellas de Vuelta" width={180} height={180} priority />
+          <Image className={styles.logo} src="/logo-emblem.png" alt="Huellas de Vuelta" width={797} height={805} priority />
         </div>
 
         <p className={styles.eyebrow}>Recuperar acceso</p>

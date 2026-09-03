@@ -1,7 +1,7 @@
 .card {
   display: flex; gap: 1rem; align-items: flex-start;
   margin-bottom: 1.5rem; padding: 1rem 1.15rem;
-  border: 1px solid var(--surface-300); border-radius: 1rem; background: white;
+  border: 1px solid var(--surface-300); border-radius: 1rem; background: var(--card);
 }
 .icon { flex-shrink: 0; display: grid; place-items: center; margin-top: .1rem; }
 .body { min-width: 0; flex: 1; }
@@ -10,24 +10,24 @@
 
 .action {
   flex-shrink: 0; align-self: center; display: inline-flex; align-items: center;
-  padding: .6rem 1rem; border-radius: .6rem; background: var(--teal-600); color: white;
+  padding: .6rem 1rem; border-radius: .6rem; background: var(--teal-600); color: var(--primary-contrast);
   font-weight: 800; font-size: .85rem;
 }
-.action:hover { background: var(--navy-900); }
+.action:hover { background: var(--primary-hover); }
 
 .neutral { border-color: var(--surface-300); }
-.pending { border-color: #f0d9b5; background: #fdf3e2; }
-.pending .icon, .warning .icon { color: #8a5a12; }
-.warning { border-color: #f0d9b5; background: #fdf3e2; }
-.rejected { border-color: #f0c6bc; background: #fbe4df; }
-.rejected .icon { color: #8b3023; }
-.approved { border-color: #b6e2c6; background: #eafaf0; }
-.approved .icon { color: #0f5132; }
+.pending { border-color: var(--warning-border); background: var(--warning-bg); }
+.pending .icon, .warning .icon { color: var(--warning-fg); }
+.warning { border-color: var(--warning-border); background: var(--warning-bg); }
+.rejected { border-color: var(--danger-border); background: var(--danger-bg); }
+.rejected .icon { color: var(--danger-fg); }
+.approved { border-color: var(--success-border); background: var(--success-bg); }
+.approved .icon { color: var(--success-fg); }
 
 .verifiedBadge {
   display: inline-flex; align-items: center; gap: .35rem;
   padding: .2rem .6rem; border-radius: 999px;
-  background: #0f5132; color: white; font-size: .72rem; font-weight: 800;
+  background: var(--success-fg); color: var(--primary-contrast); font-size: .72rem; font-weight: 800;
   letter-spacing: .02em; text-transform: uppercase;
 }
 

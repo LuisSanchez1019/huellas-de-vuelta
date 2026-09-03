@@ -9,6 +9,8 @@ import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { translateAuthError } from "@/lib/supabase/errors";
 import { resolvePanelSession } from "@/lib/auth/session";
 import { ACCOUNT_ROLES, isAccountRole, roleHome, roleLabels, type AccountRole } from "@/lib/auth/roles";
+import { CheckIcon } from "@/components/icons/Icon";
+import ThemeToggle from "@/components/theme/ThemeToggle";
 import styles from "./page.module.css";
 
 type Mode = "sign-in" | "sign-up";
@@ -142,14 +144,28 @@ function AuthForm() {
 
   return (
     <main className={styles.page}>
-      <section className={styles.card} aria-labelledby="auth-title">
-        <Link className={styles.back} href="/">← Huellas de Vuelta</Link>
+      <div className={styles.themeSlot}>
+        <ThemeToggle />
+      </div>
 
-        <div className={styles.logoWrap}>
-          <Image className={styles.logo} src="/logo.png" alt="Huellas de Vuelta" width={180} height={180} priority />
-        </div>
+      <div className={styles.shell}>
+        <aside className={styles.brandPanel}>
+          <Link className={styles.brandBack} href="/">← Volver al inicio</Link>
+          <div className={styles.brandMain}>
+            <Image className={styles.brandLogo} src="/logo-emblem.png" alt="Huellas de Vuelta" width={797} height={805} priority />
+            <p className={styles.brandName}>Huellas de Vuelta</p>
+            <p className={styles.brandTagline}>Ayudamos a que cada mascota vuelva a casa.</p>
+            <ul className={styles.brandPoints}>
+              <li><CheckIcon size={18} /> Placas QR que conectan a quien encuentra con la familia.</li>
+              <li><CheckIcon size={18} /> Reportes de mascotas perdidas y encontradas.</li>
+              <li><CheckIcon size={18} /> {ROLE_HINT[role]}</li>
+            </ul>
+          </div>
+          <p className={styles.brandFoot}>Acceso seguro · Tus datos están protegidos.</p>
+        </aside>
 
-        <p className={styles.eyebrow}>Acceso seguro</p>
+        <section className={styles.card} aria-labelledby="auth-title">
+        <p className={styles.eyebrow}>{mode === "sign-up" ? "Nueva cuenta" : "Acceso"}</p>
         <h1 id="auth-title">{mode === "sign-up" ? "Crea tu cuenta" : "Bienvenido de vuelta"}</h1>
         <p className={styles.description}>{ROLE_HINT[role]}</p>
 
@@ -240,7 +256,19 @@ function AuthForm() {
           {message && <p className={styles.message} role="status">{message}</p>}
           <button className={styles.submit} disabled={isSubmitting} type="submit">{isSubmitting ? "Procesando…" : mode === "sign-up" ? "Crear cuenta" : "Iniciar sesión"}</button>
         </form>
-      </section>
+
+        <p className={styles.switchLine}>
+          {mode === "sign-up" ? "¿Ya tienes cuenta? " : "¿No tienes una cuenta? "}
+          <button
+            type="button"
+            className={styles.switchButton}
+            onClick={() => handleModeChange(mode === "sign-up" ? "sign-in" : "sign-up")}
+          >
+            {mode === "sign-up" ? "Inicia sesión" : "Crear cuenta"}
+          </button>
+        </p>
+        </section>
+      </div>
     </main>
   );
 }

@@ -1,7 +1,7 @@
 .list { list-style: none; margin: 1.5rem 0 0; display: grid; gap: 1rem; }
 .item {
-  padding: 1rem; border: 1px solid var(--surface-300); border-radius: 1rem; background: white;
-  box-shadow: 0 .6rem 1.6rem rgba(23, 34, 63, .06);
+  padding: 1rem; border: 1px solid var(--surface-300); border-radius: 1rem; background: var(--card);
+  box-shadow: 0 .6rem 1.6rem rgba(var(--shadow-rgb), .06);
 }
 .itemHead { display: flex; gap: 1rem; align-items: flex-start; }
 .thumb {
@@ -19,8 +19,8 @@
   padding: .2rem .55rem; border-radius: 999px; font-size: .68rem; font-weight: 800;
   text-transform: uppercase; letter-spacing: .04em; white-space: nowrap;
 }
-.badgeActive { color: #8b3023; background: #fbe4df; }
-.badgeClosed { color: #48566a; background: var(--surface-300); }
+.badgeActive { color: var(--danger-fg); background: var(--danger-bg); }
+.badgeClosed { color: var(--ink-600); background: var(--surface-300); }
 .meta { margin-top: .2rem; color: var(--ink-600); font-size: .86rem; }
 .loc {
   display: inline-flex; align-items: center; gap: .3rem; margin-top: .3rem;
@@ -42,14 +42,14 @@
   padding: .16rem .5rem; border-radius: 999px; font-size: .64rem; font-weight: 800;
   text-transform: uppercase; letter-spacing: .03em; white-space: nowrap;
 }
-.evBadgeSighting { color: #7a4e12; background: #fbeacc; }
-.evBadgeFound { color: #1f6fb2; background: #dcecfa; }
-.evBadgeHelp { color: #8b3023; background: #fbe4df; }
+.evBadgeSighting { color: var(--warning-fg); background: var(--warning-bg); }
+.evBadgeFound { color: var(--info-fg); background: var(--info-bg); }
+.evBadgeHelp { color: var(--danger-fg); background: var(--danger-bg); }
 .evDate { color: var(--ink-600); font-size: .74rem; }
 .evLine { display: flex; align-items: center; gap: .3rem; color: var(--navy-900); font-size: .82rem; }
 .evDesc { color: var(--ink-600); font-size: .82rem; line-height: 1.45; }
 .evContact {
-  margin-top: .1rem; padding: .5rem .6rem; border-radius: .5rem; background: white;
+  margin-top: .1rem; padding: .5rem .6rem; border-radius: .5rem; background: var(--card);
   border: 1px solid var(--surface-300); color: var(--navy-900); font-size: .82rem;
 }
 .evPhoto {
@@ -58,7 +58,7 @@
 }
 .evSeen {
   justify-self: start; margin-top: .2rem; border: 1px solid var(--surface-300); border-radius: .5rem;
-  padding: .3rem .65rem; background: white; color: var(--teal-600); font: inherit; font-weight: 700;
+  padding: .3rem .65rem; background: var(--card); color: var(--teal-600); font: inherit; font-weight: 700;
   font-size: .76rem; cursor: pointer;
 }
 .evSeen:hover { background: rgba(11, 122, 114, .08); }
@@ -66,10 +66,10 @@
 
 .resolveButton {
   margin-top: 1rem; width: 100%; border: 0; border-radius: .6rem; padding: .7rem 1rem;
-  background: var(--teal-600); color: white; font: inherit; font-weight: 800; cursor: pointer;
+  background: var(--teal-600); color: var(--primary-contrast); font: inherit; font-weight: 800; cursor: pointer;
   display: inline-flex; align-items: center; justify-content: center; gap: .45rem;
 }
-.resolveButton:hover { background: var(--navy-900); }
+.resolveButton:hover { background: var(--primary-hover); }
 .resolveButton svg { flex-shrink: 0; }
 
 @media (max-width: 34rem) {

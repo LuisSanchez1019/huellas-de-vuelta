@@ -1,7 +1,114 @@
-:root { --navy-900:#17223f; --navy-700:#24365c; --teal-600:#0b7a72; --teal-500:#14a89d; --green-500:#2fbf7c; --blue-600:#1f6fb2; --blue-500:#2e86de; --surface-100:#f4f8fa; --surface-300:#dde6ec; --ink-600:#48566a; }
+:root {
+  /* ---- primitivas de marca (no cambian entre temas) ---- */
+  --navy-700: #24365c;
+  --teal-600: #0b7a72;
+  --teal-500: #14a89d;
+  --green-500: #2fbf7c;
+  --blue-600: #1f6fb2;
+  --blue-500: #2e86de;
+  --brand-navy: #17223f; /* acento oscuro fijo: gradientes, hovers de botón */
+
+  /* ---- capa semántica: TEMA CLARO ---- */
+  --bg: #f4f8fa;
+  --bg-glow: rgba(20, 168, 157, .16);
+  --surface-100: #f4f8fa;
+  --surface-300: #dde6ec;
+  --card: #ffffff;
+  --field-bg: #ffffff;
+  --navy-900: #17223f;   /* la mayoría de módulos lo usan como color de texto */
+  --ink-600: #48566a;
+  --border: #dde6ec;
+  --primary: #0b7a72;
+  --primary-hover: #17223f;
+  --primary-contrast: #ffffff;
+  --shadow-rgb: 23, 34, 63;
+  --overlay: rgba(23, 34, 63, .45);
+  --header-bg: rgba(244, 248, 250, .88);
+
+  --success-fg: #0f5132; --success-bg: #d9f2e3; --success-border: #b6e2c6;
+  --danger-fg: #8b3023;  --danger-bg: #fbe4df;  --danger-border: #f0c6bc;
+  --warning-fg: #7a4e12; --warning-bg: #fbeacc; --warning-border: #f0d9b5;
+  --info-fg: #1f6fb2;    --info-bg: #dcecfa;    --info-border: #bcd9f2;
+
+  color-scheme: light;
+}
+
+/* ---- capa semántica: TEMA OSCURO (diseñado, conserva la identidad navy/teal) ---- */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e1524;
+    --bg-glow: rgba(20, 168, 157, .10);
+    --surface-100: #141d30;
+    --surface-300: #2a3750;
+    --card: #182234;
+    --field-bg: #131c2e;
+    --navy-900: #e9eef5;
+    --ink-600: #9fb0c6;
+    --border: #2a3750;
+    --primary: #19b3a6;
+    --primary-hover: #33c7bb;
+    --primary-contrast: #08131f;
+    --shadow-rgb: 0, 0, 0;
+    --overlay: rgba(4, 10, 20, .6);
+    --header-bg: rgba(14, 21, 36, .85);
+
+    --success-fg: #7ee0ac; --success-bg: #12281f; --success-border: #235c42;
+    --danger-fg: #f0a99b;  --danger-bg: #33201c;  --danger-border: #5f342c;
+    --warning-fg: #e8c98b; --warning-bg: #322818; --warning-border: #574728;
+    --info-fg: #9cc7ea;    --info-bg: #14283a;    --info-border: #2a4256;
+
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --bg: #0e1524;
+  --bg-glow: rgba(20, 168, 157, .10);
+  --surface-100: #141d30;
+  --surface-300: #2a3750;
+  --card: #182234;
+  --field-bg: #131c2e;
+  --navy-900: #e9eef5;
+  --ink-600: #9fb0c6;
+  --border: #2a3750;
+  --primary: #19b3a6;
+  --primary-hover: #33c7bb;
+  --primary-contrast: #08131f;
+  --shadow-rgb: 0, 0, 0;
+  --overlay: rgba(4, 10, 20, .6);
+  --header-bg: rgba(14, 21, 36, .85);
+
+  --success-fg: #7ee0ac; --success-bg: #12281f; --success-border: #235c42;
+  --danger-fg: #f0a99b;  --danger-bg: #33201c;  --danger-border: #5f342c;
+  --warning-fg: #e8c98b; --warning-bg: #322818; --warning-border: #574728;
+  --info-fg: #9cc7ea;    --info-bg: #14283a;    --info-border: #2a4256;
+
+  color-scheme: dark;
+}
+
 * { box-sizing: border-box; padding: 0; margin: 0; }
 html { min-height: 100%; overflow-x: hidden; }
-body { min-height: 100vh; max-width: 100vw; overflow-x: hidden; color: var(--navy-900); background: radial-gradient(circle at 85% 10%, rgba(20,168,157,.16), transparent 24rem), var(--surface-100); font-family: var(--font-body), "Segoe UI", Arial, Helvetica, sans-serif; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+
+/* Al alternar el tema: sin transiciones (evita el "flash" y un fallo de repintado
+   de Chromium con `transition` + `var()` que cambia en un ancestro). */
+.theme-switching *,
+.theme-switching *::before,
+.theme-switching *::after {
+  transition: none !important;
+}
+body {
+  min-height: 100vh; max-width: 100vw; overflow-x: hidden;
+  color: var(--navy-900);
+  /* Longhand y SIN transición a propósito: si `background-color`/`color` (que
+     salen de var()) están en una `transition`, Chromium no los repinta cuando
+     el tema cambia en caliente por el atributo `data-theme` del <html>. */
+  background-color: var(--bg);
+  background-image: radial-gradient(circle at 85% 10%, var(--bg-glow), transparent 24rem);
+  background-repeat: no-repeat;
+  font-family: var(--font-body), "Segoe UI", Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
 h1, h2, h3, h4 { font-family: var(--font-heading), var(--font-body), sans-serif; letter-spacing: -.02em; }
 img, svg { max-width: 100%; }
 a { color: inherit; text-decoration: none; }

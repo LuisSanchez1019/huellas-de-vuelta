@@ -5,7 +5,7 @@
   text-align: center;
   border: 1px dashed var(--surface-300);
   border-radius: 1.25rem;
-  background: rgba(255, 255, 255, .7);
+  background: var(--card);
 }
 .icon {
   display: inline-grid;

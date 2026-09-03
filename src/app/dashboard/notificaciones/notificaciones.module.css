@@ -1,6 +1,6 @@
 .readAll {
   margin-top: .5rem; border: 1px solid var(--surface-300); border-radius: .55rem;
-  padding: .5rem .9rem; background: white; color: var(--teal-600);
+  padding: .5rem .9rem; background: var(--card); color: var(--teal-600);
   font: inherit; font-weight: 700; font-size: .85rem; cursor: pointer;
 }
 .readAll:hover { background: rgba(11, 122, 114, .08); }
@@ -8,7 +8,7 @@
 .list { list-style: none; margin: 1rem 0 0; display: grid; gap: .75rem; }
 .item {
   display: flex; gap: 1rem; align-items: flex-start; justify-content: space-between;
-  padding: 1rem; border: 1px solid var(--surface-300); border-radius: .9rem; background: white;
+  padding: 1rem; border: 1px solid var(--surface-300); border-radius: .9rem; background: var(--card);
 }
 .itemUnread { border-color: rgba(11, 122, 114, .4); background: rgba(11, 122, 114, .04); }
 .itemBody { min-width: 0; }

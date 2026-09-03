@@ -6,6 +6,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ACCOUNT_ROLES, roleHome, roleLabels } from "@/lib/auth/roles";
 import { setDevRole } from "@/lib/auth/session";
+import { ChevronDownIcon } from "@/components/icons/Icon";
+import ThemeToggle from "@/components/theme/ThemeToggle";
 import styles from "./Header.module.css";
 
 const navItems = [
@@ -13,7 +15,7 @@ const navItems = [
   { href: "#adopciones", label: "Adopciones" },
   { href: "#aliados", label: "Aliados" },
   { href: "#como-funciona", label: "Cómo funciona" },
-  { href: "/mapa", label: "Mapa" },
+  { href: "#mapa", label: "Mapa" },
 ];
 
 // Acceso directo a cada panel sin iniciar sesión, solo para desarrollo. Next.js
@@ -47,6 +49,7 @@ export default function Header() {
       </nav>
 
       <div className={styles.actions}>
+        <ThemeToggle />
         {DEV_ACCESS && (
           <div className={styles.devMenu}>
             <button
@@ -56,7 +59,7 @@ export default function Header() {
               aria-expanded={devMenuOpen}
               title="Solo desarrollo: entra a un panel sin login"
             >
-              Panel (dev) ▾
+              Panel (dev) <ChevronDownIcon size={14} />
             </button>
             {devMenuOpen && (
               <div className={styles.devMenuPanel} role="menu">
@@ -75,8 +78,7 @@ export default function Header() {
             )}
           </div>
         )}
-        <Link className={styles.signIn} href="/auth?mode=sign-in">Iniciar sesión</Link>
-        <Link className={styles.signUp} href="/auth?mode=sign-up">Registrarse</Link>
+        <Link className={styles.signUp} href="/auth?mode=sign-in">Iniciar sesión</Link>
         <button
           className={styles.menuToggle}
           type="button"
@@ -102,6 +104,10 @@ export default function Header() {
               </button>
             ))}
           <Link className={styles.signIn} href="/auth?mode=sign-in" onClick={() => setMenuOpen(false)}>Iniciar sesión</Link>
+          <div className={styles.mobileTheme}>
+            <span>Tema</span>
+            <ThemeToggle />
+          </div>
         </div>
       )}
     </header>

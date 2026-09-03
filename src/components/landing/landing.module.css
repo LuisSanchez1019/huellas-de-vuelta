@@ -38,18 +38,18 @@
 .petCard {
   display: grid; grid-template-columns: auto 1fr; gap: 1rem;
   width: 21rem; padding: 1rem;
-  border: 1px solid var(--surface-300); border-radius: 1rem; background: white;
-  box-shadow: 0 .6rem 1.6rem rgba(23, 34, 63, .06);
+  border: 1px solid var(--surface-300); border-radius: 1rem; background: var(--card);
+  box-shadow: 0 .6rem 1.6rem rgba(var(--shadow-rgb), .06);
   transition: transform .2s ease, box-shadow .2s ease;
 }
-.petCard:hover { transform: translateY(-.25rem); box-shadow: 0 1.1rem 2.2rem rgba(23, 34, 63, .12); }
+.petCard:hover { transform: translateY(-.25rem); box-shadow: 0 1.1rem 2.2rem rgba(var(--shadow-rgb), .12); }
 .petPhoto, .petPhotoPlaceholder {
   width: 6.5rem; height: 6.5rem; border-radius: .8rem; align-self: start;
 }
 .petPhoto { object-fit: cover; border: 1px solid var(--surface-300); background: var(--surface-100); }
 .petPhotoPlaceholder {
   display: grid; place-items: center; border: 1px solid var(--surface-300);
-  background: linear-gradient(135deg, var(--navy-900), var(--teal-600)); color: rgba(255, 255, 255, .9);
+  background: linear-gradient(135deg, var(--brand-navy), var(--teal-600)); color: rgba(255, 255, 255, .9);
 }
 .petMain { min-width: 0; display: flex; flex-direction: column; gap: .45rem; }
 .petHead { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
@@ -59,8 +59,8 @@
   padding: .22rem .55rem; border-radius: 999px; font-size: .64rem; font-weight: 800;
   letter-spacing: .03em; text-transform: uppercase; white-space: nowrap;
 }
-.petBadgeLost { color: #8b3023; background: #fbe4df; }
-.petBadgeFound { color: #1f6fb2; background: #dcecfa; }
+.petBadgeLost { color: var(--danger-fg); background: var(--danger-bg); }
+.petBadgeFound { color: var(--info-fg); background: var(--info-bg); }
 .petInfo { display: grid; gap: .28rem; }
 .petInfoRow { display: flex; align-items: center; gap: .45rem; color: var(--navy-900); font-size: .84rem; min-width: 0; }
 .petInfoRow svg { flex-shrink: 0; color: var(--ink-600); }
@@ -68,23 +68,23 @@
 .petDate { margin-top: .1rem; color: var(--ink-600); font-size: .78rem; }
 .petFoundCta {
   margin-top: .6rem; display: inline-flex; align-items: center; gap: .4rem; justify-content: center;
-  padding: .5rem .8rem; border-radius: .55rem; background: var(--teal-600); color: white;
+  padding: .5rem .8rem; border-radius: .55rem; background: var(--teal-600); color: var(--primary-contrast);
   font-weight: 800; font-size: .8rem; align-self: flex-start;
 }
-.petFoundCta:hover { background: var(--navy-900); }
+.petFoundCta:hover { background: var(--primary-hover); }
 .petFoundCta svg { flex-shrink: 0; }
 
 /* ---------- partner strip (fundaciones) ---------- */
-.partnerItem { flex: 0 0 auto; width: 9.5rem; display: grid; justify-items: center; gap: .6rem; padding: 1.25rem .75rem; border: 1px solid var(--surface-300); border-radius: 1rem; background: white; text-align: center; transition: transform .25s ease, box-shadow .25s ease; }
-.partnerItem:hover { transform: translateY(-.3rem); box-shadow: 0 1rem 2rem rgba(23,34,63,.08); }
+.partnerItem { flex: 0 0 auto; width: 9.5rem; display: grid; justify-items: center; gap: .6rem; padding: 1.25rem .75rem; border: 1px solid var(--surface-300); border-radius: 1rem; background: var(--card); text-align: center; transition: transform .25s ease, box-shadow .25s ease; }
+.partnerItem:hover { transform: translateY(-.3rem); box-shadow: 0 1rem 2rem rgba(var(--shadow-rgb),.08); }
 .partnerLogo { display: grid; place-items: center; width: 3rem; height: 3rem; border-radius: 50%; color: white; font-weight: 800; font-size: 1rem; background: linear-gradient(135deg, var(--green-500), var(--blue-500)); }
 .partnerName { font-size: .85rem; font-weight: 700; color: var(--navy-900); line-height: 1.3; }
 .partnerKind { font-size: .72rem; color: var(--ink-600); }
 
 /* ---------- veterinary card ---------- */
-.vetCard { flex: 0 0 auto; width: 14rem; padding: 1.25rem; border: 1px solid var(--surface-300); border-radius: 1rem; background: white; box-shadow: 0 .6rem 1.6rem rgba(23,34,63,.05); transition: transform .25s ease, box-shadow .25s ease; }
-.vetCard:hover { transform: translateY(-.35rem); box-shadow: 0 1.2rem 2.4rem rgba(23,34,63,.1); }
-.vetLogo { display: grid; place-items: center; width: 2.6rem; height: 2.6rem; border-radius: .7rem; color: white; font-weight: 800; background: linear-gradient(135deg, var(--teal-600), var(--navy-900)); }
+.vetCard { flex: 0 0 auto; width: 14rem; padding: 1.25rem; border: 1px solid var(--surface-300); border-radius: 1rem; background: var(--card); box-shadow: 0 .6rem 1.6rem rgba(var(--shadow-rgb),.05); transition: transform .25s ease, box-shadow .25s ease; }
+.vetCard:hover { transform: translateY(-.35rem); box-shadow: 0 1.2rem 2.4rem rgba(var(--shadow-rgb),.1); }
+.vetLogo { display: grid; place-items: center; width: 2.6rem; height: 2.6rem; border-radius: .7rem; color: white; font-weight: 800; background: linear-gradient(135deg, var(--teal-600), var(--brand-navy)); }
 .vetName { margin-top: .8rem; font-weight: 800; color: var(--navy-900); }
 .vetCity { margin-top: .2rem; color: var(--ink-600); font-size: .85rem; }
 .vetDesc { margin-top: .5rem; color: var(--ink-600); font-size: .82rem; line-height: 1.5; }
@@ -94,20 +94,20 @@
 /* ---------- organization card (veterinarias / fundaciones aliadas) ---------- */
 .orgCard {
   flex: 0 0 auto; width: 19rem; display: flex; flex-direction: column; gap: .55rem;
-  padding: 1.15rem; border: 1px solid var(--surface-300); border-radius: 1rem; background: white;
-  box-shadow: 0 .6rem 1.6rem rgba(23, 34, 63, .05);
+  padding: 1.15rem; border: 1px solid var(--surface-300); border-radius: 1rem; background: var(--card);
+  box-shadow: 0 .6rem 1.6rem rgba(var(--shadow-rgb), .05);
   transition: transform .2s ease, box-shadow .2s ease;
 }
-.orgCard:hover { transform: translateY(-.25rem); box-shadow: 0 1.1rem 2.2rem rgba(23, 34, 63, .1); }
+.orgCard:hover { transform: translateY(-.25rem); box-shadow: 0 1.1rem 2.2rem rgba(var(--shadow-rgb), .1); }
 .orgHead { display: flex; align-items: center; gap: .7rem; }
 .orgLogo {
   width: 3rem; height: 3rem; border-radius: .7rem; object-fit: contain;
-  border: 1px solid var(--surface-300); background: white; flex-shrink: 0;
+  border: 1px solid var(--surface-300); background: var(--card); flex-shrink: 0;
 }
 .orgLogoFallback {
   display: grid; place-items: center; width: 3rem; height: 3rem; border-radius: .7rem;
   color: white; font-weight: 800; font-size: .95rem; flex-shrink: 0;
-  background: linear-gradient(135deg, var(--teal-600), var(--navy-900));
+  background: linear-gradient(135deg, var(--teal-600), var(--brand-navy));
 }
 .orgHeadText { min-width: 0; }
 .orgTag {
@@ -135,16 +135,16 @@
 }
 
 /* ---------- adoption card ---------- */
-.adoptionCard { width: 15.5rem; border: 1px solid var(--surface-300); border-radius: 1rem; overflow: hidden; background: white; box-shadow: 0 .6rem 1.6rem rgba(23,34,63,.06); transition: transform .25s ease, box-shadow .25s ease; }
-.adoptionCard:hover { transform: translateY(-.35rem); box-shadow: 0 1.2rem 2.4rem rgba(23,34,63,.12); }
+.adoptionCard { width: 15.5rem; border: 1px solid var(--surface-300); border-radius: 1rem; overflow: hidden; background: var(--card); box-shadow: 0 .6rem 1.6rem rgba(var(--shadow-rgb),.06); transition: transform .25s ease, box-shadow .25s ease; }
+.adoptionCard:hover { transform: translateY(-.35rem); box-shadow: 0 1.2rem 2.4rem rgba(var(--shadow-rgb),.12); }
 .adoptionBody { padding: 1rem 1.1rem 1.25rem; }
 .adoptionName { font-size: 1.05rem; font-weight: 800; color: var(--navy-900); }
 .adoptionMeta { margin-top: .25rem; color: var(--ink-600); font-size: .88rem; }
-.adoptionCta { display: inline-flex; margin-top: .9rem; padding: .55rem .9rem; border-radius: .55rem; color: white; background: var(--teal-600); font-weight: 700; font-size: .85rem; }
-.adoptionCta:hover { background: var(--navy-900); }
+.adoptionCta { display: inline-flex; margin-top: .9rem; padding: .55rem .9rem; border-radius: .55rem; color: var(--primary-contrast); background: var(--teal-600); font-weight: 700; font-size: .85rem; }
+.adoptionCta:hover { background: var(--primary-hover); }
 
 /* ---------- stats ---------- */
-.statsSection { padding: 3rem 1.5rem; background: var(--navy-900); }
+.statsSection { padding: 3rem 1.5rem; background: var(--brand-navy); }
 .statsGrid { max-width: 72rem; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; }
 .statItem { text-align: center; color: white; }
 .statValue { font-size: clamp(1.6rem, 3vw, 2.2rem); font-weight: 800; letter-spacing: -.02em; }
@@ -152,7 +152,7 @@
 
 /* ---------- how it works ---------- */
 .stepsGrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; }
-.stepItem { padding: 1.5rem; border: 1px solid var(--surface-300); border-radius: 1rem; background: white; }
+.stepItem { padding: 1.5rem; border: 1px solid var(--surface-300); border-radius: 1rem; background: var(--card); }
 .stepNumber { display: grid; place-items: center; width: 2.2rem; height: 2.2rem; border-radius: 50%; background: var(--surface-100); color: var(--teal-600); font-weight: 800; font-size: .95rem; }
 .stepTitle { margin-top: .9rem; font-weight: 800; color: var(--navy-900); }
 .stepText { margin-top: .4rem; color: var(--ink-600); font-size: .88rem; line-height: 1.55; }
@@ -166,37 +166,72 @@
 .qrFlowStep { display: flex; align-items: center; gap: .6rem; color: var(--navy-900); font-weight: 700; font-size: .92rem; }
 .qrFlowDot { display: grid; place-items: center; width: 1.6rem; height: 1.6rem; border-radius: 50%; background: var(--surface-100); color: var(--teal-600); font-size: .8rem; }
 .qrCtaRow { display:flex; gap:.75rem; flex-wrap:wrap; margin-top: 1.5rem; }
-.qrCta { display: inline-flex; padding: .8rem 1.15rem; border-radius: .7rem; color: white; background: var(--teal-600); font-weight: 700; transition: background-color .2s ease, transform .2s ease; }
-.qrCta:hover { background: var(--navy-900); }
-.qrCtaSecondary { display: inline-flex; padding: .8rem 1.15rem; border-radius: .7rem; border: 1px solid var(--surface-300); background: white; color: var(--navy-900); font-weight: 700; transition: border-color .2s ease, color .2s ease; }
+.qrCta { display: inline-flex; padding: .8rem 1.15rem; border-radius: .7rem; color: var(--primary-contrast); background: var(--teal-600); font-weight: 700; transition: background-color .2s ease, transform .2s ease; }
+.qrCta:hover { background: var(--primary-hover); }
+.qrCtaSecondary { display: inline-flex; padding: .8rem 1.15rem; border-radius: .7rem; border: 1px solid var(--surface-300); background: var(--card); color: var(--navy-900); font-weight: 700; transition: border-color .2s ease, color .2s ease; }
 .qrCtaSecondary:hover { border-color: var(--teal-600); color: var(--teal-600); }
 .qrVisual { display: grid; justify-items: center; }
 .qrVisualLink { display: block; }
-.qrBadge { width: 14rem; padding: 1.75rem 1.5rem; border-radius: 1.25rem; background: white; border: 1px solid var(--surface-300); box-shadow: 0 1.5rem 3rem rgba(23,34,63,.12); text-align: center; }
+.qrBadge { width: 14rem; padding: 1.75rem 1.5rem; border-radius: 1.25rem; background: var(--card); border: 1px solid var(--surface-300); box-shadow: 0 1.5rem 3rem rgba(var(--shadow-rgb),.12); text-align: center; }
 .qrBadgeBrand { font-size: .7rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--navy-900); }
 .qrBadgeGrid { margin: 1.1rem auto; width: 7rem; height: 7rem; border-radius: .6rem; background:
-    repeating-linear-gradient(90deg, var(--navy-900) 0 6px, transparent 6px 12px),
-    repeating-linear-gradient(0deg, var(--navy-900) 0 6px, transparent 6px 12px);
-  background-blend-mode: multiply; background-color: white; opacity: .88; }
+    repeating-linear-gradient(90deg, var(--brand-navy) 0 6px, transparent 6px 12px),
+    repeating-linear-gradient(0deg, var(--brand-navy) 0 6px, transparent 6px 12px);
+  background-blend-mode: multiply; background-color: var(--card); opacity: .88; }
 .qrBadgeCaption { color: var(--ink-600); font-size: .78rem; line-height: 1.4; }
 
 /* ---------- Map section ---------- */
-.mapSection { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: center; }
+.mapIntro { max-width: 46rem; }
 .mapHighlights { margin-top: 1.5rem; display: grid; gap: .6rem; }
 .mapHighlight { display: flex; align-items: center; gap: .6rem; color: var(--navy-900); font-weight: 700; font-size: .92rem; }
-.mapCtaRow { display: flex; gap: .75rem; flex-wrap: wrap; margin-top: 1.5rem; }
-.mapVisual { display: block; }
-.mapCanvas { position: relative; height: 15rem; border-radius: 1.25rem; border: 1px solid var(--surface-300); overflow: hidden; box-shadow: 0 1.5rem 3rem rgba(23,34,63,.12); background:
-    radial-gradient(circle at 22% 30%, rgba(20,168,157,.14), transparent 40%),
-    radial-gradient(circle at 80% 70%, rgba(47,191,124,.12), transparent 42%),
-    repeating-linear-gradient(0deg, rgba(23,34,63,.08) 0 1px, transparent 1px 2.5rem),
-    repeating-linear-gradient(90deg, rgba(23,34,63,.08) 0 1px, transparent 1px 2.5rem),
-    white; }
-.mapPin { position: absolute; display: grid; place-items: center; width: 2.1rem; height: 2.1rem; border-radius: 50%; color: white; box-shadow: 0 .5rem 1rem rgba(23,34,63,.25); }
-.mapPinLost { top: 22%; left: 24%; background: #d1543f; }
-.mapPinFound { top: 58%; left: 52%; background: var(--blue-500); }
-.mapPinAlly { top: 34%; left: 74%; background: var(--teal-600); }
-.mapCanvasCaption { margin-top: .9rem; display: flex; align-items: center; gap: .45rem; color: var(--ink-600); font-size: .82rem; }
+
+.mapEmbed { margin-top: 2rem; }
+.mapLoading {
+  height: 26rem; border-radius: 1.25rem;
+  border: 1px solid var(--surface-300); background: var(--surface-100);
+}
+
+.orgMap { display: grid; gap: .9rem; }
+.orgMapBar {
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+}
+.orgMapFilters {
+  display: inline-flex; gap: .25rem; padding: .25rem;
+  border-radius: .7rem; background: var(--surface-100); border: 1px solid var(--border);
+}
+.orgMapFilter, .orgMapFilterActive {
+  display: inline-flex; align-items: center; gap: .4rem;
+  border: 0; border-radius: .5rem; padding: .5rem .8rem;
+  font: inherit; font-weight: 700; font-size: .85rem; cursor: pointer;
+  color: var(--ink-600); background: transparent;
+}
+.orgMapFilterActive { color: var(--navy-900); background: var(--card); box-shadow: 0 .1rem .5rem rgba(var(--shadow-rgb), .12); }
+.orgMapFilterCount {
+  min-width: 1.25rem; padding: 0 .35rem; border-radius: 999px;
+  background: var(--surface-300); color: var(--ink-600);
+  font-size: .72rem; font-weight: 800; text-align: center;
+}
+.orgMapFilterActive .orgMapFilterCount { background: var(--primary); color: var(--primary-contrast); }
+
+.orgMapLegend { display: inline-flex; gap: 1rem; color: var(--ink-600); font-size: .82rem; font-weight: 700; }
+.orgMapLegendItem { display: inline-flex; align-items: center; gap: .4rem; }
+.orgMapDot { width: .7rem; height: .7rem; border-radius: 50%; }
+.orgMapDotVet { background: var(--teal-600); }
+.orgMapDotFund { background: var(--blue-600); }
+
+.orgMapCanvas {
+  position: relative; height: 30rem;
+  border-radius: 1.25rem; overflow: hidden;
+  border: 1px solid var(--surface-300);
+  box-shadow: 0 1.5rem 3rem rgba(var(--shadow-rgb), .12);
+}
+.orgMapEmpty {
+  position: absolute; inset: auto 1rem 1rem; z-index: 500;
+  padding: .7rem .9rem; border-radius: .7rem;
+  background: var(--card); border: 1px solid var(--border);
+  color: var(--ink-600); font-size: .84rem; text-align: center;
+  box-shadow: 0 .6rem 1.6rem rgba(var(--shadow-rgb), .18);
+}
 
 /* ---------- CTA band ---------- */
 .ctaSection { padding: 3.5rem 1.5rem; background: linear-gradient(120deg, var(--teal-600), var(--green-500)); }
@@ -204,13 +239,13 @@
 .ctaTitle { color: white; font-size: clamp(1.3rem, 2.6vw, 1.8rem); font-weight: 800; letter-spacing: -.02em; }
 .ctaText { margin-top: .4rem; color: rgba(255,255,255,.92); max-width: 34rem; }
 .ctaButtons { display: flex; gap: .75rem; flex-wrap: wrap; }
-.ctaPrimary { padding: .85rem 1.2rem; border-radius: .7rem; background: var(--navy-900); color: white; font-weight: 800; transition: background-color .2s ease, transform .2s ease; }
-.ctaPrimary:hover { background: #0e1730; transform: translateY(-.15rem); }
+.ctaPrimary { padding: .85rem 1.2rem; border-radius: .7rem; background: var(--brand-navy); color: white; font-weight: 800; transition: background-color .2s ease, transform .2s ease; }
+.ctaPrimary:hover { background: var(--brand-navy); transform: translateY(-.15rem); }
 .ctaSecondary { padding: .85rem 1.2rem; border-radius: .7rem; background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.6); color: white; font-weight: 800; }
 .ctaSecondary:hover { background: rgba(255,255,255,.28); }
 
 /* ---------- footer ---------- */
-.footer { background: var(--navy-900); color: rgba(255,255,255,.78); padding: 3.5rem 1.5rem 2rem; }
+.footer { background: var(--brand-navy); color: rgba(255,255,255,.78); padding: 3.5rem 1.5rem 2rem; }
 .footerInner { max-width: 72rem; margin: 0 auto; }
 .footerGrid { display: grid; grid-template-columns: 1.4fr repeat(3, 1fr) 1fr; gap: 2rem; }
 .footerBrand { display: flex; align-items: center; gap: .6rem; color: white; font-weight: 800; }
@@ -227,7 +262,6 @@
 /* ---------- responsive ---------- */
 @media (max-width: 64rem) {
   .qrSection { grid-template-columns: 1fr; }
-  .mapSection { grid-template-columns: 1fr; }
   .footerGrid { grid-template-columns: 1fr 1fr 1fr; }
 }
 @media (max-width: 40rem) {
@@ -236,6 +270,9 @@
   .stepsGrid { grid-template-columns: 1fr 1fr; }
   .footerGrid { grid-template-columns: 1fr 1fr; }
   .ctaInner { flex-direction: column; align-items: flex-start; }
+  .orgMapCanvas { height: 24rem; }
+  .mapLoading { height: 24rem; }
+  .orgMapBar { justify-content: flex-start; }
 }
 
 /* ---------- extra utilities (landing page assembly) ---------- */

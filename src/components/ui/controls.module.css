@@ -8,7 +8,7 @@
 
 .notice {
   margin-bottom: 1.25rem; padding: .8rem .9rem; border-radius: .6rem;
-  background: #fdf3e2; border: 1px solid #f0d9b5; color: #8a5a12; font-size: .88rem; line-height: 1.45;
+  background: var(--warning-bg); border: 1px solid var(--warning-border); color: var(--warning-fg); font-size: .88rem; line-height: 1.45;
 }
 .loading { color: var(--ink-600); }
 .empty {
@@ -21,12 +21,12 @@
   border-radius: .6rem; padding: .7rem 1.1rem; font: inherit; font-weight: 800; cursor: pointer;
   border: 1px solid transparent; text-decoration: none;
 }
-.button { background: var(--teal-600); color: white; }
-.button:hover:not(:disabled) { background: var(--navy-900); }
-.buttonSecondary { background: white; color: var(--navy-900); border-color: var(--surface-300); font-weight: 700; }
+.button { background: var(--teal-600); color: var(--primary-contrast); }
+.button:hover:not(:disabled) { background: var(--primary-hover); }
+.buttonSecondary { background: var(--card); color: var(--navy-900); border-color: var(--surface-300); font-weight: 700; }
 .buttonSecondary:hover:not(:disabled) { border-color: var(--teal-600); color: var(--teal-600); }
-.buttonDanger { background: #fbe4df; color: #8b3023; border-color: #f0c6bc; }
-.buttonDanger:hover:not(:disabled) { background: #f6d2c9; }
+.buttonDanger { background: var(--danger-bg); color: var(--danger-fg); border-color: var(--danger-border); }
+.buttonDanger:hover:not(:disabled) { background: var(--danger-border); }
 .button:disabled, .buttonSecondary:disabled, .buttonDanger:disabled { opacity: .6; cursor: not-allowed; }
 
 .buttonRow { display: flex; gap: .75rem; flex-wrap: wrap; }
@@ -35,7 +35,7 @@
 .field .hint { font-weight: 500; font-size: .8rem; color: var(--ink-600); }
 .input, .select, .textarea {
   width: 100%; padding: .8rem; border: 1px solid var(--surface-300); border-radius: .55rem;
-  color: var(--navy-900); background: white; font: inherit; font-weight: 500;
+  color: var(--navy-900); background: var(--card); font: inherit; font-weight: 500;
 }
 .textarea { resize: vertical; min-height: 4.5rem; }
 .input:focus, .select:focus, .textarea:focus { outline: 3px solid rgba(47,191,124,.35); border-color: var(--green-500); }
@@ -45,7 +45,7 @@
 @media (max-width: 34rem) { .row2 { grid-template-columns: 1fr; } }
 
 .section {
-  margin-top: 1.5rem; padding: 1.25rem; border: 1px solid var(--surface-300); border-radius: 1rem; background: white;
+  margin-top: 1.5rem; padding: 1.25rem; border: 1px solid var(--surface-300); border-radius: 1rem; background: var(--card);
 }
 .sectionTitle { font-weight: 800; color: var(--navy-900); font-size: 1rem; }
 .sectionBody { display: grid; gap: 1rem; margin-top: 1rem; }
@@ -59,4 +59,5 @@
   border: 1px solid var(--surface-300); font-size: .82rem; font-weight: 700; color: var(--navy-900);
 }
 .chipRemove { border: 0; background: transparent; color: var(--ink-600); cursor: pointer; font-weight: 900; line-height: 1; }
-.chipRemove:hover { color: #8b3023; }
+.chipRemove:hover { color: var(--danger-fg); }
+.errorText { color: var(--danger-fg); font-weight: 700; font-size: .85rem; line-height: 1.45; }

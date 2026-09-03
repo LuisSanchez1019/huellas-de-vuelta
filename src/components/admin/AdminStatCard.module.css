@@ -5,8 +5,8 @@
   padding: 1.15rem 1.25rem;
   border: 1px solid var(--surface-300);
   border-radius: 1rem;
-  background: white;
-  box-shadow: 0 .5rem 1.4rem rgba(23, 34, 63, .05);
+  background: var(--card);
+  box-shadow: 0 .5rem 1.4rem rgba(var(--shadow-rgb), .05);
 }
 .icon {
   display: grid;

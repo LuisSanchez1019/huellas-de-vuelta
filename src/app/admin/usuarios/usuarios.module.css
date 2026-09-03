@@ -5,7 +5,7 @@
 .search:focus { outline: 3px solid rgba(47, 191, 124, .35); border-color: var(--green-500); }
 
 .tableWrap {
-  margin-top: 1rem; border: 1px solid var(--surface-300); border-radius: 1rem; background: white;
+  margin-top: 1rem; border: 1px solid var(--surface-300); border-radius: 1rem; background: var(--card);
   overflow-x: auto;
 }
 .table { width: 100%; border-collapse: collapse; font-size: .88rem; }
@@ -21,20 +21,20 @@
   display: inline-flex; padding: .18rem .55rem; border-radius: 999px;
   font-size: .68rem; font-weight: 800; letter-spacing: .04em;
 }
-.roleAdmin { background: #d9f2e3; color: #0f5132; }
-.roleUser { background: var(--surface-300); color: #48566a; }
+.roleAdmin { background: var(--success-bg); color: var(--success-fg); }
+.roleUser { background: var(--surface-300); color: var(--ink-600); }
 
-.stateActive { color: #0f5132; font-weight: 700; font-size: .82rem; }
-.statePending { color: #7a4e12; font-weight: 700; font-size: .82rem; }
+.stateActive { color: var(--success-fg); font-weight: 700; font-size: .82rem; }
+.statePending { color: var(--warning-fg); font-weight: 700; font-size: .82rem; }
 
 .promote, .demote {
   border: 1px solid transparent; border-radius: .5rem; padding: .45rem .8rem;
   font: inherit; font-weight: 800; font-size: .8rem; cursor: pointer;
 }
-.promote { background: var(--teal-600); color: white; }
-.promote:hover:not(:disabled) { background: var(--navy-900); }
-.demote { background: #fbe4df; color: #8b3023; border-color: #f0c6bc; }
-.demote:hover:not(:disabled) { background: #f6d2c9; }
+.promote { background: var(--teal-600); color: var(--primary-contrast); }
+.promote:hover:not(:disabled) { background: var(--primary-hover); }
+.demote { background: var(--danger-bg); color: var(--danger-fg); border-color: var(--danger-border); }
+.demote:hover:not(:disabled) { background: var(--danger-border); }
 .promote:disabled, .demote:disabled { opacity: .5; cursor: not-allowed; }
 
 .empty { padding: 2rem 1rem; text-align: center; color: var(--ink-600); }
