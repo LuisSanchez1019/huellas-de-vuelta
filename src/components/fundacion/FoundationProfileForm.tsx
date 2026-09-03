@@ -2,6 +2,7 @@
 
 import { type FormEvent, useEffect, useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
+import { getSupabaseUserId } from "@/lib/auth/session";
 import Toast, { type ToastState } from "@/components/ui/Toast";
 import { foundationRepository } from "@/lib/foundations/repository";
 import { EMPTY_FOUNDATION_INPUT, type FoundationProfileInput } from "@/lib/foundations/types";
@@ -110,14 +111,24 @@ export default function FoundationProfileForm({ ownerId }: { ownerId: string }) 
     setIsSaving(true);
     try {
       const supabase = createSupabaseBrowserClient();
+      const hasSession = Boolean(await getSupabaseUserId());
       let logoPath = form.logoPath;
-      if (logo) {
-        const newPath = await uploadOrgLogo(supabase, ownerId, logo.blob, logo.contentType);
-        if (form.logoPath && form.logoPath !== newPath) await deleteOrgLogo(supabase, form.logoPath);
-        logoPath = newPath;
-      } else if (logoRemoved && form.logoPath) {
+      let logoFailed = false;
+
+      // La subida del logo NUNCA debe impedir guardar el resto del perfil.
+      if (hasSession && logo) {
+        try {
+          const newPath = await uploadOrgLogo(supabase, ownerId, logo.blob, logo.contentType);
+          if (form.logoPath && form.logoPath !== newPath) await deleteOrgLogo(supabase, form.logoPath);
+          logoPath = newPath;
+        } catch {
+          logoFailed = true;
+        }
+      } else if (hasSession && logoRemoved && form.logoPath) {
         await deleteOrgLogo(supabase, form.logoPath);
         logoPath = "";
+      } else if (!hasSession) {
+        logoPath = logoRemoved ? "" : form.logoPath;
       }
 
       await foundationRepository.saveMine(ownerId, {
@@ -126,9 +137,21 @@ export default function FoundationProfileForm({ ownerId }: { ownerId: string }) 
         logoPath,
         logoUrl: logoPath ? "" : form.logoUrl,
       });
-      setToast({ variant: "success", message: "Perfil de la fundación guardado." });
-    } catch {
-      setToast({ variant: "error", message: "No fue posible guardar el perfil." });
+
+      if (logoFailed) {
+        setToast({
+          variant: "error",
+          message: "El perfil se guardó, pero no se pudo subir el logo. Vuelve a intentarlo.",
+        });
+        setLogo(null);
+      } else {
+        setToast({ variant: "success", message: "Perfil de la fundación guardado." });
+      }
+    } catch (error) {
+      setToast({
+        variant: "error",
+        message: error instanceof Error ? error.message : "No fue posible guardar el perfil.",
+      });
     } finally {
       setIsSaving(false);
     }
