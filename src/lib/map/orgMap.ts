@@ -24,6 +24,7 @@ export interface MapOrg {
   kind: MapOrgKind;
   category: OrgCategory;
   name: string;
+  description: string | null;
   logoUrl: string | null;
   city: string | null;
   neighborhood: string | null;
@@ -42,6 +43,7 @@ interface RawMapOrgRow {
   kind: string;
   category: string;
   name: string;
+  description: string | null;
   logo_path: string | null;
   logo_url: string | null;
   city: string | null;
@@ -94,6 +96,7 @@ export async function fetchMapOrganizations(supabase: SupabaseClient): Promise<M
           ? row.category
           : "otro_aliado") as OrgCategory,
         name: String(row.name),
+        description: row.description?.trim() || null,
         logoUrl: row.logo_path
           ? getOrgLogoPublicUrl(supabase, row.logo_path)
           : row.logo_url || null,

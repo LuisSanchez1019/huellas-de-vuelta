@@ -2,31 +2,26 @@
  * Configuración del proveedor de mapas/tiles.
  *
  * Toda la app consume el mapa a través de `LeafletMap`, que lee esta config.
- * Para cambiar de proveedor (MapTiler, Mapbox raster, tiles propios…) basta con
- * editar `MAP_TILES`: la lógica de organizaciones y de marcadores no depende de
- * estos valores.
+ * Para cambiar de proveedor basta con editar `MAP_TILES`: la lógica de
+ * organizaciones y de marcadores no depende de estos valores.
  */
 export interface TileLayerConfig {
-  /** Plantilla de URL para tema claro. */
-  light: string;
-  /** Plantilla de URL para tema oscuro. */
-  dark: string;
+  url: string;
   attribution: string;
-  subdomains: string;
   maxZoom: number;
+  subdomains?: string;
 }
 
 /**
- * CARTO basemaps ("Positron" claro / "Dark Matter" oscuro): mapa plano y
- * minimalista, sin relieve ni sombreado de terreno, tierra en un tono uniforme.
- * Sin clave de API. Cada tema tiene su propio juego de tiles (no se invierte).
+ * OpenStreetMap estándar: sin clave de API, sin marca de agua, política de uso
+ * apta para volúmenes pequeños. Se aplica un filtro CSS (gris + suave) en
+ * `leaflet-theme.css` para que se vea como un mapa sencillo y sin ruido, e
+ * invertido en modo oscuro. Un solo juego de tiles para ambos temas.
  */
 export const MAP_TILES: TileLayerConfig = {
-  light: "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png",
-  dark: "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png",
-  attribution: "&copy; OpenStreetMap &copy; CARTO",
-  subdomains: "abcd",
-  maxZoom: 20,
+  url: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+  attribution: "&copy; OpenStreetMap",
+  maxZoom: 19,
 };
 
 /** Centro por defecto del mapa del Landing (Colombia — Bucaramanga y área metropolitana). */

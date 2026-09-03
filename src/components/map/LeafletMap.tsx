@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 import type * as L from "leaflet";
 import { MAP_TILES } from "@/lib/map/config";
-import { useTheme } from "@/components/theme/ThemeProvider";
 import { buildOrgDivIcon } from "./markers";
 import type { MapOrgKind } from "@/lib/map/orgMap";
 import "leaflet/dist/leaflet.css";
@@ -39,8 +38,8 @@ function round(n: number): number {
 /**
  * Envoltorio ligero sobre Leaflet. Carga la librería de forma perezosa
  * (`import("leaflet")`) para que no entre en el bundle inicial del Landing.
- * El mapa se crea UNA vez; los marcadores, el pin del selector y el juego de
- * tiles (claro/oscuro) se actualizan sin recrearlo.
+ * El mapa se crea UNA vez; los marcadores y el pin del selector se actualizan
+ * sin recrearlo. Un solo juego de tiles; el tema lo resuelve `leaflet-theme.css`.
  */
 export default function LeafletMap({
   center,
@@ -51,12 +50,9 @@ export default function LeafletMap({
   className,
   ariaLabel = "Mapa",
 }: LeafletMapProps) {
-  const { resolvedTheme } = useTheme();
-
   const hostRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<L.Map | null>(null);
   const leafletRef = useRef<typeof L | null>(null);
-  const tileLayerRef = useRef<L.TileLayer | null>(null);
   const markerLayerRef = useRef<L.LayerGroup | null>(null);
   const pickPinRef = useRef<L.Marker | null>(null);
   const pickerOnChangeRef = useRef<((lat: number, lng: number) => void) | undefined>(undefined);
@@ -65,13 +61,8 @@ export default function LeafletMap({
   const isPicker = Boolean(picker);
   const centerRef = useRef(center);
   const zoomRef = useRef(zoom);
-  const themeRef = useRef(resolvedTheme);
 
-  // Refs actualizados por efecto (no en render) para que el efecto de montaje
-  // pueda leer el valor más reciente sin volver a crear el mapa.
-  useEffect(() => {
-    themeRef.current = resolvedTheme;
-  }, [resolvedTheme]);
+  // Mantener el callback del picker actualizado sin recrear el mapa.
   useEffect(() => {
     pickerOnChangeRef.current = picker?.onChange;
   }, [picker?.onChange]);
@@ -99,10 +90,10 @@ export default function LeafletMap({
       map.on("mouseover", () => map.scrollWheelZoom.enable());
       map.on("mouseout", () => map.scrollWheelZoom.disable());
 
-      tileLayerRef.current = leaflet
-        .tileLayer(themeRef.current === "dark" ? MAP_TILES.dark : MAP_TILES.light, {
+      leaflet
+        .tileLayer(MAP_TILES.url, {
           attribution: MAP_TILES.attribution,
-          subdomains: MAP_TILES.subdomains,
+          subdomains: MAP_TILES.subdomains ?? "abc",
           maxZoom: MAP_TILES.maxZoom,
         })
         .addTo(map);
@@ -124,17 +115,10 @@ export default function LeafletMap({
       mapRef.current?.remove();
       mapRef.current = null;
       markerLayerRef.current = null;
-      tileLayerRef.current = null;
       pickPinRef.current = null;
       leafletRef.current = null;
     };
   }, [isPicker]);
-
-  // ---- juego de tiles según el tema (sin recrear el mapa) ----
-  useEffect(() => {
-    if (!ready) return;
-    tileLayerRef.current?.setUrl(resolvedTheme === "dark" ? MAP_TILES.dark : MAP_TILES.light);
-  }, [ready, resolvedTheme]);
 
   // ---- marcadores ----
   useEffect(() => {
@@ -145,10 +129,18 @@ export default function LeafletMap({
 
     layer.clearLayers();
     for (const m of markers) {
-      leaflet
+      const marker = leaflet
         .marker([m.lat, m.lng], { icon: buildOrgDivIcon(leaflet, m.variant), keyboard: true })
-        .bindPopup(m.popupHtml ?? "", { closeButton: true, minWidth: 240, maxWidth: 260 })
+        .bindPopup(m.popupHtml ?? "", {
+          closeButton: true,
+          minWidth: 264,
+          maxWidth: 300,
+          autoPan: true,
+          className: "hdv-popup-wrap",
+        })
         .addTo(layer);
+      // Abrir al pasar el ratón por encima (además del clic / toque).
+      marker.on("mouseover", () => marker.openPopup());
     }
 
     if (fitToMarkers && markers.length > 0) {
