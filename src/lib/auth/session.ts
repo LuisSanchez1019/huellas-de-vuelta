@@ -58,7 +58,11 @@ function displayNameFrom(metadataName: unknown, email: string | null): string {
 
 /**
  * Única fuente de verdad de "quién está autenticado y con qué rol".
- * Prioridad del rol: profiles.role (BD) → user_metadata.role → "usuario".
+ *
+ * El rol SOLO proviene de `profiles.role` (BD). `user_metadata.role` NO se usa
+ * para autorización: lo puede modificar el propio navegador con `updateUser`, así
+ * que confiar en él permitiría escalar de tipo desde el cliente. Si el perfil no
+ * se puede leer, se asume el rol de menor privilegio ("usuario").
  */
 export async function resolvePanelSession(): Promise<SessionCheck> {
   const supabase = createSupabaseBrowserClient();
@@ -67,9 +71,7 @@ export async function resolvePanelSession(): Promise<SessionCheck> {
 
   if (session) {
     const user = session.user;
-    let role: AccountRole = isAccountRole(user.user_metadata?.role)
-      ? (user.user_metadata.role as AccountRole)
-      : "usuario";
+    let role: AccountRole = "usuario";
     let displayName = displayNameFrom(user.user_metadata?.display_name, user.email ?? null);
 
     try {
@@ -85,7 +87,7 @@ export async function resolvePanelSession(): Promise<SessionCheck> {
         }
       }
     } catch {
-      /* si falla la lectura del perfil, se usa el rol del metadata */
+      /* si falla la lectura del perfil se mantiene el rol de menor privilegio */
     }
 
     return {

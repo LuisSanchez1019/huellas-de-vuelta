@@ -8,6 +8,13 @@ export const roleLabels: Record<AccountRole, string> = {
   veterinaria: "Veterinaria",
 };
 
+/** Nombre del acceso correspondiente a cada rol, para mensajes al usuario. */
+export const roleAccessLabels: Record<AccountRole, string> = {
+  usuario: "Usuario",
+  fundacion: "Fundación",
+  veterinaria: "Veterinarias",
+};
+
 /** Panel de inicio de cada rol. Un solo lugar donde se define el ruteo por rol. */
 export const roleHome: Record<AccountRole, string> = {
   usuario: "/dashboard",

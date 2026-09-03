@@ -8,6 +8,11 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { translateAuthError } from "@/lib/supabase/errors";
 import { resolvePanelSession } from "@/lib/auth/session";
+import {
+  accountExistsMessage,
+  fetchAccountRoleForEmail,
+  roleMismatchLoginMessage,
+} from "@/lib/auth/accountRole";
 import { ACCOUNT_ROLES, isAccountRole, roleHome, roleLabels, type AccountRole } from "@/lib/auth/roles";
 import { CheckIcon } from "@/components/icons/Icon";
 import ThemeToggle from "@/components/theme/ThemeToggle";
@@ -64,9 +69,9 @@ function AuthForm() {
     resetFeedback();
   }
 
-  async function goToRoleHome() {
+  async function goToRoleHome(resolved?: Awaited<ReturnType<typeof resolvePanelSession>>) {
     // El panel real siempre se decide por el rol de la cuenta autenticada.
-    const check = await resolvePanelSession();
+    const check = resolved ?? (await resolvePanelSession());
     const target =
       check.status === "unauthenticated" ? roleHome[role] : roleHome[check.session.role];
     router.push(target);
@@ -103,6 +108,14 @@ function AuthForm() {
       const supabase = createSupabaseBrowserClient();
 
       if (mode === "sign-up") {
+        // El rol real de un correo ya registrado es la fuente de verdad: no se
+        // permite volver a registrarlo (ni con el mismo tipo ni con otro).
+        const existingRole = await fetchAccountRoleForEmail(supabase, email);
+        if (existingRole) {
+          setError(accountExistsMessage(existingRole));
+          return;
+        }
+
         const { data, error: signUpError } = await supabase.auth.signUp({
           email,
           password,
@@ -131,9 +144,21 @@ function AuthForm() {
       } else {
         const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
         if (signInError) throw signInError;
+
+        // Credenciales correctas: ahora el rol REAL de la cuenta (profiles.role)
+        // debe coincidir con el tipo de acceso elegido. Si no coincide, se cierra
+        // la sesión y se bloquea el ingreso.
+        const check = await resolvePanelSession();
+        const realRole = check.status === "authenticated" ? check.session.role : null;
+        if (realRole && realRole !== role) {
+          await supabase.auth.signOut();
+          setError(roleMismatchLoginMessage(realRole));
+          return;
+        }
+
         form.reset();
         setShowPassword(false);
-        await goToRoleHome();
+        await goToRoleHome(check);
       }
     } catch (caughtError) {
       setError(translateAuthError(caughtError));
