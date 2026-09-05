@@ -1,13 +1,16 @@
-import { ActivityIcon } from "@/components/icons/Icon";
-import DashboardPlaceholder from "@/components/dashboard/DashboardPlaceholder";
+import ActivityBoard from "@/components/dashboard/ActivityBoard";
+import controls from "@/components/ui/controls.module.css";
 
 export default function Page() {
   return (
-    <DashboardPlaceholder
-      icon={<ActivityIcon size={28} />}
-      title="Mi actividad"
-      text="Aquí verás una línea de tiempo con tu actividad reciente en la plataforma."
-      step="Paso 9"
-    />
+    <div>
+      <div className={controls.pageHead}>
+        <h1 className={controls.pageTitle}>Mi actividad</h1>
+        <p className={controls.pageSubtitle}>
+          Tus mascotas agrupadas por lo que está pasando con ellas ahora mismo.
+        </p>
+      </div>
+      <ActivityBoard />
+    </div>
   );
 }

@@ -5,7 +5,10 @@ const TABLE = "notifications";
 export type NotificationType =
   | "event_sighting"
   | "event_found"
-  | "event_found_needs_help";
+  | "event_found_needs_help"
+  | "event_org_received"
+  | "event_org_declined"
+  | "org_approved";
 
 export interface AppNotification {
   id: string;

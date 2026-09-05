@@ -207,40 +207,43 @@
 
 .hdv-pop__div { height: 1px; background: var(--border); margin: 0.15rem 0; }
 
-/* servicios */
+/* servicios: solo iconos (el nombre aparece como tooltip nativo al pasar el
+   cursor, vía el atributo title) para no ocupar espacio en la tarjeta. */
 .hdv-pop__srv-title {
   font-weight: 800;
   font-size: 0.86rem;
   color: var(--navy-900);
 }
 .hdv-pop__srv {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  display: flex;
+  flex-wrap: wrap;
   gap: 0.4rem;
 }
-.hdv-pop__srv-item {
-  display: grid;
-  justify-items: center;
-  gap: 0.3rem;
-  text-align: center;
-}
-.hdv-pop__srv-box {
+.hdv-pop__srv-ic {
   display: grid;
   place-items: center;
-  width: 100%;
-  aspect-ratio: 1;
-  max-width: 3rem;
-  border-radius: 0.7rem;
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: 50%;
   background: var(--surface-100);
   border: 1px solid var(--border);
   color: var(--primary);
+  cursor: default;
 }
-.hdv-pop__srv-box svg { width: 1.3rem; height: 1.3rem; }
-.hdv-pop__srv-label {
-  font-size: 0.66rem;
-  line-height: 1.2;
+.hdv-pop__srv-ic svg { width: 1.15rem; height: 1.15rem; }
+.hdv-pop__srv-more {
+  display: grid;
+  place-items: center;
+  min-width: 2.1rem;
+  height: 2.1rem;
+  padding: 0 0.5rem;
+  border-radius: 999px;
+  background: var(--surface-100);
+  border: 1px solid var(--border);
   color: var(--ink-600);
-  font-weight: 600;
+  font-size: 0.72rem;
+  font-weight: 800;
+  cursor: default;
 }
 
 /* botón */

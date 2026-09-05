@@ -31,6 +31,21 @@
   letter-spacing: .02em; text-transform: uppercase;
 }
 
+/* Aviso temporal (notificación "org_approved"): desaparece al cerrarlo o al
+   marcarse como leído, a diferencia del estado permanente de arriba. */
+.approvedBanner {
+  display: flex; align-items: flex-start; gap: .55rem;
+  margin-bottom: 1rem; padding: .75rem .9rem; border-radius: .8rem;
+  background: var(--success-bg); border: 1px solid var(--success-border); color: var(--success-fg);
+}
+.approvedBannerIcon { flex-shrink: 0; margin-top: .15rem; }
+.approvedBannerText { flex: 1; min-width: 0; font-size: .86rem; font-weight: 700; line-height: 1.45; }
+.approvedBannerClose {
+  flex-shrink: 0; border: 0; background: transparent; color: var(--success-fg); cursor: pointer;
+  padding: .15rem; border-radius: .4rem; display: grid; place-items: center;
+}
+.approvedBannerClose:hover { background: rgba(var(--shadow-rgb), .08); }
+
 @media (max-width: 34rem) {
   .card { flex-wrap: wrap; }
   .action { align-self: flex-start; }

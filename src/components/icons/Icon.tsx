@@ -1,3 +1,6 @@
+import type { ComponentType } from "react";
+import type { ServiceIconKey } from "@/lib/services/catalog";
+
 export type IconProps = {
   size?: number;
   className?: string;
@@ -323,4 +326,109 @@ export function MoonIcon({ size = 20, className }: IconProps) {
       <path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a7 7 0 1 0 10.5 10.5Z" />
     </svg>
   );
+}
+
+export function StethoscopeIcon({ size = 20, className }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+      <path d="M6.5 3.5v5.3a3.3 3.3 0 0 0 6.6 0V3.5" />
+      <path d="M9.8 8.8v2.7a5.4 5.4 0 0 0 10.8 0V9.2" />
+      <circle cx="20.6" cy="9.2" r="1.4" />
+      <circle cx="15.2" cy="18.7" r="2.4" />
+    </svg>
+  );
+}
+
+export function SyringeIcon({ size = 20, className }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+      <path d="M14 4l6 6M16 6l-8.5 8.5a2 2 0 0 0 0 2.8L9 19a2 2 0 0 0 2.8 0L20 10.5" />
+      <path d="M4 20l3-3M13 8l3 3M10.5 10.5l2.5 2.5" />
+    </svg>
+  );
+}
+
+export function BedIcon({ size = 20, className }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+      <path d="M3 19v-6.5A1.5 1.5 0 0 1 4.5 11H10a2 2 0 0 1 2 2" />
+      <path d="M12 13h7.5A1.5 1.5 0 0 1 21 14.5V19" />
+      <path d="M3 16h18" />
+      <path d="M3 19v1.5M21 19v1.5" />
+      <rect x="4.5" y="12" width="3.4" height="2" rx=".6" />
+    </svg>
+  );
+}
+
+export function ToothIcon({ size = 20, className }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+      <path d="M8.5 3.5c-2.4 0-4 1.9-4 4.4 0 2.2.6 3.7 1.1 5.6.5 1.9.9 5 2.2 5 1.1 0 1.2-3.4 1.9-5 .4-.9.6-1.3 1.3-1.3s.9.4 1.3 1.3c.7 1.6.8 5 1.9 5 1.3 0 1.7-3.1 2.2-5 .5-1.9 1.1-3.4 1.1-5.6 0-2.5-1.6-4.4-4-4.4-1 0-1.7.4-2.5.8-.8-.4-1.5-.8-2.5-.8Z" />
+    </svg>
+  );
+}
+
+export function ScissorsIcon({ size = 20, className }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+      <circle cx="6.5" cy="6.5" r="2.3" />
+      <circle cx="6.5" cy="17.5" r="2.3" />
+      <path d="M8.3 8 20 19M8.3 16 20 5" />
+    </svg>
+  );
+}
+
+export function PillIcon({ size = 20, className }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+      <rect x="3.3" y="8.7" width="17.4" height="6.6" rx="3.3" transform="rotate(-35 12 12)" />
+      <path d="M11 8.3 15.7 15.7" />
+    </svg>
+  );
+}
+
+export function BowlIcon({ size = 20, className }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+      <path d="M3.5 11h17a8.5 8.5 0 0 1-17 0Z" />
+      <path d="M12 11V7.6" />
+      <circle cx="12" cy="5.6" r="1.6" />
+    </svg>
+  );
+}
+
+export function BookIcon({ size = 20, className }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+      <path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11v16H5.5A1.5 1.5 0 0 1 4 18.5v-13Z" />
+      <path d="M20 5.5A1.5 1.5 0 0 0 18.5 4H13v16h5.5a1.5 1.5 0 0 0 1.5-1.5v-13Z" />
+    </svg>
+  );
+}
+
+const SERVICE_ICON_COMPONENTS: Record<ServiceIconKey, ComponentType<IconProps>> = {
+  stethoscope: StethoscopeIcon,
+  alert: AlertIcon,
+  syringe: SyringeIcon,
+  cross: CrossIcon,
+  bed: BedIcon,
+  search: SearchIcon,
+  tooth: ToothIcon,
+  scissors: ScissorsIcon,
+  pill: PillIcon,
+  home: HomeIcon,
+  tag: TagIcon,
+  hand: HandIcon,
+  heart: HeartIcon,
+  activity: ActivityIcon,
+  bowl: BowlIcon,
+  paw: PawIcon,
+  report: ReportIcon,
+  book: BookIcon,
+};
+
+/** Icono de un servicio del catálogo, a partir de su clave (`service_catalog.icon`). */
+export function ServiceIcon({ icon, size, className }: { icon: ServiceIconKey } & IconProps) {
+  const Component = SERVICE_ICON_COMPONENTS[icon] ?? TagIcon;
+  return <Component size={size} className={className} />;
 }

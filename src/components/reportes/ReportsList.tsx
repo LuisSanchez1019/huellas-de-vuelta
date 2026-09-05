@@ -12,6 +12,7 @@ import {
 import { reportStatusLabels, type PetReport, type PetReportStatus } from "@/lib/pets/reports";
 import {
   eventTypeLabels,
+  orgDeliveryStatus,
   petConditionLabels,
   reportStageLabels,
   type ReportEvent,
@@ -215,10 +216,30 @@ export default function ReportsList({ status }: { status: PetReportStatus }) {
                         </p>
                       )}
                       {ev.selected_org && (
-                        <p className={styles.evLine}>
-                          Piensa llevarla a: <strong>{ev.selected_org.name}</strong>
-                          {ev.selected_org.city ? ` (${ev.selected_org.city})` : ""}
-                        </p>
+                        <>
+                          <p className={styles.evLine}>
+                            Piensa llevarla a: <strong>{ev.selected_org.name}</strong>
+                            {ev.selected_org.city ? ` (${ev.selected_org.city})` : ""}
+                          </p>
+                          {orgDeliveryStatus(ev) === "received" && (
+                            <p className={styles.evDeliveryReceived}>
+                              <strong>¡Ven por tu mascota!</strong> {ev.selected_org.name} confirmó que la
+                              recibió{ev.org_received_at ? ` el ${formatDate(ev.org_received_at)}` : ""}.
+                              Contáctala para coordinar cómo recogerla.
+                            </p>
+                          )}
+                          {orgDeliveryStatus(ev) === "declined" && (
+                            <p className={styles.evDeliveryDeclined}>
+                              {ev.selected_org.name} indicó que todavía no ha recibido a tu mascota.
+                            </p>
+                          )}
+                          {orgDeliveryStatus(ev) === "pending" && (
+                            <p className={styles.evDeliveryPending}>
+                              Pendiente de entrega: esto no significa que {ev.selected_org.name} ya la
+                              recibió. Te avisaremos cuando lo confirmen.
+                            </p>
+                          )}
+                        </>
                       )}
                       {evidenceUrls[ev.id] && (
                         // eslint-disable-next-line @next/next/no-img-element -- URL firmada temporal de Supabase Storage

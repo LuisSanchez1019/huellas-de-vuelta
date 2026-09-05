@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, type ReactElement } from "react";
+import Link from "next/link";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import {
   listHelpOrganizations,
@@ -83,7 +84,12 @@ export default function FoundPetWizard({
   const needsContact = type === "found" || type === "found_needs_help";
   const needsHelp = type === "found_needs_help";
 
-  // Carga de organizaciones al llegar al paso de ayuda.
+  // Carga de organizaciones al llegar al paso de ayuda. `orgsState` se lee
+  // como guarda de "una sola vez" pero NO va en las dependencias: si fuera
+  // dependencia, el propio cambio a "loading" que hace este efecto lo
+  // volvería a disparar, cancelando (por el cleanup) la promesa en curso
+  // antes de que pudiera aplicar el resultado — se quedaría en "loading" para
+  // siempre.
   useEffect(() => {
     if (step !== "help" || orgsState !== "idle") return;
     let cancelled = false;
@@ -104,7 +110,8 @@ export default function FoundPetWizard({
     return () => {
       cancelled = true;
     };
-  }, [step, orgsState, city, defaultCity]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- `orgsState` es guarda de una sola ejecución, no un disparador (ver comentario arriba).
+  }, [step, city, defaultCity]);
 
   const detailsProblem = useMemo(() => {
     if (!city.trim() || !neighborhood.trim()) return "Indica la ciudad y el barrio o zona aproximada.";
@@ -194,6 +201,9 @@ export default function FoundPetWizard({
             La familia de {petName} recibió tu aviso y podrá comunicarse contigo. {petName} sigue
             marcada como perdida hasta que confirmen el reencuentro.
           </p>
+          <Link href="/" className={styles.doneBackLink}>
+            Volver al Landing
+          </Link>
         </div>
       </div>
     );

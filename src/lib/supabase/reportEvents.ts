@@ -2,10 +2,14 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type {
   HelpOrganization,
   OrgCategory,
+  OrgDeliveryEvent,
+  PetCondition,
   ReportEvent,
+  ReportEventType,
   SubmitReportEventInput,
 } from "@/lib/pets/reencuentro";
 import type { PetReportStatus } from "@/lib/pets/reports";
+import type { PetSpecies } from "./types";
 
 const EVENTS_TABLE = "pet_report_events";
 
@@ -110,6 +114,74 @@ export async function fetchEventsForMyReports(
     .select(EVENT_SELECT)
     .in("report_id", ids)
     .order("created_at", { ascending: false });
+  if (error) throw error;
+  return (data ?? []) as unknown as ReportEvent[];
+}
+
+/**
+ * Avisos "necesita ayuda" que seleccionaron a MI organización, vía RPC
+ * `security definer` (no una política RLS de fila completa): la función
+ * solo devuelve columnas seguras, deliberadamente SIN `finder_name` ni
+ * `finder_contact` — esos datos son privados entre quien reporta y el
+ * propietario, la organización solo debe ver "usuario anónimo". Base de
+ * "Recepción de mascotas".
+ */
+export async function fetchOrgDeliveryEvents(supabase: SupabaseClient): Promise<OrgDeliveryEvent[]> {
+  const { data, error } = await supabase.rpc("list_org_delivery_events");
+  if (error) throw error;
+  const rows = (Array.isArray(data) ? data : []) as Record<string, unknown>[];
+  return rows.map((row) => ({
+    id: String(row.id),
+    reportId: String(row.report_id),
+    petId: String(row.pet_id),
+    type: row.type as ReportEventType,
+    city: String(row.city ?? ""),
+    neighborhood: String(row.neighborhood ?? ""),
+    petCondition: (row.pet_condition as PetCondition) ?? null,
+    description: (row.description as string) ?? null,
+    selectedOrgAt: (row.selected_org_at as string) ?? null,
+    orgReceivedAt: (row.org_received_at as string) ?? null,
+    orgDeclinedAt: (row.org_declined_at as string) ?? null,
+    pet: {
+      name: String(row.pet_name ?? ""),
+      species: String(row.pet_species ?? "") as PetSpecies,
+      species_other: (row.pet_species_other as string) ?? null,
+      breed: (row.pet_breed as string) ?? null,
+      photo_path: (row.pet_photo_path as string) ?? null,
+    },
+  }));
+}
+
+/**
+ * La organización confirma o declina la recepción de la mascota (RPC
+ * `security definer`: valida server-side que quien llama es dueño de la
+ * organización seleccionada en ese aviso).
+ */
+export async function orgConfirmPetReceipt(
+  supabase: SupabaseClient,
+  eventId: string,
+  received: boolean,
+  note?: string,
+): Promise<void> {
+  const { error } = await supabase.rpc("org_confirm_pet_receipt", {
+    p_event_id: eventId,
+    p_received: received,
+    p_note: note?.trim() || null,
+  });
+  if (error) throw error;
+}
+
+/**
+ * Avisos donde una organización YA confirmó que recibió a la mascota (para
+ * "Mi actividad" → "En veterinarias/fundaciones"). RLS ya limita esto a los
+ * avisos del usuario autenticado.
+ */
+export async function fetchReceivedPetEvents(supabase: SupabaseClient): Promise<ReportEvent[]> {
+  const { data, error } = await supabase
+    .from(EVENTS_TABLE)
+    .select(EVENT_SELECT)
+    .not("org_received_at", "is", null)
+    .order("org_received_at", { ascending: false });
   if (error) throw error;
   return (data ?? []) as unknown as ReportEvent[];
 }

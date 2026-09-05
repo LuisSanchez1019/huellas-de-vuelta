@@ -17,9 +17,28 @@ const body = Source_Sans_3({
   display: "swap",
 });
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+
 export const metadata: Metadata = {
-  title: "Huellas de Vuelta",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: "Huellas de Vuelta",
+    template: "%s · Huellas de Vuelta",
+  },
   description: "Una plataforma para ayudar a las mascotas a volver a casa.",
+  openGraph: {
+    type: "website",
+    locale: "es_CO",
+    siteName: "Huellas de Vuelta",
+    title: "Huellas de Vuelta",
+    description: "Una plataforma para ayudar a las mascotas a volver a casa.",
+  },
+  twitter: {
+    card: "summary",
+    title: "Huellas de Vuelta",
+    description: "Una plataforma para ayudar a las mascotas a volver a casa.",
+  },
+  robots: { index: true, follow: true },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

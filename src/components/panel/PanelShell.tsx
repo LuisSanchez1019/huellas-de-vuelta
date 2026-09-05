@@ -19,7 +19,7 @@ export default function PanelShell({
   menuItems,
   signOutLabel,
   devBanner,
-  signOutRedirectTo = "/auth",
+  signOutRedirectTo = "/",
   children,
 }: {
   user: PanelUser;

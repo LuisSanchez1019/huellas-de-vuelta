@@ -1,86 +1,29 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
-import {
-  getOrgLogoPublicUrl,
-  listPublishedOrgProfileRows,
-  type OrgProfileKind,
-  type OrgProfileRow,
-} from "@/lib/supabase/orgProfiles";
-import type { OrgCategory } from "@/lib/pets/reencuentro";
+import { getCachedPartnerOrgs } from "@/lib/supabase/publicCache";
+import type { OrgProfileKind } from "@/lib/supabase/orgProfiles";
 import SectionTitle from "./SectionTitle";
 import AutoScroller from "./AutoScroller";
 import OrgCard, { type OrgCardData } from "./OrgCard";
 import styles from "./landing.module.css";
 
-function toCard(row: OrgProfileRow, logoUrl: string | null): OrgCardData {
-  const category = (
-    ["veterinaria", "fundacion", "refugio", "otro_aliado"].includes(row.category)
-      ? row.category
-      : row.kind
-  ) as OrgCategory;
-  return {
-    id: row.id,
-    name: row.name,
-    category,
-    logoUrl,
-    description: row.description ?? "",
-    city: row.city ?? "",
-    neighborhood: row.neighborhood ?? "",
-    phone: row.phone ?? "",
-    whatsapp: row.whatsapp ?? "",
-    services: Array.isArray(row.services) ? row.services : [],
-  };
-}
-
-function useApprovedOrgs(kind: OrgProfileKind) {
-  const [cards, setCards] = useState<OrgCardData[] | null>(null);
-
-  useEffect(() => {
-    let active = true;
-    const supabase = createSupabaseBrowserClient();
-    listPublishedOrgProfileRows(kind)
-      .then((rows) => {
-        if (!active) return;
-        setCards(
-          rows.map((row) =>
-            toCard(row, row.logo_path ? getOrgLogoPublicUrl(supabase, row.logo_path) : row.logo_url),
-          ),
-        );
-      })
-      .catch(() => {
-        if (active) setCards([]);
-      });
-    return () => {
-      active = false;
-    };
-  }, [kind]);
-
-  return cards;
-}
-
 function OrgSubsection({
-  kind,
+  cards,
   eyebrow,
   title,
   subtitle,
   emptyText,
   ariaLabel,
 }: {
-  kind: OrgProfileKind;
+  cards: OrgCardData[];
   eyebrow: string;
   title: string;
   subtitle: string;
   emptyText: string;
   ariaLabel: string;
 }) {
-  const cards = useApprovedOrgs(kind);
-
   return (
     <div className={styles.subsectionGap}>
       <SectionTitle eyebrow={eyebrow} title={title} subtitle={subtitle} />
-      {cards === null ? null : cards.length === 0 ? (
+      {cards.length === 0 ? (
         <p className={styles.scrollerEmpty}>{emptyText}</p>
       ) : (
         <AutoScroller ariaLabel={ariaLabel}>
@@ -93,12 +36,31 @@ function OrgSubsection({
   );
 }
 
-export default function PartnersSection() {
+async function safeOrgs(kind: OrgProfileKind): Promise<OrgCardData[]> {
+  try {
+    return await getCachedPartnerOrgs(kind);
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Server component: las organizaciones aprobadas+activas se traen cacheadas
+ * (ver `publicCache.ts`) — una sola consulta compartida entre visitantes por
+ * la ventana de caché, en vez de que cada navegador la repita al cargar el
+ * Landing.
+ */
+export default async function PartnersSection() {
+  const [veterinarias, fundaciones] = await Promise.all([
+    safeOrgs("veterinaria"),
+    safeOrgs("fundacion"),
+  ]);
+
   return (
     <section id="aliados" className={`${styles.section} ${styles.sectionAlt}`} aria-label="Fundaciones y veterinarias aliadas">
       <div className={styles.sectionInner}>
         <OrgSubsection
-          kind="veterinaria"
+          cards={veterinarias}
           eyebrow="Atención veterinaria"
           title="Veterinarias aliadas"
           subtitle="Clínicas verificadas por Huellas de Vuelta que colaboran con la atención de mascotas encontradas y en proceso de reencuentro."
@@ -106,7 +68,7 @@ export default function PartnersSection() {
           ariaLabel="Veterinarias aliadas"
         />
         <OrgSubsection
-          kind="fundacion"
+          cards={fundaciones}
           eyebrow="Red de aliados"
           title="Fundaciones aliadas"
           subtitle="Organizaciones verificadas que ayudan a atender, rehabilitar y proteger mascotas."

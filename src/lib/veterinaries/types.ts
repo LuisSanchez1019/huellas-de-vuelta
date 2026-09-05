@@ -44,6 +44,7 @@ export interface VeterinaryProfile {
   whatsapp: string;
   email: string;
   hours: VeterinaryHours[];
+  /** IDs de `service_catalog` seleccionados (no texto libre). */
   services: string[];
   social: VeterinarySocial;
   location: VeterinaryLocation;
@@ -67,6 +68,7 @@ export interface VeterinaryProfileInput {
   whatsapp: string;
   email: string;
   hours: VeterinaryHours[];
+  /** IDs de `service_catalog` seleccionados (no texto libre). */
   services: string[];
   social: VeterinarySocial;
   location: VeterinaryLocation;

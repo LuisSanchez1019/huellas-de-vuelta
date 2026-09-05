@@ -1,0 +1,55 @@
+/* Tarjetas de servicios predeterminados (catálogo). Reutiliza los tokens del
+   sistema de temas para funcionar en claro/oscuro sin ajustes adicionales. */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(7.5rem, 1fr));
+  gap: .75rem;
+}
+
+.card {
+  display: grid;
+  justify-items: center;
+  gap: .55rem;
+  padding: 1.1rem .6rem;
+  border-radius: 1rem;
+  border: 1.5px solid var(--surface-300);
+  background: var(--card);
+  font: inherit;
+  cursor: pointer;
+  transition: border-color .15s ease, background .15s ease, transform .1s ease;
+}
+.card:hover:not(:disabled) { border-color: var(--teal-600); }
+.card:disabled { opacity: .55; cursor: not-allowed; }
+
+.iconWrap {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 50%;
+  background: var(--surface-100);
+  color: var(--ink-600);
+  transition: background .15s ease, color .15s ease;
+}
+
+.label {
+  line-height: 1.25;
+  font-size: .8rem;
+  font-weight: 700;
+  color: var(--navy-900);
+  text-align: center;
+}
+
+.cardActive {
+  border-color: var(--teal-600);
+  background: color-mix(in srgb, var(--teal-600) 12%, var(--card));
+}
+.cardActive .iconWrap { background: var(--teal-600); color: var(--primary-contrast); }
+
+@media (max-width: 30rem) {
+  .grid { grid-template-columns: repeat(auto-fill, minmax(5.6rem, 1fr)); gap: .55rem; }
+  .card { padding: .8rem .35rem; gap: .4rem; }
+  .iconWrap { width: 2.35rem; height: 2.35rem; }
+  .label { font-size: .72rem; }
+}

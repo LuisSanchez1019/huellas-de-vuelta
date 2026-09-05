@@ -129,10 +129,26 @@
   display: -webkit-box; -webkit-line-clamp: 3; line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
 }
 .orgServices { display: flex; flex-wrap: wrap; gap: .35rem; margin-top: .1rem; }
-.orgService {
-  padding: .18rem .5rem; border-radius: 999px; background: var(--surface-100);
-  border: 1px solid var(--surface-300); font-size: .7rem; font-weight: 700; color: var(--navy-900);
+.orgServiceIcon {
+  display: grid; place-items: center; width: 1.9rem; height: 1.9rem; border-radius: 50%;
+  background: var(--surface-100); border: 1px solid var(--surface-300); color: var(--primary); flex-shrink: 0;
 }
+.orgServiceMore {
+  display: grid; place-items: center; min-width: 1.9rem; height: 1.9rem; padding: 0 .4rem; border-radius: 999px;
+  background: var(--surface-100); border: 1px solid var(--surface-300); color: var(--ink-600);
+  font-size: .68rem; font-weight: 800; flex-shrink: 0;
+}
+
+.orgActions { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .2rem; }
+.orgActionWhatsapp, .orgActionMaps {
+  flex: 1; min-width: 8rem; display: inline-flex; align-items: center; justify-content: center; gap: .35rem;
+  padding: .5rem .7rem; border-radius: .55rem; font-size: .78rem; font-weight: 800; text-decoration: none;
+  border: 1px solid var(--surface-300);
+}
+.orgActionWhatsapp { background: var(--success-bg); color: var(--success-fg); border-color: var(--success-border); }
+.orgActionWhatsapp:hover { background: var(--success-border); }
+.orgActionMaps { background: var(--surface-100); color: var(--navy-900); }
+.orgActionMaps:hover { border-color: var(--teal-600); color: var(--teal-600); }
 
 /* ---------- adoption card ---------- */
 .adoptionCard { width: 15.5rem; border: 1px solid var(--surface-300); border-radius: 1rem; overflow: hidden; background: var(--card); box-shadow: 0 .6rem 1.6rem rgba(var(--shadow-rgb),.06); transition: transform .25s ease, box-shadow .25s ease; }

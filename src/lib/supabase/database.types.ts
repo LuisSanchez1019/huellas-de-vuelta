@@ -1,6 +1,3 @@
-// Generado con el MCP de Supabase (generate_typescript_types). Regenerar tras
-// cada cambio de esquema. No editar a mano.
-
 export type Json =
   | string
   | number
@@ -263,6 +260,39 @@ export type Database = {
           },
         ]
       }
+      organization_services: {
+        Row: {
+          created_at: string
+          organization_id: string
+          service_id: string
+        }
+        Insert: {
+          created_at?: string
+          organization_id: string
+          service_id: string
+        }
+        Update: {
+          created_at?: string
+          organization_id?: string
+          service_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "organization_services_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organization_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "organization_services_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "service_catalog"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pet_report_events: {
         Row: {
           acknowledged_at: string | null
@@ -275,6 +305,7 @@ export type Database = {
           happened_on: string | null
           id: string
           neighborhood: string
+          org_declined_at: string | null
           org_received_at: string | null
           org_received_note: string | null
           owner_id: string
@@ -297,6 +328,7 @@ export type Database = {
           happened_on?: string | null
           id?: string
           neighborhood: string
+          org_declined_at?: string | null
           org_received_at?: string | null
           org_received_note?: string | null
           owner_id: string
@@ -319,6 +351,7 @@ export type Database = {
           happened_on?: string | null
           id?: string
           neighborhood?: string
+          org_declined_at?: string | null
           org_received_at?: string | null
           org_received_note?: string | null
           owner_id?: string
@@ -534,11 +567,42 @@ export type Database = {
         }
         Relationships: []
       }
+      service_catalog: {
+        Row: {
+          created_at: string
+          icon: string
+          id: string
+          kind: string
+          name: string
+          slug: string
+          sort_order: number
+        }
+        Insert: {
+          created_at?: string
+          icon: string
+          id?: string
+          kind: string
+          name: string
+          slug: string
+          sort_order?: number
+        }
+        Update: {
+          created_at?: string
+          icon?: string
+          id?: string
+          kind?: string
+          name?: string
+          slug?: string
+          sort_order?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      account_role_for_email: { Args: { p_email: string }; Returns: string }
       admin_counts: {
         Args: never
         Returns: {
@@ -643,6 +707,28 @@ export type Database = {
           whatsapp: string
         }[]
       }
+      list_map_organizations: {
+        Args: never
+        Returns: {
+          address: string
+          category: string
+          city: string
+          description: string
+          hours: Json
+          id: string
+          kind: string
+          lat: number
+          lng: number
+          logo_path: string
+          logo_url: string
+          map_url: string
+          name: string
+          neighborhood: string
+          phone: string
+          services: Json
+          whatsapp: string
+        }[]
+      }
       list_public_lost_pets: {
         Args: never
         Returns: {
@@ -664,6 +750,31 @@ export type Database = {
           species: string
           species_other: string
         }[]
+      }
+      list_org_delivery_events: {
+        Args: never
+        Returns: {
+          city: string
+          description: string
+          id: string
+          neighborhood: string
+          org_declined_at: string
+          org_received_at: string
+          pet_breed: string
+          pet_condition: string
+          pet_id: string
+          pet_name: string
+          pet_photo_path: string
+          pet_species: string
+          pet_species_other: string
+          report_id: string
+          selected_org_at: string
+          type: string
+        }[]
+      }
+      org_confirm_pet_receipt: {
+        Args: { p_event_id: string; p_note?: string; p_received: boolean }
+        Returns: undefined
       }
       report_accepts_evidence: {
         Args: { object_name: string }
@@ -727,12 +838,12 @@ export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -756,11 +867,11 @@ export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -781,11 +892,11 @@ export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -806,11 +917,11 @@ export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
     | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -823,11 +934,11 @@ export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof DatabaseWithoutInternals },
-  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
+    : never) = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }

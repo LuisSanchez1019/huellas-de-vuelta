@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import PanelShell from "@/components/panel/PanelShell";
 import { usePanelGuard, toPanelUser } from "@/components/panel/usePanelGuard";
 import type { NavEntry } from "@/components/panel/types";
-import { HomeIcon, IdCardIcon, PawIcon, SettingsIcon, UserIcon } from "@/components/icons/Icon";
+import { HandIcon, HomeIcon, IdCardIcon, PawIcon, SettingsIcon, UserIcon } from "@/components/icons/Icon";
 import styles from "./veterinaria.module.css";
 
 const VETERINARIA_NAV: NavEntry[] = [
@@ -18,6 +18,7 @@ const VETERINARIA_NAV: NavEntry[] = [
       { label: "Cargar mascotas", href: "/veterinaria/mascotas/cargar" },
     ],
   },
+  { type: "link", label: "Recepción de mascotas", href: "/veterinaria/recepcion", icon: <HandIcon size={20} /> },
   { type: "link", label: "Crear perfil", href: "/veterinaria/perfil/crear", icon: <IdCardIcon size={20} /> },
   { type: "link", label: "Mi perfil", href: "/veterinaria/perfil", icon: <UserIcon size={20} /> },
   { type: "link", label: "Configuración", href: "/veterinaria/configuracion", icon: <SettingsIcon size={20} /> },

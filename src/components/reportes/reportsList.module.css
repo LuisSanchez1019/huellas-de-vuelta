@@ -64,6 +64,20 @@
 .evSeen:hover { background: rgba(11, 122, 114, .08); }
 .evSeenDone { justify-self: start; margin-top: .2rem; color: var(--green-500); font-size: .76rem; font-weight: 800; }
 
+/* ---------- estado de entrega a organizacion ---------- */
+.evDeliveryPending {
+  margin-top: .1rem; padding: .5rem .6rem; border-radius: .5rem; font-size: .82rem; line-height: 1.4;
+  background: var(--warning-bg); border: 1px solid var(--warning-border); color: var(--warning-fg);
+}
+.evDeliveryReceived {
+  margin-top: .1rem; padding: .55rem .6rem; border-radius: .5rem; font-size: .84rem; line-height: 1.45;
+  background: var(--success-bg); border: 1px solid var(--success-border); color: var(--success-fg);
+}
+.evDeliveryDeclined {
+  margin-top: .1rem; padding: .5rem .6rem; border-radius: .5rem; font-size: .82rem; line-height: 1.4;
+  background: var(--danger-bg); border: 1px solid var(--danger-border); color: var(--danger-fg);
+}
+
 .resolveButton {
   margin-top: 1rem; width: 100%; border: 0; border-radius: .6rem; padding: .7rem 1rem;
   background: var(--teal-600); color: var(--primary-contrast); font: inherit; font-weight: 800; cursor: pointer;

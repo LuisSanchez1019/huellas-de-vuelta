@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { resolvePanelSession } from "@/lib/auth/session";
 import { veterinaryRepository } from "@/lib/veterinaries/repository";
 import type { VeterinaryProfile } from "@/lib/veterinaries/types";
+import { getServiceById } from "@/lib/services/catalog";
 import controls from "@/components/ui/controls.module.css";
 
 export default function VeterinariaMiPerfilPage() {
@@ -77,9 +78,12 @@ export default function VeterinariaMiPerfilPage() {
               <p><strong>Correo:</strong> {profile.email || "—"}</p>
               {profile.services.length > 0 && (
                 <div className={controls.chips}>
-                  {profile.services.map((service) => (
-                    <span key={service} className={controls.chip}>{service}</span>
-                  ))}
+                  {profile.services.map((serviceId) => {
+                    const service = getServiceById(serviceId);
+                    return service ? (
+                      <span key={serviceId} className={controls.chip}>{service.name}</span>
+                    ) : null;
+                  })}
                 </div>
               )}
               {profile.hours.length > 0 && (

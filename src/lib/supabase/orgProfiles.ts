@@ -72,7 +72,6 @@ export interface OrgProfileWrite {
   whatsapp: string;
   email: string;
   hours: unknown[];
-  services: string[];
   social: Record<string, string>;
   address: string;
   city: string;
@@ -119,7 +118,6 @@ export async function upsertOrgProfileRow(
     whatsapp: fields.whatsapp || null,
     email: fields.email || null,
     hours: fields.hours,
-    services: fields.services,
     social: fields.social,
     address: fields.address || null,
     city: fields.city || null,
@@ -139,8 +137,10 @@ export async function upsertOrgProfileRow(
   return data as OrgProfileRow;
 }
 
-export async function listPublishedOrgProfileRows(kind: OrgProfileKind): Promise<OrgProfileRow[]> {
-  const supabase = createSupabaseBrowserClient();
+export async function listPublishedOrgProfileRows(
+  kind: OrgProfileKind,
+  supabase: SupabaseClient = createSupabaseBrowserClient(),
+): Promise<OrgProfileRow[]> {
   const { data, error } = await supabase
     .from("organization_profiles")
     .select("*")
@@ -151,4 +151,80 @@ export async function listPublishedOrgProfileRows(kind: OrgProfileKind): Promise
     .order("name");
   if (error) throw error;
   return (data as OrgProfileRow[]) ?? [];
+}
+
+/** Referencia resuelta de un servicio del catálogo (para mostrar, no para editar). */
+export interface OrgServiceRef {
+  slug: string;
+  name: string;
+  icon: string;
+}
+
+interface RawEmbeddedService {
+  service_catalog: { slug: string; name: string; icon: string } | null;
+}
+
+/**
+ * Igual que `listPublishedOrgProfileRows`, pero además trae — en la MISMA
+ * consulta (embed de PostgREST, sin N+1) — los servicios que cada
+ * organización seleccionó del catálogo, ya resueltos (slug, nombre, icono).
+ */
+export async function listPublishedOrgProfilesWithServices(
+  kind: OrgProfileKind,
+  supabase: SupabaseClient = createSupabaseBrowserClient(),
+): Promise<{ row: OrgProfileRow; services: OrgServiceRef[] }[]> {
+  const { data, error } = await supabase
+    .from("organization_profiles")
+    .select("*, organization_services(service_catalog(slug,name,icon,sort_order))")
+    .eq("kind", kind)
+    .eq("status", "published")
+    .eq("approval_status", "approved")
+    .eq("is_active", true)
+    .order("name");
+  if (error) throw error;
+
+  return ((data ?? []) as (OrgProfileRow & { organization_services: RawEmbeddedService[] })[]).map(
+    (row) => {
+      const { organization_services, ...rest } = row;
+      const services = (organization_services ?? [])
+        .map((os) => os.service_catalog)
+        .filter((s): s is { slug: string; name: string; icon: string } => s !== null);
+      return { row: rest as OrgProfileRow, services };
+    },
+  );
+}
+
+/** IDs de servicios (del catálogo) que una organización tiene seleccionados. */
+export async function fetchOrgServiceIds(
+  supabase: SupabaseClient,
+  organizationId: string,
+): Promise<string[]> {
+  const { data, error } = await supabase
+    .from("organization_services")
+    .select("service_id")
+    .eq("organization_id", organizationId);
+  if (error) throw error;
+  return (data ?? []).map((row) => row.service_id as string);
+}
+
+/**
+ * Reemplaza por completo el conjunto de servicios seleccionados por una
+ * organización (borra y vuelve a insertar). RLS exige que `organizationId`
+ * pertenezca al dueño autenticado (o que sea admin).
+ */
+export async function replaceOrgServices(
+  supabase: SupabaseClient,
+  organizationId: string,
+  serviceIds: string[],
+): Promise<void> {
+  const { error: deleteError } = await supabase
+    .from("organization_services")
+    .delete()
+    .eq("organization_id", organizationId);
+  if (deleteError) throw deleteError;
+  if (serviceIds.length === 0) return;
+  const { error: insertError } = await supabase
+    .from("organization_services")
+    .insert(serviceIds.map((serviceId) => ({ organization_id: organizationId, service_id: serviceId })));
+  if (insertError) throw insertError;
 }

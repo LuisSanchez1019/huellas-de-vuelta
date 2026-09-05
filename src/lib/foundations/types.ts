@@ -24,6 +24,7 @@ export interface FoundationProfile {
   whatsapp: string;
   email: string;
   hours: VeterinaryHours[];
+  /** IDs de `service_catalog` seleccionados (no texto libre). */
   services: string[];
   social: VeterinarySocial;
   location: VeterinaryLocation;
@@ -46,6 +47,7 @@ export interface FoundationProfileInput {
   whatsapp: string;
   email: string;
   hours: VeterinaryHours[];
+  /** IDs de `service_catalog` seleccionados (no texto libre). */
   services: string[];
   social: VeterinarySocial;
   location: VeterinaryLocation;

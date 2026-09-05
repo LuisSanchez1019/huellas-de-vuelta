@@ -100,6 +100,7 @@ export interface ReportEvent {
   selected_org_at: string | null;
   org_received_at: string | null;
   org_received_note: string | null;
+  org_declined_at: string | null;
   photo_path: string | null;
   acknowledged_at: string | null;
   created_at: string;
@@ -113,6 +114,57 @@ export interface ReportEvent {
   } | null;
   /** Organización elegida, anidada (solo datos públicos). */
   selected_org?: { name: string; category: string; city: string | null } | null;
+}
+
+/** Estado derivado de un aviso "necesita ayuda" respecto a la organización elegida. */
+export type OrgDeliveryStatus = "none" | "pending" | "received" | "declined";
+
+export function orgDeliveryStatus(event: Pick<ReportEvent, "selected_org_id" | "org_received_at" | "org_declined_at">): OrgDeliveryStatus {
+  if (!event.selected_org_id) return "none";
+  if (event.org_received_at) return "received";
+  if (event.org_declined_at) return "declined";
+  return "pending";
+}
+
+export const orgDeliveryStatusLabels: Record<OrgDeliveryStatus, string> = {
+  none: "",
+  pending: "Pendiente de entrega",
+  received: "Recibida",
+  declined: "No recibida",
+};
+
+/**
+ * Fila de `list_org_delivery_events()` (vista de la ORGANIZACIÓN): columnas
+ * seguras solamente, sin `finder_name`/`finder_contact` — la organización
+ * solo debe ver "usuario anónimo" como reportante.
+ */
+export interface OrgDeliveryEvent {
+  id: string;
+  reportId: string;
+  petId: string;
+  type: ReportEventType;
+  city: string;
+  neighborhood: string;
+  petCondition: PetCondition | null;
+  description: string | null;
+  selectedOrgAt: string | null;
+  orgReceivedAt: string | null;
+  orgDeclinedAt: string | null;
+  pet: {
+    name: string;
+    species: string;
+    species_other: string | null;
+    breed: string | null;
+    photo_path: string | null;
+  };
+}
+
+export function orgDeliveryEventStatus(
+  event: Pick<OrgDeliveryEvent, "orgReceivedAt" | "orgDeclinedAt">,
+): Exclude<OrgDeliveryStatus, "none"> {
+  if (event.orgReceivedAt) return "received";
+  if (event.orgDeclinedAt) return "declined";
+  return "pending";
 }
 
 /** Organización aprobada devuelta por `list_help_organizations`. */

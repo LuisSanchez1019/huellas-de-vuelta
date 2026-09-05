@@ -14,7 +14,9 @@ import {
 } from "@/lib/supabase/orgProfiles";
 import OrgLogoInput, { type PreparedOrgLogo } from "@/components/organizacion/OrgLogoInput";
 import OrgLocationPicker from "@/components/organizacion/OrgLocationPicker";
+import ServiceCatalogPicker from "@/components/organizacion/ServiceCatalogPicker";
 import { isValidLatLng } from "@/lib/map/config";
+import { isValidPhone } from "@/lib/phone";
 import controls from "@/components/ui/controls.module.css";
 import styles from "@/components/veterinaria/vetProfileForm.module.css";
 
@@ -28,7 +30,6 @@ const CATEGORY_OPTIONS: { value: OrgCategory; label: string }[] = [
 
 export default function FoundationProfileForm({ ownerId }: { ownerId: string }) {
   const [form, setForm] = useState<FoundationProfileInput>(EMPTY_FOUNDATION_INPUT);
-  const [serviceDraft, setServiceDraft] = useState("");
   const [approval, setApproval] = useState<{ status: string; reason: string; published: boolean } | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -86,16 +87,6 @@ export default function FoundationProfileForm({ ownerId }: { ownerId: string }) 
   function removeHour(index: number) {
     set("hours", form.hours.filter((_, i) => i !== index));
   }
-  function addService() {
-    const value = serviceDraft.trim();
-    if (!value || form.services.includes(value)) {
-      setServiceDraft("");
-      return;
-    }
-    set("services", [...form.services, value]);
-    setServiceDraft("");
-  }
-
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!form.name.trim()) {
@@ -104,6 +95,14 @@ export default function FoundationProfileForm({ ownerId }: { ownerId: string }) 
     }
     if (form.email && !EMAIL_RE.test(form.email)) {
       setToast({ variant: "error", message: "El correo no tiene un formato válido." });
+      return;
+    }
+    if (form.phone && !isValidPhone(form.phone)) {
+      setToast({ variant: "error", message: "El teléfono debe tener al menos 10 dígitos." });
+      return;
+    }
+    if (form.whatsapp && !isValidPhone(form.whatsapp)) {
+      setToast({ variant: "error", message: "El número de WhatsApp debe tener al menos 10 dígitos." });
       return;
     }
     const { lat, lng } = form.location;
@@ -261,40 +260,14 @@ export default function FoundationProfileForm({ ownerId }: { ownerId: string }) 
       </section>
 
       <section className={controls.section}>
-        <p className={controls.sectionTitle}>Servicios</p>
+        <p className={controls.sectionTitle}>Servicios que ofrecemos</p>
         <div className={controls.sectionBody}>
-          <div className={styles.serviceAdd}>
-            <input
-              className={controls.input}
-              value={serviceDraft}
-              onChange={(e) => setServiceDraft(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault();
-                  addService();
-                }
-              }}
-              placeholder="Rescate, adopción, esterilización…"
-            />
-            <button type="button" className={controls.buttonSecondary} onClick={addService}>Agregar</button>
-          </div>
-          {form.services.length > 0 && (
-            <div className={controls.chips}>
-              {form.services.map((service) => (
-                <span key={service} className={controls.chip}>
-                  {service}
-                  <button
-                    type="button"
-                    className={controls.chipRemove}
-                    aria-label={`Quitar ${service}`}
-                    onClick={() => set("services", form.services.filter((s) => s !== service))}
-                  >
-                    ×
-                  </button>
-                </span>
-              ))}
-            </div>
-          )}
+          <ServiceCatalogPicker
+            kind="fundacion"
+            selected={form.services}
+            onChange={(ids) => set("services", ids)}
+            disabled={isSaving}
+          />
         </div>
       </section>
 

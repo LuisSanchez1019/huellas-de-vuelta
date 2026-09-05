@@ -96,3 +96,9 @@
 }
 .doneTitle { font-weight: 800; color: var(--navy-900); font-size: 1.1rem; }
 .doneText { color: var(--ink-600); font-size: .9rem; line-height: 1.55; max-width: 24rem; }
+.doneBackLink {
+  margin-top: .5rem; display: inline-flex; align-items: center; justify-content: center;
+  border-radius: .6rem; padding: .7rem 1.4rem; background: var(--teal-600); color: var(--primary-contrast);
+  font-weight: 800; text-decoration: none;
+}
+.doneBackLink:hover { background: var(--primary-hover); }

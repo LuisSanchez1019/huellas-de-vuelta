@@ -1,12 +1,16 @@
 import { mockFoundations } from "@/data/mock";
 import { getSupabaseUserId } from "@/lib/auth/session";
+import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import {
   fetchOrgProfileRow,
+  fetchOrgServiceIds,
   listPublishedOrgProfileRows,
+  replaceOrgServices,
   upsertOrgProfileRow,
   type OrgProfileRow,
   type OrgProfileWrite,
 } from "@/lib/supabase/orgProfiles";
+import { PUBLIC_ORGS_TAG, triggerPublicRevalidate } from "@/lib/cache/tags";
 import type { FoundationProfile, FoundationProfileInput } from "./types";
 import type { OrgCategory, VeterinaryHours, VeterinarySocial } from "@/lib/veterinaries/types";
 
@@ -41,7 +45,6 @@ function toWrite(input: FoundationProfileInput): OrgProfileWrite {
     whatsapp: input.whatsapp,
     email: input.email,
     hours: input.hours,
-    services: input.services,
     social: { ...input.social },
     address: input.location.address,
     city: input.location.city,
@@ -54,7 +57,7 @@ function toWrite(input: FoundationProfileInput): OrgProfileWrite {
   };
 }
 
-function rowToProfile(row: OrgProfileRow): FoundationProfile {
+function rowToProfile(row: OrgProfileRow, serviceIds: string[]): FoundationProfile {
   const social = (row.social ?? {}) as Partial<VeterinarySocial>;
   return {
     id: row.id,
@@ -69,7 +72,7 @@ function rowToProfile(row: OrgProfileRow): FoundationProfile {
     whatsapp: row.whatsapp ?? "",
     email: row.email ?? "",
     hours: Array.isArray(row.hours) ? (row.hours as unknown as VeterinaryHours[]) : [],
-    services: Array.isArray(row.services) ? row.services : [],
+    services: serviceIds,
     social: { ...EMPTY_SOCIAL, ...social },
     location: {
       address: row.address ?? "",
@@ -173,17 +176,22 @@ export const foundationRepository: FoundationRepository = {
   async getMine(ownerId) {
     if (!(await getSupabaseUserId())) return local.getMine(ownerId);
     const row = await fetchOrgProfileRow("fundacion", ownerId);
-    return row ? rowToProfile(row) : null;
+    if (!row) return null;
+    const serviceIds = await fetchOrgServiceIds(createSupabaseBrowserClient(), row.id);
+    return rowToProfile(row, serviceIds);
   },
   async saveMine(ownerId, input) {
     if (!(await getSupabaseUserId())) return local.saveMine(ownerId, input);
     const row = await upsertOrgProfileRow("fundacion", ownerId, toWrite(input));
-    return rowToProfile(row);
+    const supabase = createSupabaseBrowserClient();
+    await replaceOrgServices(supabase, row.id, input.services);
+    triggerPublicRevalidate(PUBLIC_ORGS_TAG);
+    return rowToProfile(row, input.services);
   },
   async listPublic() {
     try {
       const rows = await listPublishedOrgProfileRows("fundacion");
-      return rows.map(rowToProfile);
+      return rows.map((row) => rowToProfile(row, []));
     } catch {
       return local.listPublic();
     }

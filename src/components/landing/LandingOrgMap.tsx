@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
+import type { MapOrg } from "@/lib/map/orgMap";
 import styles from "./landing.module.css";
 
 // El mapa (y Leaflet) se cargan en su propio chunk, solo en cliente.
@@ -14,9 +15,11 @@ const OrgMapInner = dynamic(() => import("./OrgMapInner"), {
  * Puerta de rendimiento: el mapa interactivo (y la librería Leaflet) no se
  * descargan ni se montan hasta que la sección está cerca del viewport. Así el
  * resto del Landing carga sin penalización. Combina IntersectionObserver con
- * una comprobación en `scroll` como respaldo.
+ * una comprobación en `scroll` como respaldo. Los datos (`orgs`) ya llegaron
+ * del servidor (cacheados) junto con el resto de la página — lo único
+ * diferido es Leaflet y su montaje.
  */
-export default function LandingOrgMap() {
+export default function LandingOrgMap({ orgs }: { orgs: MapOrg[] }) {
   const ref = useRef<HTMLDivElement | null>(null);
   const [active, setActive] = useState(false);
 
@@ -68,7 +71,7 @@ export default function LandingOrgMap() {
 
   return (
     <div ref={ref} className={styles.mapEmbed}>
-      {active ? <OrgMapInner /> : <div className={styles.mapLoading} aria-hidden="true" />}
+      {active ? <OrgMapInner orgs={orgs} /> : <div className={styles.mapLoading} aria-hidden="true" />}
     </div>
   );
 }

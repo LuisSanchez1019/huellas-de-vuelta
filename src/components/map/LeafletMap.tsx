@@ -89,6 +89,10 @@ export default function LeafletMap({
 
       map.on("mouseover", () => map.scrollWheelZoom.enable());
       map.on("mouseout", () => map.scrollWheelZoom.disable());
+      // Leaflet escala visualmente todos los paneles (tiles, marcadores, popups)
+      // durante la animación de zoom; una tarjeta abierta se ve "estirarse" o
+      // deformarse mientras dura. Cerrarla al iniciar el zoom evita ese efecto.
+      map.on("zoomstart", () => map.closePopup());
 
       leaflet
         .tileLayer(MAP_TILES.url, {
@@ -128,6 +132,9 @@ export default function LeafletMap({
     if (!ready || !leaflet || !layer || !map || !markers) return;
 
     layer.clearLayers();
+    const pendingTimers = new Set<ReturnType<typeof setTimeout>>();
+    const CLOSE_DELAY_MS = 220;
+
     for (const m of markers) {
       const marker = leaflet
         .marker([m.lat, m.lng], { icon: buildOrgDivIcon(leaflet, m.variant), keyboard: true })
@@ -139,14 +146,53 @@ export default function LeafletMap({
           className: "hdv-popup-wrap",
         })
         .addTo(layer);
-      // Abrir al pasar el ratón por encima (además del clic / toque).
-      marker.on("mouseover", () => marker.openPopup());
+
+      // Abrir al pasar el ratón (además del clic/toque) y cerrar sola en cuanto
+      // el cursor deja tanto el marcador como la tarjeta. Un pequeño margen de
+      // tiempo permite moverse del uno al otro sin que se cierre de golpe.
+      let closeTimer: ReturnType<typeof setTimeout> | null = null;
+      const cancelClose = () => {
+        if (closeTimer) {
+          clearTimeout(closeTimer);
+          pendingTimers.delete(closeTimer);
+          closeTimer = null;
+        }
+      };
+      const scheduleClose = () => {
+        cancelClose();
+        closeTimer = setTimeout(() => {
+          pendingTimers.delete(closeTimer as ReturnType<typeof setTimeout>);
+          marker.closePopup();
+        }, CLOSE_DELAY_MS);
+        pendingTimers.add(closeTimer);
+      };
+
+      marker.on("mouseover", () => {
+        cancelClose();
+        marker.openPopup();
+      });
+      marker.on("mouseout", scheduleClose);
+      // La tarjeta es el mismo nodo del DOM en cada apertura (bindPopup lo
+      // reutiliza): basta con engancharle los listeners una sola vez.
+      marker.on("popupopen", (e: L.PopupEvent) => {
+        const el = e.popup.getElement();
+        if (el && !el.dataset.hdvHoverBound) {
+          el.dataset.hdvHoverBound = "1";
+          el.addEventListener("mouseenter", cancelClose);
+          el.addEventListener("mouseleave", scheduleClose);
+        }
+      });
     }
 
     if (fitToMarkers && markers.length > 0) {
       const bounds = leaflet.latLngBounds(markers.map((m) => [m.lat, m.lng] as [number, number]));
       map.fitBounds(bounds.pad(0.2), { maxZoom: 15, animate: false });
     }
+
+    return () => {
+      pendingTimers.forEach(clearTimeout);
+      pendingTimers.clear();
+    };
   }, [ready, markers, fitToMarkers]);
 
   // ---- pin del selector ----

@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { LostLocationInput, PetReport, PetReportStatus, PublicLostPet } from "@/lib/pets/reports";
 import type { PetAgeUnit, PetSex, PetSpecies } from "./types";
+import { PUBLIC_LOST_PETS_TAG, triggerPublicRevalidate } from "@/lib/cache/tags";
 
 const TABLE = "pet_reports";
 
@@ -63,6 +64,10 @@ export async function setPetStatus(
     p_details: loc?.details ?? null,
   });
   if (error) throw error;
+  // PERDIDO <-> EN CASA cambia qué aparece en "Mascotas que necesitan ayuda":
+  // el estado y el reporte ya quedaron guardados arriba (atómico, vía RPC);
+  // esto solo pide refrescar la vista pública, después de responder.
+  triggerPublicRevalidate(PUBLIC_LOST_PETS_TAG);
 }
 
 /** Mascotas con reporte de perdida activo, para la landing (sin datos del propietario). */

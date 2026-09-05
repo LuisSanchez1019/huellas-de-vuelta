@@ -6,6 +6,7 @@ import { usePanelGuard, toPanelUser } from "@/components/panel/usePanelGuard";
 import type { NavEntry } from "@/components/panel/types";
 import {
   ActivityIcon,
+  HandIcon,
   HomeIcon,
   IdCardIcon,
   PawIcon,
@@ -26,6 +27,7 @@ const FUNDACION_NAV: NavEntry[] = [
     ],
   },
   { type: "link", label: "Buscar hogar", href: "/fundacion/buscar-hogar", icon: <ActivityIcon size={20} /> },
+  { type: "link", label: "Recepción de mascotas", href: "/fundacion/recepcion", icon: <HandIcon size={20} /> },
   { type: "link", label: "Padrinos", href: "/fundacion/padrinos", icon: <UserIcon size={20} /> },
   { type: "link", label: "Perfil de la fundación", href: "/fundacion/perfil", icon: <IdCardIcon size={20} /> },
   { type: "link", label: "Configuración", href: "/fundacion/configuracion", icon: <SettingsIcon size={20} /> },

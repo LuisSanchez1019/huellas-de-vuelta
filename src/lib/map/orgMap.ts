@@ -1,10 +1,18 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { getOrgLogoPublicUrl } from "@/lib/supabase/orgProfiles";
 import type { OrgCategory } from "@/lib/pets/reencuentro";
+import type { ServiceIconKey } from "@/lib/services/catalog";
 import { isValidLatLng } from "./config";
 
 /** Tipo de organización para el marcador (deriva de `kind`). */
 export type MapOrgKind = "veterinaria" | "fundacion";
+
+/** Servicio del catálogo ya resuelto (slug, nombre, icono) — sin texto libre. */
+export interface MapOrgService {
+  slug: string;
+  name: string;
+  icon: ServiceIconKey;
+}
 
 export interface MapOrgHours {
   day: string;
@@ -34,7 +42,7 @@ export interface MapOrg {
   phone: string | null;
   whatsapp: string | null;
   hours: MapOrgHours[];
-  services: string[];
+  services: MapOrgService[];
   mapUrl: string | null;
 }
 
@@ -58,7 +66,19 @@ interface RawMapOrgRow {
   map_url: string | null;
 }
 
-function normalizeHours(value: unknown): MapOrgHours[] {
+function normalizeServices(value: unknown): MapOrgService[] {
+  if (!Array.isArray(value)) return [];
+  return value
+    .filter((s): s is Record<string, unknown> => typeof s === "object" && s !== null)
+    .map((s) => ({
+      slug: String(s.slug ?? ""),
+      name: String(s.name ?? ""),
+      icon: String(s.icon ?? "tag") as ServiceIconKey,
+    }))
+    .filter((s) => s.slug && s.name);
+}
+
+export function normalizeHours(value: unknown): MapOrgHours[] {
   if (!Array.isArray(value)) return [];
   return value
     .filter((h): h is Record<string, unknown> => typeof h === "object" && h !== null)
@@ -108,7 +128,7 @@ export async function fetchMapOrganizations(supabase: SupabaseClient): Promise<M
         phone: row.phone,
         whatsapp: row.whatsapp,
         hours: normalizeHours(row.hours),
-        services: Array.isArray(row.services) ? row.services.map(String) : [],
+        services: normalizeServices(row.services),
         mapUrl: row.map_url,
       };
     })

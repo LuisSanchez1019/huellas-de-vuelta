@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
-import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
-import { fetchMapOrganizations, type MapOrg } from "@/lib/map/orgMap";
+import { useMemo, useState } from "react";
+import type { MapOrg } from "@/lib/map/orgMap";
 import { DEFAULT_MAP_CENTER, DEFAULT_MAP_ZOOM } from "@/lib/map/config";
 import LeafletMap, { type LeafletMarker } from "@/components/map/LeafletMap";
 import { buildOrgPopupHtml } from "@/components/map/markers";
@@ -16,27 +15,12 @@ const FILTERS: { value: Filter; label: string }[] = [
   { value: "fundacion", label: "Fundaciones" },
 ];
 
-export default function OrgMapInner() {
-  const [orgs, setOrgs] = useState<MapOrg[] | null>(null);
-  const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
+/** `orgs` llega ya resuelto (fetch cacheado del lado del servidor en `MapSection`). */
+export default function OrgMapInner({ orgs }: { orgs: MapOrg[] }) {
   const [filter, setFilter] = useState<Filter>("todas");
-  const fetchedRef = useRef(false);
-
-  // Una sola consulta pública, al montar. No se repite al cambiar el filtro ni el tema.
-  useEffect(() => {
-    if (fetchedRef.current) return;
-    fetchedRef.current = true;
-    const supabase = createSupabaseBrowserClient();
-    fetchMapOrganizations(supabase)
-      .then((rows) => {
-        setOrgs(rows);
-        setStatus("ready");
-      })
-      .catch(() => setStatus("error"));
-  }, []);
 
   const counts = useMemo(() => {
-    const list = orgs ?? [];
+    const list = orgs;
     return {
       todas: list.length,
       veterinaria: list.filter((o) => o.kind === "veterinaria").length,
@@ -45,7 +29,6 @@ export default function OrgMapInner() {
   }, [orgs]);
 
   const markers = useMemo<LeafletMarker[]>(() => {
-    if (!orgs) return [];
     return orgs
       .filter((o) => (filter === "todas" ? true : o.kind === filter))
       .map((o) => ({
@@ -93,15 +76,12 @@ export default function OrgMapInner() {
           fitToMarkers
           ariaLabel="Mapa de veterinarias y fundaciones aliadas"
         />
-        {status === "ready" && markers.length === 0 && (
+        {markers.length === 0 && (
           <p className={styles.orgMapEmpty}>
             {counts.todas === 0
               ? "Todavía no hay organizaciones aprobadas con ubicación en el mapa."
               : "No hay organizaciones de este tipo con ubicación registrada."}
           </p>
-        )}
-        {status === "error" && (
-          <p className={styles.orgMapEmpty}>No fue posible cargar el mapa. Inténtalo más tarde.</p>
         )}
       </div>
     </div>
