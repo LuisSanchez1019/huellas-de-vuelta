@@ -137,22 +137,6 @@ export async function upsertOrgProfileRow(
   return data as OrgProfileRow;
 }
 
-export async function listPublishedOrgProfileRows(
-  kind: OrgProfileKind,
-  supabase: SupabaseClient = createSupabaseBrowserClient(),
-): Promise<OrgProfileRow[]> {
-  const { data, error } = await supabase
-    .from("organization_profiles")
-    .select("*")
-    .eq("kind", kind)
-    .eq("status", "published")
-    .eq("approval_status", "approved")
-    .eq("is_active", true)
-    .order("name");
-  if (error) throw error;
-  return (data as OrgProfileRow[]) ?? [];
-}
-
 /** Referencia resuelta de un servicio del catálogo (para mostrar, no para editar). */
 export interface OrgServiceRef {
   slug: string;
@@ -165,9 +149,9 @@ interface RawEmbeddedService {
 }
 
 /**
- * Igual que `listPublishedOrgProfileRows`, pero además trae — en la MISMA
- * consulta (embed de PostgREST, sin N+1) — los servicios que cada
- * organización seleccionó del catálogo, ya resueltos (slug, nombre, icono).
+ * Organizaciones publicadas + aprobadas + activas de un tipo, con — en la
+ * MISMA consulta (embed de PostgREST, sin N+1) — los servicios que cada una
+ * seleccionó del catálogo, ya resueltos (slug, nombre, icono).
  */
 export async function listPublishedOrgProfilesWithServices(
   kind: OrgProfileKind,

@@ -45,8 +45,8 @@ export default async function HelpSection() {
       <div className={styles.sectionInner}>
         <SectionTitle
           eyebrow="Comunidad activa"
-          title="Mascotas que necesitan ayuda"
-          subtitle="Casos recientes de mascotas perdidas reportadas por sus familias. Compártelas para acelerar el reencuentro."
+          title="Mascotas perdidas"
+          subtitle="Todos los reportes activos de mascotas perdidas por sus familias. Compártelos para acelerar el reencuentro."
         />
         <LostPetsScroller cards={cards} />
       </div>

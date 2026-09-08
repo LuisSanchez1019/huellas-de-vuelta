@@ -1,80 +1,57 @@
+import Link from "next/link";
 import { getCachedPartnerOrgs } from "@/lib/supabase/publicCache";
-import type { OrgProfileKind } from "@/lib/supabase/orgProfiles";
-import SectionTitle from "./SectionTitle";
 import AutoScroller from "./AutoScroller";
 import OrgCard, { type OrgCardData } from "./OrgCard";
 import styles from "./landing.module.css";
 
-function OrgSubsection({
-  cards,
-  eyebrow,
-  title,
-  subtitle,
-  emptyText,
-  ariaLabel,
-}: {
-  cards: OrgCardData[];
-  eyebrow: string;
-  title: string;
-  subtitle: string;
-  emptyText: string;
-  ariaLabel: string;
-}) {
-  return (
-    <div className={styles.subsectionGap}>
-      <SectionTitle eyebrow={eyebrow} title={title} subtitle={subtitle} />
-      {cards.length === 0 ? (
-        <p className={styles.scrollerEmpty}>{emptyText}</p>
-      ) : (
-        <AutoScroller ariaLabel={ariaLabel}>
-          {cards.map((org) => (
-            <OrgCard key={org.id} org={org} />
-          ))}
-        </AutoScroller>
-      )}
-    </div>
-  );
-}
-
-async function safeOrgs(kind: OrgProfileKind): Promise<OrgCardData[]> {
-  try {
-    return await getCachedPartnerOrgs(kind);
-  } catch {
-    return [];
-  }
-}
-
 /**
- * Server component: las organizaciones aprobadas+activas se traen cacheadas
- * (ver `publicCache.ts`) — una sola consulta compartida entre visitantes por
- * la ventana de caché, en vez de que cada navegador la repita al cargar el
- * Landing.
+ * Server component: "Aliados destacados". Reúne las veterinarias y fundaciones
+ * APROBADAS + ACTIVAS (mismas RPC cacheadas del resto del Landing) en una sola
+ * tira. No hay anunciantes ficticios: todo lo que aparece es una organización
+ * real que pasó la aprobación del administrador. El destacado (`featured`)
+ * queda preparado para cuando exista una columna de patrocinio en la base de
+ * datos; hoy ninguna organización lo activa.
  */
 export default async function PartnersSection() {
   const [veterinarias, fundaciones] = await Promise.all([
-    safeOrgs("veterinaria"),
-    safeOrgs("fundacion"),
+    getCachedPartnerOrgs("veterinaria").catch(() => []),
+    getCachedPartnerOrgs("fundacion").catch(() => []),
   ]);
 
+  // Intercala veterinarias y fundaciones para que la tira no quede agrupada.
+  const merged: OrgCardData[] = [];
+  const max = Math.max(veterinarias.length, fundaciones.length);
+  for (let i = 0; i < max; i += 1) {
+    if (veterinarias[i]) merged.push(veterinarias[i]);
+    if (fundaciones[i]) merged.push(fundaciones[i]);
+  }
+
   return (
-    <section id="aliados" className={`${styles.section} ${styles.sectionAlt}`} aria-label="Fundaciones y veterinarias aliadas">
+    <section id="aliados" className={`${styles.section} ${styles.sectionAlt}`} aria-label="Aliados destacados">
       <div className={styles.sectionInner}>
-        <OrgSubsection
-          cards={veterinarias}
-          eyebrow="Atención veterinaria"
-          title="Veterinarias aliadas"
-          subtitle="Clínicas verificadas por Huellas de Vuelta que colaboran con la atención de mascotas encontradas y en proceso de reencuentro."
-          emptyText="Aún no hay veterinarias aliadas verificadas."
-          ariaLabel="Veterinarias aliadas"
-        />
-        <OrgSubsection
-          cards={fundaciones}
-          eyebrow="Red de aliados"
-          title="Fundaciones aliadas"
-          subtitle="Organizaciones verificadas que ayudan a atender, rehabilitar y proteger mascotas."
-          emptyText="Aún no hay fundaciones aliadas verificadas."
-          ariaLabel="Fundaciones aliadas"
-        />
+        <div className={styles.sectionHeader}>
+          <div>
+            <p className={styles.eyebrow}>
+              Aliados destacados <span className={styles.adTag}>Publicidad</span>
+            </p>
+            <h2 className={styles.sectionTitleText}>Organizaciones y negocios que apoyan esta causa</h2>
+            <p className={styles.sectionSubtitle}>
+              Veterinarias y fundaciones verificadas por Huellas de Vuelta. Son las mismas
+              organizaciones que aparecen cuando alguien encuentra una mascota y busca ayuda cerca.
+            </p>
+          </div>
+          <Link className={styles.viewAllLink} href="/#mapa">Ver todos los aliados →</Link>
+        </div>
+
+        {merged.length === 0 ? (
+          <p className={styles.scrollerEmpty}>Aún no hay organizaciones aliadas verificadas.</p>
+        ) : (
+          <AutoScroller ariaLabel="Aliados destacados">
+            {merged.map((org) => (
+              <OrgCard key={org.id} org={org} />
+            ))}
+          </AutoScroller>
+        )}
       </div>
     </section>
   );

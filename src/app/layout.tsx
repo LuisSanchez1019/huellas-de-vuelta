@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Lexend, Source_Sans_3 } from "next/font/google";
+import { Caveat, Lexend, Source_Sans_3 } from "next/font/google";
 import { ThemeProvider, themeInitScript } from "@/components/theme/ThemeProvider";
 import "./globals.css";
 
@@ -14,6 +14,14 @@ const body = Source_Sans_3({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
   variable: "--font-body",
+  display: "swap",
+});
+
+// Tipografía manuscrita, solo para frases de marca puntuales del Landing.
+const script = Caveat({
+  subsets: ["latin"],
+  weight: ["600", "700"],
+  variable: "--font-script",
   display: "swap",
 });
 
@@ -55,7 +63,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           dangerouslySetInnerHTML={{ __html: themeInitScript }}
         />
       </head>
-      <body className={`${heading.variable} ${body.variable}`}>
+      <body className={`${heading.variable} ${body.variable} ${script.variable}`}>
         <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>

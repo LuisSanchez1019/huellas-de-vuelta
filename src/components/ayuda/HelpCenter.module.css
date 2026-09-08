@@ -1,0 +1,63 @@
+.wrap { max-width: 46rem; margin: 0 auto; padding: 3.5rem 1.5rem 4.5rem; }
+.eyebrow {
+  font-size: .78rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--teal-600);
+}
+.title { margin-top: .5rem; font-size: clamp(1.8rem, 4vw, 2.4rem); font-weight: 800; letter-spacing: -.03em; color: var(--navy-900); }
+.subtitle { margin-top: .6rem; color: var(--ink-600); font-size: 1rem; line-height: 1.6; }
+
+.groups { margin-top: 2.5rem; display: grid; gap: 2rem; }
+.groupTitle {
+  display: flex; align-items: center; gap: .5rem;
+  font-size: 1.1rem; font-weight: 800; color: var(--navy-900); margin: 0 0 .8rem;
+}
+.groupTitle span { display: inline-flex; color: var(--teal-600); }
+
+.item {
+  border: 1px solid var(--surface-300);
+  border-radius: .9rem;
+  background: var(--card);
+  overflow: hidden;
+}
+.item + .item { margin-top: .6rem; }
+.summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 1rem 1.15rem;
+  font-weight: 700;
+  color: var(--navy-900);
+  font-size: .95rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.summary::-webkit-details-marker { display: none; }
+.chevron { flex-shrink: 0; color: var(--ink-600); transition: transform .2s ease; }
+.item[open] .chevron { transform: rotate(180deg); }
+.answer {
+  padding: 0 1.15rem 1.15rem;
+  color: var(--ink-600);
+  font-size: .9rem;
+  line-height: 1.65;
+}
+.answer p { margin: 0; }
+.answer p + p { margin-top: .6rem; }
+
+.cta {
+  margin-top: 3rem;
+  padding: 1.5rem;
+  border: 1px solid var(--surface-300);
+  border-radius: 1rem;
+  background: var(--surface-100);
+  text-align: center;
+}
+.ctaText { color: var(--ink-600); font-size: .92rem; line-height: 1.6; }
+.ctaLinks { margin-top: 1rem; display: flex; gap: .75rem; justify-content: center; flex-wrap: wrap; }
+.ctaButton {
+  display: inline-flex; align-items: center; gap: .4rem;
+  padding: .7rem 1.2rem; border-radius: .6rem; font-weight: 800; font-size: .9rem; text-decoration: none;
+  background: var(--teal-600); color: var(--primary-contrast);
+}
+.ctaButton:hover { background: var(--primary-hover); }
+.ctaButtonSecondary { background: var(--card); color: var(--navy-900); border: 1px solid var(--surface-300); }
+.ctaButtonSecondary:hover { border-color: var(--teal-600); color: var(--teal-600); }

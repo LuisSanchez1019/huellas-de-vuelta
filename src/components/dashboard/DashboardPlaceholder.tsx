@@ -6,11 +6,13 @@ export default function DashboardPlaceholder({
   title,
   text,
   step,
+  children,
 }: {
   icon: ReactNode;
   title: string;
   text: string;
   step?: string;
+  children?: ReactNode;
 }) {
   return (
     <div className={styles.wrap}>
@@ -18,6 +20,7 @@ export default function DashboardPlaceholder({
       <h1 className={styles.title}>{title}</h1>
       <p className={styles.text}>{text}</p>
       {step && <span className={styles.step}>{step}</span>}
+      {children && <div className={styles.slot}>{children}</div>}
     </div>
   );
 }

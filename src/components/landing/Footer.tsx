@@ -5,35 +5,22 @@ import styles from "./landing.module.css";
 
 const columns = [
   {
-    title: "Plataforma",
+    title: "Enlaces",
     links: [
       { href: "/", label: "Inicio" },
-      { href: "#mascotas", label: "Mascotas" },
-      { href: "#adopciones", label: "Adopciones" },
-      { href: "#como-funciona", label: "Cómo funciona" },
-    ],
-  },
-  {
-    title: "Aliados",
-    links: [
-      { href: "#aliados", label: "Fundaciones" },
-      { href: "#aliados", label: "Veterinarias" },
-      { href: "/auth?mode=sign-up", label: "Únete como aliado" },
-    ],
-  },
-  {
-    title: "Recursos",
-    links: [
+      { href: "/#mascotas", label: "Mascotas perdidas" },
+      { href: "/#adopciones", label: "En adopción" },
+      { href: "/#aliados", label: "Aliados" },
       { href: "/#mapa", label: "Mapa" },
-      { href: "/ayuda", label: "Centro de ayuda" },
-      { href: "/ayuda", label: "Preguntas frecuentes" },
     ],
   },
   {
-    title: "Legal",
+    title: "Ayuda",
     links: [
-      { href: "/ayuda", label: "Privacidad" },
-      { href: "/ayuda", label: "Términos de uso" },
+      { href: "/ayuda", label: "Preguntas frecuentes" },
+      { href: "/ayuda", label: "Términos y condiciones" },
+      { href: "/ayuda", label: "Política de privacidad" },
+      { href: "/auth?mode=sign-up", label: "Registra tu organización" },
     ],
   },
 ];
@@ -43,13 +30,17 @@ export default function Footer() {
     <footer className={styles.footer}>
       <div className={styles.footerInner}>
         <div className={styles.footerGrid}>
-          <div>
+          <div className={styles.footerBrandCol}>
             <div className={styles.footerBrand}>
-              <Image className={styles.footerLogo} src="/logo.png" alt="Huellas de Vuelta" width={32} height={32} />
-              <span>Huellas de Vuelta</span>
+              <Image className={styles.footerLogo} src="/logo.png" alt="Huellas de Vuelta" width={34} height={34} />
+              <span>
+                Huellas de Vuelta
+                <span className={styles.footerBrandTagline}>Conectando corazones</span>
+              </span>
             </div>
             <p className={styles.footerTagline}>
-              Plataforma sin ánimo de lucro para reencontrar mascotas perdidas, gestionar mascotas encontradas y facilitar adopciones responsables en Colombia.
+              Plataforma sin ánimo de lucro para reencontrar mascotas perdidas, gestionar mascotas
+              encontradas y facilitar adopciones responsables en Colombia.
             </p>
             <div className={styles.footerSocial}>
               <a className={styles.footerSocialIcon} href="#" aria-label="Facebook"><FacebookIcon size={16} /></a>
@@ -68,9 +59,21 @@ export default function Footer() {
               </div>
             </div>
           ))}
+
+          <div>
+            <p className={styles.footerColumnTitle}>Novedades</p>
+            <p className={styles.footerNewsText}>
+              Consejos de cuidado y avances de la plataforma. Muy pronto podrás suscribirte a nuestro
+              boletín.
+            </p>
+            <Link className={styles.footerNewsCta} href="/ayuda">Ir al centro de ayuda</Link>
+          </div>
         </div>
 
-        <p className={styles.footerBottom}>© {new Date().getFullYear()} Huellas de Vuelta. Proyecto sin ánimo de lucro construido para Colombia.</p>
+        <div className={styles.footerBottom}>
+          <span>© {new Date().getFullYear()} Huellas de Vuelta. Todos los derechos reservados.</span>
+          <span className={styles.footerBottomNote}>Porque ellos también son familia.</span>
+        </div>
       </div>
     </footer>
   );

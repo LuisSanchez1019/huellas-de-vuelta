@@ -1,10 +1,8 @@
-import { mockVeterinaries } from "@/data/mock";
 import { getSupabaseUserId } from "@/lib/auth/session";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import {
   fetchOrgProfileRow,
   fetchOrgServiceIds,
-  listPublishedOrgProfileRows,
   replaceOrgServices,
   upsertOrgProfileRow,
   type OrgProfileRow,
@@ -20,13 +18,14 @@ import type {
 } from "./types";
 
 /**
- * Acceso a datos de perfiles de veterinaria. `listPublic()` es el punto único
- * que la landing consumirá para el listado y el perfil individual.
+ * Acceso al perfil de veterinaria del usuario autenticado (Supabase con
+ * sesión real; localStorage como respaldo en modo desarrollo sin sesión).
+ * El listado público del Landing NO pasa por aquí: usa `getCachedPartnerOrgs`
+ * en `publicCache.ts`.
  */
 export interface VeterinaryRepository {
   getMine(ownerId: string): Promise<VeterinaryProfile | null>;
   saveMine(ownerId: string, input: VeterinaryProfileInput): Promise<VeterinaryProfile>;
-  listPublic(): Promise<VeterinaryProfile[]>;
 }
 
 const KEY_PREFIX = "hdv.vetProfile.";
@@ -136,35 +135,6 @@ function write(ownerId: string, profile: VeterinaryProfile): void {
   }
 }
 
-function seedPublic(): VeterinaryProfile[] {
-  const now = new Date().toISOString();
-  return mockVeterinaries.map((vet) => ({
-    id: `seed-${vet.id}`,
-    ownerId: `seed-${vet.id}`,
-    slug: vet.id,
-    name: vet.name,
-    category: "veterinaria",
-    logoUrl: "",
-    logoPath: "",
-    coverImageUrl: "",
-    description: vet.description,
-    phone: "",
-    whatsapp: "",
-    email: "",
-    hours: [{ day: "Lunes a viernes", open: "08:00", close: "18:00", closed: false }],
-    services: [],
-    social: { ...EMPTY_SOCIAL },
-    location: { address: "", city: vet.city, neighborhood: "", mapUrl: "", lat: null, lng: null },
-    extraInfo: "",
-    status: "published",
-    approvalStatus: "approved",
-    isActive: true,
-    rejectionReason: "",
-    createdAt: now,
-    updatedAt: now,
-  }));
-}
-
 const local: VeterinaryRepository = {
   async getMine(ownerId) {
     return read(ownerId);
@@ -185,9 +155,6 @@ const local: VeterinaryRepository = {
     };
     write(ownerId, profile);
     return profile;
-  },
-  async listPublic() {
-    return seedPublic();
   },
 };
 
@@ -210,13 +177,5 @@ export const veterinaryRepository: VeterinaryRepository = {
     // (o pasar a estarlo): invalidar después de guardar, no antes.
     triggerPublicRevalidate(PUBLIC_ORGS_TAG);
     return rowToProfile(row, input.services);
-  },
-  async listPublic() {
-    try {
-      const rows = await listPublishedOrgProfileRows("veterinaria");
-      return rows.map((row) => rowToProfile(row, []));
-    } catch {
-      return local.listPublic();
-    }
   },
 };

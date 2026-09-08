@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { revalidateTag } from "next/cache";
-import { PUBLIC_LOST_PETS_TAG, PUBLIC_ORGS_TAG } from "@/lib/cache/tags";
+import { PUBLIC_CACHE_TAGS } from "@/lib/cache/tags";
 
 /**
  * Invalida un tag de caché pública. Se llama solo DESPUÉS de que una
@@ -12,7 +12,7 @@ import { PUBLIC_LOST_PETS_TAG, PUBLIC_ORGS_TAG } from "@/lib/cache/tags";
  * nada privado); el peor abuso posible es forzar recálculos de más, acotado
  * por la lista blanca de tags.
  */
-const ALLOWED_TAGS: ReadonlySet<string> = new Set([PUBLIC_ORGS_TAG, PUBLIC_LOST_PETS_TAG]);
+const ALLOWED_TAGS: ReadonlySet<string> = new Set(PUBLIC_CACHE_TAGS);
 
 export async function POST(request: Request) {
   let body: unknown;

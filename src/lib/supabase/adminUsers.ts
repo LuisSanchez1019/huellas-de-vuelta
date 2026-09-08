@@ -35,6 +35,51 @@ export async function adminListUsers(supabase: SupabaseClient): Promise<AdminUse
   }));
 }
 
+export interface AdminUserDetail extends AdminUser {
+  activeReportsCount: number;
+  org: {
+    id: string;
+    name: string;
+    kind: string;
+    approvalStatus: string;
+    isActive: boolean;
+  } | null;
+}
+
+/** Detalle de un usuario (solo admin). `null` si el usuario no existe. */
+export async function adminGetUser(
+  supabase: SupabaseClient,
+  userId: string,
+): Promise<AdminUserDetail | null> {
+  const { data, error } = await supabase.rpc("admin_get_user", { p_user_id: userId });
+  if (error) throw error;
+  const row = (Array.isArray(data) ? data[0] : data) as Record<string, unknown> | undefined;
+  if (!row) return null;
+  return {
+    id: String(row.id),
+    displayName: (row.display_name as string) ?? null,
+    firstName: (row.first_name as string) ?? null,
+    lastName: (row.last_name as string) ?? null,
+    email: (row.email as string) ?? null,
+    phone: (row.phone as string) ?? null,
+    role: (row.role as AccountRole) ?? "usuario",
+    isAdmin: Boolean(row.is_admin),
+    confirmedAt: (row.confirmed_at as string) ?? null,
+    petsCount: Number(row.pets_count ?? 0),
+    createdAt: String(row.created_at ?? ""),
+    activeReportsCount: Number(row.active_reports_count ?? 0),
+    org: row.org_id
+      ? {
+          id: String(row.org_id),
+          name: String(row.org_name ?? ""),
+          kind: String(row.org_kind ?? ""),
+          approvalStatus: String(row.org_approval_status ?? ""),
+          isActive: Boolean(row.org_is_active),
+        }
+      : null,
+  };
+}
+
 /**
  * Convierte a un usuario existente en administrador, o le quita el rol.
  * Ejecuta el RPC `set_user_admin` (SECURITY DEFINER): valida que quien llama sea

@@ -1,18 +1,22 @@
-.header { position: sticky; top: 0; z-index: 50; display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .9rem 1.5rem; background: var(--header-bg); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); }
-.brand { display:flex; align-items:center; gap:.6rem; color: var(--navy-900); font-weight:800; font-size:1.05rem; letter-spacing:-.02em; }
-.logo { border-radius: .5rem; }
-.nav { display:flex; align-items:center; gap:1.75rem; }
-.navLink { color: var(--ink-600); font-weight:600; font-size:.92rem; }
+.header { position: sticky; top: 0; z-index: 50; display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .75rem 1.5rem; background: var(--header-bg); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); }
+.brand { display:flex; align-items:center; gap:.65rem; color: var(--navy-900); }
+.logo { border-radius: .6rem; flex-shrink: 0; }
+.brandText { display:flex; flex-direction:column; line-height:1.15; }
+.brandName { font-weight:800; font-size:1.02rem; letter-spacing:-.02em; }
+.brandTagline { font-size:.72rem; font-weight:600; color: var(--ink-600); }
+.nav { display:flex; align-items:center; gap:1.4rem; }
+.navLink { color: var(--ink-600); font-weight:600; font-size:.9rem; transition: color .15s ease; }
 .navLink:hover { color: var(--navy-900); }
-.actions { display:flex; align-items:center; gap:.75rem; }
-.signIn { color: var(--navy-900); font-weight:700; font-size:.92rem; }
-.signIn:hover { color: var(--teal-600); }
-.signUp { padding:.6rem 1.05rem; border-radius:.6rem; background: var(--teal-600); color: var(--primary-contrast); font-weight:700; font-size:.92rem; }
+.actions { display:flex; align-items:center; gap:.6rem; }
+.signIn { padding:.55rem .9rem; border-radius:.6rem; border:1px solid var(--border); color: var(--navy-900); font-weight:700; font-size:.9rem; transition: border-color .15s ease, color .15s ease; }
+.signIn:hover { border-color: var(--teal-600); color: var(--teal-600); }
+.signUp { padding:.6rem 1.05rem; border-radius:.6rem; background: var(--teal-600); color: var(--primary-contrast); font-weight:700; font-size:.9rem; transition: background-color .15s ease; }
 .signUp:hover { background: var(--primary-hover); }
+
 /* Botón temporal de desarrollo: acceso directo al panel sin login. Solo se
    renderiza cuando NODE_ENV !== "production". Estilo deliberadamente distinto
    (borde punteado ámbar) para recordar que hay que quitarlo. */
-.devAccess { display:inline-flex; align-items:center; gap:.3rem; padding:.55rem .9rem; border:1px dashed #b7791f; border-radius:.6rem; color:var(--warning-fg); background:var(--warning-bg); font-weight:700; font-size:.85rem; cursor:pointer; font:inherit; }
+.devAccess { display:inline-flex; align-items:center; gap:.3rem; padding:.5rem .8rem; border:1px dashed #b7791f; border-radius:.6rem; color:var(--warning-fg); background:var(--warning-bg); font-weight:700; font-size:.82rem; cursor:pointer; font:inherit; }
 .devAccess:hover { background:var(--warning-bg); }
 .devMenu { position:relative; }
 .devMenuPanel { position:absolute; top:calc(100% + .35rem); right:0; z-index:60; display:grid; min-width:11rem; padding:.3rem; border:1px solid var(--surface-300); border-radius:.6rem; background: var(--card); box-shadow:0 .8rem 2rem rgba(var(--shadow-rgb),.14); }
@@ -21,16 +25,17 @@
 
 .menuToggle { display:none; border:0; background:transparent; cursor:pointer; padding:.4rem; color: var(--navy-900); }
 .mobilePanel { display:none; }
+.mobileCtas { display:flex; gap:.6rem; padding-top:.6rem; }
+.mobileCtas > * { flex:1; text-align:center; }
 
-@media (max-width: 56rem) {
+@media (max-width: 60rem) {
   .nav { display:none; }
   /* En móvil la barra solo muestra marca + botón de menú. Todo lo demás
-     (tema, acceso dev, iniciar sesión) vive dentro del panel desplegable,
-     así no se duplica la información. */
+     (tema, acceso dev, iniciar sesión, registro) vive dentro del panel
+     desplegable, así no se duplica la información. */
   .actions > *:not(.menuToggle) { display:none; }
   .menuToggle { display:grid; place-items:center; }
   .mobilePanel.open { display:grid; gap:.25rem; position:absolute; top:100%; left:0; right:0; padding:1rem 1.5rem 1.5rem; background: var(--surface-100); border-bottom:1px solid var(--surface-300); box-shadow: 0 1rem 2rem rgba(var(--shadow-rgb),.08); }
-  .mobilePanel .navLink { padding:.6rem 0; border-bottom:1px solid var(--surface-300); }
-  .mobilePanel .signIn { padding:.6rem 0; }
+  .mobilePanel .navLink { padding:.65rem 0; border-bottom:1px solid var(--surface-300); }
 }
-.mobileTheme { display:flex; align-items:center; justify-content:space-between; padding:.7rem 0 0; color:var(--ink-600); font-weight:700; font-size:.92rem; }
+.mobileTheme { display:flex; align-items:center; justify-content:space-between; padding:.9rem 0 0; color:var(--ink-600); font-weight:700; font-size:.92rem; }

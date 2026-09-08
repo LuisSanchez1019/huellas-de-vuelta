@@ -1,12 +1,16 @@
-import PlaceholderPage from "@/components/PlaceholderPage";
-import { ChatIcon } from "@/components/icons/Icon";
+import type { Metadata } from "next";
+import HelpCenter from "@/components/ayuda/HelpCenter";
+
+const description =
+  "Preguntas frecuentes sobre cómo registrar una mascota, reportar una pérdida, entregar una mascota encontrada y registrar una organización aliada en Huellas de Vuelta.";
+
+export const metadata: Metadata = {
+  title: "Centro de ayuda",
+  description,
+  alternates: { canonical: "/ayuda" },
+  openGraph: { title: "Centro de ayuda · Huellas de Vuelta", description, url: "/ayuda" },
+};
 
 export default function AyudaPage() {
-  return (
-    <PlaceholderPage
-      icon={<ChatIcon size={28} />}
-      title="Centro de ayuda en construcción"
-      text="Estamos preparando preguntas frecuentes, guías y soporte para que reportar o adoptar una mascota sea aún más fácil."
-    />
-  );
+  return <HelpCenter />;
 }

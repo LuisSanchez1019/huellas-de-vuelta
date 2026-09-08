@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { OrgApprovalStatus, OrgCategory } from "@/lib/pets/reencuentro";
-import { PUBLIC_ORGS_TAG, triggerPublicRevalidate } from "@/lib/cache/tags";
+import { PUBLIC_ORGS_TAG, PUBLIC_STATS_TAG, triggerPublicRevalidate } from "@/lib/cache/tags";
 
 /** Fila que devuelve `admin_list_organizations()` (solo admin). */
 export interface AdminOrganization {
@@ -74,9 +74,9 @@ export async function setOrgApproval(
     p_reason: reason ?? null,
   });
   if (error) throw error;
-  // La organización puede empezar/dejar de aparecer en Landing/mapa: invalidar
-  // después de responder, no antes (la escritura ya quedó confirmada arriba).
-  triggerPublicRevalidate(PUBLIC_ORGS_TAG);
+  // La organización puede empezar/dejar de aparecer en Landing/mapa; también
+  // cambia el conteo de organizaciones aliadas. Invalidar después de responder.
+  triggerPublicRevalidate([PUBLIC_ORGS_TAG, PUBLIC_STATS_TAG]);
 }
 
 /** Desactiva o reactiva una organización (solo admin, vía RPC `set_org_active`). */
@@ -90,5 +90,5 @@ export async function setOrgActive(
     p_active: active,
   });
   if (error) throw error;
-  triggerPublicRevalidate(PUBLIC_ORGS_TAG);
+  triggerPublicRevalidate([PUBLIC_ORGS_TAG, PUBLIC_STATS_TAG]);
 }

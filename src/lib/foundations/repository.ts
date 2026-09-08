@@ -1,10 +1,8 @@
-import { mockFoundations } from "@/data/mock";
 import { getSupabaseUserId } from "@/lib/auth/session";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import {
   fetchOrgProfileRow,
   fetchOrgServiceIds,
-  listPublishedOrgProfileRows,
   replaceOrgServices,
   upsertOrgProfileRow,
   type OrgProfileRow,
@@ -14,10 +12,13 @@ import { PUBLIC_ORGS_TAG, triggerPublicRevalidate } from "@/lib/cache/tags";
 import type { FoundationProfile, FoundationProfileInput } from "./types";
 import type { OrgCategory, VeterinaryHours, VeterinarySocial } from "@/lib/veterinaries/types";
 
+/**
+ * Perfil de fundación del usuario autenticado. El listado público del Landing
+ * NO pasa por aquí: usa `getCachedPartnerOrgs` en `publicCache.ts`.
+ */
 export interface FoundationRepository {
   getMine(ownerId: string): Promise<FoundationProfile | null>;
   saveMine(ownerId: string, input: FoundationProfileInput): Promise<FoundationProfile>;
-  listPublic(): Promise<FoundationProfile[]>;
 }
 
 const KEY_PREFIX = "hdv.foundationProfile.";
@@ -114,34 +115,6 @@ function read(ownerId: string): FoundationProfile | null {
   }
 }
 
-function seedPublic(): FoundationProfile[] {
-  const now = new Date().toISOString();
-  return mockFoundations.map((foundation) => ({
-    id: `seed-${foundation.id}`,
-    ownerId: `seed-${foundation.id}`,
-    slug: foundation.id,
-    name: foundation.name,
-    category: "fundacion",
-    logoUrl: "",
-    logoPath: "",
-    description: `${foundation.kind} aliada de Huellas de Vuelta.`,
-    phone: "",
-    whatsapp: "",
-    email: "",
-    hours: [],
-    services: [],
-    social: { ...EMPTY_SOCIAL },
-    location: { address: "", city: "", neighborhood: "", mapUrl: "", lat: null, lng: null },
-    extraInfo: "",
-    status: "published",
-    approvalStatus: "approved",
-    isActive: true,
-    rejectionReason: "",
-    createdAt: now,
-    updatedAt: now,
-  }));
-}
-
 const local: FoundationRepository = {
   async getMine(ownerId) {
     return read(ownerId);
@@ -167,9 +140,6 @@ const local: FoundationRepository = {
     }
     return profile;
   },
-  async listPublic() {
-    return seedPublic();
-  },
 };
 
 export const foundationRepository: FoundationRepository = {
@@ -187,13 +157,5 @@ export const foundationRepository: FoundationRepository = {
     await replaceOrgServices(supabase, row.id, input.services);
     triggerPublicRevalidate(PUBLIC_ORGS_TAG);
     return rowToProfile(row, input.services);
-  },
-  async listPublic() {
-    try {
-      const rows = await listPublishedOrgProfileRows("fundacion");
-      return rows.map((row) => rowToProfile(row, []));
-    } catch {
-      return local.listPublic();
-    }
   },
 };

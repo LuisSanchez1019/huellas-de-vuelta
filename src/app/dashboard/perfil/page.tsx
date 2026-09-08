@@ -1,13 +1,14 @@
-import { UserIcon } from "@/components/icons/Icon";
-import DashboardPlaceholder from "@/components/dashboard/DashboardPlaceholder";
+import ProfileForm from "@/components/dashboard/ProfileForm";
+import controls from "@/components/ui/controls.module.css";
 
 export default function Page() {
   return (
-    <DashboardPlaceholder
-      icon={<UserIcon size={28} />}
-      title="Mi perfil"
-      text="Aquí podrás ver y editar la información de tu perfil."
-      step="Paso 10"
-    />
+    <div>
+      <div className={controls.pageHead}>
+        <h1 className={controls.pageTitle}>Mi perfil</h1>
+        <p className={controls.pageSubtitle}>Tu nombre, teléfono y foto. Solo tú puedes verlos y cambiarlos.</p>
+      </div>
+      <ProfileForm />
+    </div>
   );
 }

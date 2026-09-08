@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { adminListUsers, setUserAdmin, type AdminUser } from "@/lib/supabase/adminUsers";
@@ -118,7 +119,9 @@ export default function AdminUsersPage() {
                   return (
                     <tr key={user.id}>
                       <td>
-                        <span className={tableStyles.name}>{fullName(user)}</span>
+                        <Link href={`/admin/usuarios/${user.id}`} className={tableStyles.name}>
+                          {fullName(user)}
+                        </Link>
                         <span className={tableStyles.sub}>{roleLabels[user.role] ?? user.role}</span>
                       </td>
                       <td>{user.email ?? "sin correo"}</td>

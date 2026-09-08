@@ -44,7 +44,7 @@ function monogram(name: string): string {
     .toUpperCase();
 }
 
-export default function OrgCard({ org }: { org: OrgCardData }) {
+export default function OrgCard({ org, featured = false }: { org: OrgCardData; featured?: boolean }) {
   const location = [org.city, org.neighborhood].filter(Boolean).join(" · ");
   const openHours = org.hours.filter((h) => !h.closed && h.day).slice(0, 2);
   const whatsapp = whatsappLink(org.whatsapp);
@@ -53,7 +53,7 @@ export default function OrgCard({ org }: { org: OrgCardData }) {
   const extraServices = org.services.length - services.length;
 
   return (
-    <article className={styles.orgCard} role="listitem">
+    <article className={`${styles.orgCard} ${featured ? styles.orgCardFeatured : ""}`} role="listitem">
       <div className={styles.orgHead}>
         {org.logoUrl ? (
           // eslint-disable-next-line @next/next/no-img-element -- logo público servido desde Supabase Storage
@@ -62,7 +62,10 @@ export default function OrgCard({ org }: { org: OrgCardData }) {
           <span className={styles.orgLogoFallback} aria-hidden="true">{monogram(org.name) || <PawIcon size={20} />}</span>
         )}
         <div className={styles.orgHeadText}>
-          <span className={styles.orgTag}>{orgCategoryLabels[org.category]}</span>
+          <span className={styles.orgTagRow}>
+            <span className={styles.orgTag}>{orgCategoryLabels[org.category]}</span>
+            {featured && <span className={styles.orgFeaturedTag}>Destacado</span>}
+          </span>
           <p className={styles.orgName}>{org.name}</p>
         </div>
       </div>

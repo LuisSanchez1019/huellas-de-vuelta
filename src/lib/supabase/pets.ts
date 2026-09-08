@@ -1,5 +1,11 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Pet, PetAgeUnit, PetInput, PetSex, PetSpecies, PetStatus } from "./types";
+import {
+  PUBLIC_ADOPTIONS_TAG,
+  PUBLIC_LOST_PETS_TAG,
+  PUBLIC_STATS_TAG,
+  triggerPublicRevalidate,
+} from "@/lib/cache/tags";
 
 const TABLE = "pets";
 
@@ -31,6 +37,8 @@ export async function createPet(supabase: SupabaseClient, ownerId: string, input
     .select()
     .single();
   if (error) throw error;
+  // Cambia "Mascotas registradas" del Landing.
+  triggerPublicRevalidate(PUBLIC_STATS_TAG);
   return data as Pet;
 }
 
@@ -41,6 +49,10 @@ export async function updatePet(
 ): Promise<Pet> {
   const { data, error } = await supabase.from(TABLE).update(input).eq("id", id).select().single();
   if (error) throw error;
+  // Si cambió el estado, puede entrar/salir de "Adopciones" o "Perdidas".
+  if (input.status !== undefined) {
+    triggerPublicRevalidate([PUBLIC_ADOPTIONS_TAG, PUBLIC_LOST_PETS_TAG, PUBLIC_STATS_TAG]);
+  }
   return data as Pet;
 }
 
@@ -48,6 +60,7 @@ export async function updatePet(
 export async function deletePet(supabase: SupabaseClient, id: string): Promise<void> {
   const { error } = await supabase.from(TABLE).delete().eq("id", id);
   if (error) throw error;
+  triggerPublicRevalidate([PUBLIC_STATS_TAG, PUBLIC_ADOPTIONS_TAG, PUBLIC_LOST_PETS_TAG]);
 }
 
 export async function setPetArchived(supabase: SupabaseClient, id: string, isArchived: boolean): Promise<Pet> {

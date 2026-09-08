@@ -11,11 +11,12 @@ import ThemeToggle from "@/components/theme/ThemeToggle";
 import styles from "./Header.module.css";
 
 const navItems = [
-  { href: "#mascotas", label: "Mascotas" },
-  { href: "#adopciones", label: "Adopciones" },
-  { href: "#aliados", label: "Aliados" },
-  { href: "#como-funciona", label: "Cómo funciona" },
-  { href: "#mapa", label: "Mapa" },
+  { href: "/", label: "Inicio" },
+  { href: "/#mascotas", label: "Mascotas perdidas" },
+  { href: "/#adopciones", label: "En adopción" },
+  { href: "/#aliados", label: "Aliados" },
+  { href: "/#mapa", label: "Mapa" },
+  { href: "/ayuda", label: "Ayuda" },
 ];
 
 // Acceso directo a cada panel sin iniciar sesión, solo para desarrollo. Next.js
@@ -38,13 +39,16 @@ export default function Header() {
   return (
     <header className={styles.header}>
       <Link className={styles.brand} href="/">
-        <Image className={styles.logo} src="/logo.png" alt="Huellas de Vuelta" width={36} height={36} priority />
-        <span>Huellas de Vuelta</span>
+        <Image className={styles.logo} src="/logo.png" alt="Huellas de Vuelta" width={40} height={40} priority />
+        <span className={styles.brandText}>
+          <span className={styles.brandName}>Huellas de Vuelta</span>
+          <span className={styles.brandTagline}>Conectando corazones</span>
+        </span>
       </Link>
 
       <nav className={styles.nav} aria-label="Principal">
         {navItems.map((item) => (
-          <Link key={item.href} className={styles.navLink} href={item.href}>{item.label}</Link>
+          <Link key={item.label} className={styles.navLink} href={item.href}>{item.label}</Link>
         ))}
       </nav>
 
@@ -78,7 +82,8 @@ export default function Header() {
             )}
           </div>
         )}
-        <Link className={styles.signUp} href="/auth?mode=sign-in">Iniciar sesión</Link>
+        <Link className={styles.signIn} href="/auth?mode=sign-in">Iniciar sesión</Link>
+        <Link className={styles.signUp} href="/auth?mode=sign-up">Regístrate</Link>
         <button
           className={styles.menuToggle}
           type="button"
@@ -95,7 +100,7 @@ export default function Header() {
       {menuOpen && (
         <div className={`${styles.mobilePanel} ${styles.open}`}>
           {navItems.map((item) => (
-            <Link key={item.href} className={styles.navLink} href={item.href} onClick={() => setMenuOpen(false)}>{item.label}</Link>
+            <Link key={item.label} className={styles.navLink} href={item.href} onClick={() => setMenuOpen(false)}>{item.label}</Link>
           ))}
           {DEV_ACCESS &&
             ACCOUNT_ROLES.map((role) => (
@@ -103,7 +108,10 @@ export default function Header() {
                 Panel {roleLabels[role]} (dev)
               </button>
             ))}
-          <Link className={styles.signIn} href="/auth?mode=sign-in" onClick={() => setMenuOpen(false)}>Iniciar sesión</Link>
+          <div className={styles.mobileCtas}>
+            <Link className={styles.signIn} href="/auth?mode=sign-in" onClick={() => setMenuOpen(false)}>Iniciar sesión</Link>
+            <Link className={styles.signUp} href="/auth?mode=sign-up" onClick={() => setMenuOpen(false)}>Regístrate</Link>
+          </div>
           <div className={styles.mobileTheme}>
             <span>Tema</span>
             <ThemeToggle />

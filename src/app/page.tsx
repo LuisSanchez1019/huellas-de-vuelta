@@ -1,13 +1,12 @@
 import type { Metadata } from "next";
 import Header from "@/components/landing/Header";
 import Hero from "@/components/landing/Hero";
+import CommunitySection from "@/components/landing/CommunitySection";
 import HelpSection from "@/components/landing/HelpSection";
-import PartnersSection from "@/components/landing/PartnersSection";
 import AdoptionsSection from "@/components/landing/AdoptionsSection";
-import StatsSection from "@/components/landing/StatsSection";
-import HowItWorksSection from "@/components/landing/HowItWorksSection";
 import MapSection from "@/components/landing/MapSection";
-import QRSection from "@/components/landing/QRSection";
+import PartnersSection from "@/components/landing/PartnersSection";
+import InfoSection from "@/components/landing/InfoSection";
 import CTASection from "@/components/landing/CTASection";
 import Footer from "@/components/landing/Footer";
 
@@ -28,13 +27,12 @@ export default function Home() {
       <Header />
       <main>
         <Hero />
+        <CommunitySection />
         <HelpSection />
-        <PartnersSection />
         <AdoptionsSection />
-        <StatsSection />
-        <HowItWorksSection />
         <MapSection />
-        <QRSection />
+        <PartnersSection />
+        <InfoSection />
         <CTASection />
       </main>
       <Footer />
