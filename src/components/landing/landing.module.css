@@ -1,110 +1,75 @@
-/* ---------- layout shells ---------- */
-.section { padding: 4rem 1.5rem; scroll-margin-top: 5rem; }
+/* ==========================================================================
+   LAYOUT SHELLS
+   ========================================================================== */
+.section { padding: 3.25rem 1.5rem; scroll-margin-top: 5rem; }
 .sectionAlt { background: var(--surface-100); }
-.sectionInner { max-width: 72rem; margin: 0 auto; }
-.sectionHeader { display: flex; align-items: flex-end; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap; margin-bottom: 2rem; }
+.sectionInner { max-width: 78rem; margin: 0 auto; }
+.sectionHeader { display: flex; align-items: flex-end; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap; margin-bottom: 1.75rem; }
 .eyebrow { display: flex; align-items: center; gap: .5rem; color: var(--teal-600); font-size: .74rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
-.sectionTitleText { margin-top: .5rem; color: var(--navy-900); font-size: clamp(1.45rem, 3vw, 2rem); font-weight: 800; letter-spacing: -.03em; }
-.sectionSubtitle { margin-top: .5rem; max-width: 40rem; color: var(--ink-600); line-height: 1.6; }
+.sectionTitleText { margin-top: .5rem; color: var(--navy-900); font-size: clamp(1.5rem, 3vw, 2.05rem); font-weight: 800; letter-spacing: -.03em; }
+.sectionSubtitle { margin-top: .5rem; max-width: 42rem; color: var(--ink-600); line-height: 1.6; }
 .viewAllLink { flex-shrink: 0; align-self: center; color: var(--teal-600); font-weight: 700; font-size: .9rem; white-space: nowrap; transition: color .15s ease; }
 .viewAllLink:hover { color: var(--navy-900); }
 .inlineIcon { flex-shrink: 0; color: var(--teal-600); }
 
-.adTag {
-  display: inline-flex; align-items: center; padding: .1rem .5rem; border-radius: 999px;
-  background: var(--warning-bg); color: var(--warning-fg); border: 1px solid var(--warning-border);
-  font-size: .62rem; font-weight: 800; letter-spacing: .04em;
+.scrollerEmpty {
+  padding: 2rem 1.5rem; border: 1px dashed var(--surface-300); border-radius: 1rem;
+  color: var(--ink-600); text-align: center; line-height: 1.6; background: var(--card);
 }
-
-/* ---------- automatic slider ---------- */
-.scrollerWrap { position: relative; }
-.scrollerViewport { position: relative; overflow: hidden; max-width: 100%; }
-.scrollerMeasure { position: absolute; top: 0; left: 0; visibility: hidden; pointer-events: none; display: flex; gap: 1.25rem; }
-.scrollerTrack { display: flex; gap: 1.25rem; }
-.scrollerTrack > * { flex: 0 0 auto; }
-.scrollerTrackAnimated { gap: 0; width: max-content; animation-name: scrollerMarquee; animation-timing-function: linear; animation-iteration-count: infinite; will-change: transform; }
-.scrollerTrackAnimated:hover, .scrollerTrackAnimated:focus-within { animation-play-state: paused; }
-.scrollerGroup { display: flex; gap: 1.25rem; padding-right: 1.25rem; flex-shrink: 0; }
-@keyframes scrollerMarquee {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .scrollerTrackAnimated { animation: none; }
-}
-.scrollerEmpty { margin-top: 1.5rem; padding: 2rem 1.5rem; border: 1px dashed var(--surface-300); border-radius: 1rem; color: var(--ink-600); text-align: center; }
-
-/* ---------- shared pet avatar (pet / adoption cards) ---------- */
-.avatar { display: grid; place-items: center; height: 11rem; border-radius: 1rem 1rem 0 0; color: #fff; overflow: hidden; background: linear-gradient(135deg, var(--brand-navy), var(--teal-600)); }
-.avatarSmall { height: 8.5rem; }
-.avatarImg { width: 100%; height: 100%; object-fit: cover; }
-.avatarIcon { opacity: .92; }
 
 /* ==========================================================================
-   COMMUNITY SECTION — 3 paneles (perdidas / adopción / historias)
+   TOP BANNER (asset SVG a todo el ancho)
    ========================================================================== */
-.communitySection { padding: 3.5rem 1.5rem; scroll-margin-top: 5rem; }
-.communityGrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+.orgBanner { display: flex; justify-content: center; background: var(--surface-100); line-height: 0; position: relative; z-index: 0; }
+.orgBannerImg { display: block; width: 100%; max-width: 100rem; height: auto; }
 
-.panel {
-  display: flex; flex-direction: column;
-  border: 1px solid var(--border); border-radius: 1.25rem;
-  background: var(--card);
-  box-shadow: 0 .8rem 2rem rgba(var(--shadow-rgb), .06);
-  overflow: hidden;
+/* ==========================================================================
+   SHARED SLIDER
+   ========================================================================== */
+.sliderWrap { position: relative; }
+.sliderTrack {
+  display: flex; gap: 1.1rem;
+  overflow-x: auto; overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding: .5rem .25rem 1rem;
+  margin: 0 -.25rem;
 }
-.panelLost { border-top: 3px solid var(--danger-fg); }
-.panelAdopt { border-top: 3px solid var(--teal-500); }
-.panelStories { border-top: 3px solid var(--blue-500); }
+.sliderTrack::-webkit-scrollbar { display: none; }
+.sliderTrack > * { scroll-snap-align: start; flex: 0 0 auto; }
+@media (prefers-reduced-motion: reduce) { .sliderTrack { scroll-behavior: auto; } }
 
-.panelHead { display: flex; align-items: center; gap: .7rem; padding: 1.15rem 1.25rem 1rem; }
-.panelIcon { display: grid; place-items: center; width: 2.1rem; height: 2.1rem; border-radius: 50%; flex-shrink: 0; }
-.panelLost .panelIcon { background: var(--danger-bg); color: var(--danger-fg); }
-.panelAdopt .panelIcon { background: var(--success-bg); color: var(--success-fg); }
-.panelStories .panelIcon { background: var(--info-bg); color: var(--info-fg); }
-.panelHeadText { flex: 1; min-width: 0; }
-.panelTitle { font-size: 1.02rem; font-weight: 800; color: var(--navy-900); letter-spacing: -.02em; }
-.panelSubtitle { margin-top: .1rem; color: var(--ink-600); font-size: .8rem; }
-.panelLink { flex-shrink: 0; color: var(--teal-600); font-weight: 700; font-size: .8rem; white-space: nowrap; transition: color .15s ease; }
-.panelLink:hover { color: var(--navy-900); }
-
-.panelList { list-style: none; margin: 0; padding: 0 .8rem .9rem; display: grid; gap: .35rem; }
-.panelEmpty { padding: 0 1.25rem 1.5rem; color: var(--ink-600); font-size: .86rem; line-height: 1.5; }
-
-.miniCard {
-  display: flex; align-items: center; gap: .7rem;
-  padding: .6rem; border-radius: .8rem;
-  transition: background-color .15s ease;
+.sliderArrow {
+  position: absolute; top: 42%; transform: translateY(-50%);
+  z-index: 4; display: grid; place-items: center;
+  width: 2.5rem; height: 2.5rem; border-radius: 50%;
+  border: 1px solid var(--border); background: var(--card); color: var(--navy-900);
+  box-shadow: 0 .5rem 1.4rem rgba(var(--shadow-rgb), .16);
+  cursor: pointer; transition: background-color .15s ease, color .15s ease, opacity .15s ease;
 }
-.miniCard:hover { background: var(--surface-100); }
-.miniThumb {
-  display: grid; place-items: center; flex-shrink: 0;
-  width: 3rem; height: 3rem; border-radius: .65rem; overflow: hidden;
-  background: linear-gradient(135deg, var(--brand-navy), var(--teal-600));
-  color: rgba(255, 255, 255, .9);
-}
-.miniThumb img { width: 100%; height: 100%; object-fit: cover; }
-.miniBody { display: flex; flex-direction: column; gap: .1rem; min-width: 0; flex: 1; }
-.miniName { font-weight: 700; color: var(--navy-900); font-size: .88rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.miniMeta { display: flex; align-items: center; gap: .25rem; color: var(--ink-600); font-size: .78rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.miniMeta svg { flex-shrink: 0; }
-.miniDate { color: var(--ink-600); font-size: .72rem; }
-.miniBadge {
-  flex-shrink: 0; padding: .2rem .5rem; border-radius: 999px;
-  font-size: .6rem; font-weight: 800; letter-spacing: .03em; text-transform: uppercase;
-}
-.miniBadgeLost { background: var(--danger-bg); color: var(--danger-fg); }
-.miniBadgeAdopt { background: var(--success-bg); color: var(--success-fg); }
+.sliderArrow:hover { background: var(--surface-100); color: var(--teal-600); }
+.sliderArrow:disabled { opacity: 0; pointer-events: none; }
+.sliderArrowPrev { left: -1.1rem; }
+.sliderArrowPrev svg { transform: rotate(90deg); }
+.sliderArrowNext { right: -1.1rem; }
+.sliderArrowNext svg { transform: rotate(-90deg); }
+@media (max-width: 48rem) { .sliderArrow { display: none; } }
 
-.storyRow { display: flex; align-items: center; gap: .7rem; padding: .6rem; }
-.storyMark { display: grid; place-items: center; width: 2rem; height: 2rem; border-radius: 50%; flex-shrink: 0; background: var(--success-bg); color: var(--success-fg); }
-.storiesEmpty { padding: 0 1.25rem 1.5rem; display: flex; flex-direction: column; gap: .8rem; align-items: flex-start; }
-.storiesEmptyText { color: var(--ink-600); font-size: .86rem; line-height: 1.55; }
+.sliderDots { display: flex; justify-content: center; gap: .4rem; margin-top: .9rem; }
+.sliderDot, .sliderDotActive {
+  width: .5rem; height: .5rem; border-radius: 50%; border: 0; padding: 0; cursor: pointer;
+  background: var(--surface-300); transition: background-color .15s ease, width .15s ease;
+}
+.sliderDotActive { width: 1.4rem; border-radius: 999px; background: var(--teal-600); }
 
-/* ---------- pet card (marquee "mascotas perdidas") ---------- */
+/* ==========================================================================
+   LOST PET CARD
+   ========================================================================== */
 .petCard {
   display: grid; grid-template-columns: auto 1fr; gap: 1rem;
-  width: 21rem; padding: 1rem;
+  width: min(21rem, 82vw); padding: 1rem;
   border: 1px solid var(--surface-300); border-radius: 1rem; background: var(--card);
   box-shadow: 0 .6rem 1.6rem rgba(var(--shadow-rgb), .06);
   transition: transform .2s ease, box-shadow .2s ease;
@@ -125,7 +90,6 @@
   letter-spacing: .03em; text-transform: uppercase; white-space: nowrap;
 }
 .petBadgeLost { color: var(--danger-fg); background: var(--danger-bg); }
-.petBadgeFound { color: var(--info-fg); background: var(--info-bg); }
 .petInfo { display: grid; gap: .28rem; }
 .petInfoRow { display: flex; align-items: center; gap: .45rem; color: var(--navy-900); font-size: .84rem; min-width: 0; }
 .petInfoRow svg { flex-shrink: 0; color: var(--ink-600); }
@@ -139,9 +103,53 @@
 .petFoundCta:hover { background: var(--primary-hover); }
 .petFoundCta svg { flex-shrink: 0; }
 
-/* ---------- organization card (aliados destacados) — horizontal ---------- */
+/* ==========================================================================
+   ADOPTION / SPONSOR PET CARD (con atribución de organización)
+   ========================================================================== */
+.petItemCard {
+  width: min(17rem, 78vw); display: flex; flex-direction: column;
+  border: 1px solid var(--surface-300); border-radius: 1rem; overflow: hidden;
+  background: var(--card); box-shadow: 0 .6rem 1.6rem rgba(var(--shadow-rgb), .06);
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.petItemCard:hover { transform: translateY(-.3rem); box-shadow: 0 1.2rem 2.4rem rgba(var(--shadow-rgb), .12); }
+.petItemPhoto { position: relative; height: 9.5rem; background: linear-gradient(135deg, var(--brand-navy), var(--teal-600)); }
+.petItemPhoto img { width: 100%; height: 100%; object-fit: cover; }
+.petItemPhotoFallback { position: absolute; inset: 0; display: grid; place-items: center; color: rgba(255, 255, 255, .9); }
+.petItemBadge {
+  position: absolute; left: .7rem; top: .7rem; padding: .22rem .6rem; border-radius: 999px;
+  font-size: .62rem; font-weight: 800; text-transform: uppercase; letter-spacing: .03em;
+}
+.petItemBadgeAdopt { background: var(--success-bg); color: var(--success-fg); }
+.petItemBadgeSponsor { background: var(--warning-bg); color: var(--warning-fg); }
+.petItemBody { padding: .9rem 1rem 1.1rem; display: flex; flex-direction: column; gap: .3rem; }
+.petItemName { font-weight: 800; color: var(--navy-900); font-size: 1rem; letter-spacing: -.01em; }
+.petItemMeta { color: var(--ink-600); font-size: .82rem; }
+.petItemLine { display: flex; align-items: center; gap: .3rem; color: var(--ink-600); font-size: .78rem; }
+.petItemLine svg { flex-shrink: 0; }
+.petItemOrg { display: flex; align-items: center; gap: .5rem; margin-top: .35rem; padding-top: .55rem; border-top: 1px solid var(--surface-300); }
+.petItemOrgLogo, .petItemOrgLogoFallback { width: 1.75rem; height: 1.75rem; border-radius: .45rem; flex-shrink: 0; }
+.petItemOrgLogo { object-fit: contain; border: 1px solid var(--surface-300); background: var(--card); }
+.petItemOrgLogoFallback { display: grid; place-items: center; background: linear-gradient(135deg, var(--teal-600), var(--brand-navy)); color: #fff; font-size: .6rem; font-weight: 800; }
+.petItemOrgText { display: flex; flex-direction: column; min-width: 0; line-height: 1.2; }
+.petItemOrgKind { font-size: .6rem; font-weight: 800; text-transform: uppercase; letter-spacing: .03em; color: var(--ink-600); }
+.petItemOrgName { font-size: .8rem; font-weight: 700; color: var(--navy-900); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.petItemCta {
+  margin-top: .55rem; display: inline-flex; align-items: center; justify-content: center; gap: .35rem;
+  padding: .5rem .8rem; border-radius: .55rem; background: var(--teal-600); color: var(--primary-contrast);
+  font-weight: 800; font-size: .8rem;
+}
+.petItemCta:hover { background: var(--primary-hover); }
+.petItemCtaMuted {
+  margin-top: .55rem; display: inline-flex; justify-content: center; padding: .5rem .8rem;
+  border-radius: .55rem; background: var(--surface-100); color: var(--ink-600); font-weight: 700; font-size: .78rem;
+}
+
+/* ==========================================================================
+   ORGANIZATION CARD (veterinarias / fundaciones)
+   ========================================================================== */
 .orgCard {
-  flex: 0 0 auto; width: 22rem; display: flex; flex-direction: column; gap: .55rem;
+  width: min(22rem, 85vw); display: flex; flex-direction: column; gap: .55rem;
   padding: 1.25rem; border: 1px solid var(--surface-300); border-radius: 1.15rem; background: var(--card);
   box-shadow: 0 .6rem 1.6rem rgba(var(--shadow-rgb), .05);
   transition: transform .2s ease, box-shadow .2s ease;
@@ -202,25 +210,14 @@
 .orgActionMaps { background: var(--surface-100); color: var(--navy-900); }
 .orgActionMaps:hover { border-color: var(--teal-600); color: var(--teal-600); }
 
-/* ---------- adoption card (marquee "en adopción") ---------- */
-.adoptionCard { width: 15.5rem; border: 1px solid var(--surface-300); border-radius: 1rem; overflow: hidden; background: var(--card); box-shadow: 0 .6rem 1.6rem rgba(var(--shadow-rgb),.06); transition: transform .25s ease, box-shadow .25s ease; }
-.adoptionCard:hover { transform: translateY(-.35rem); box-shadow: 0 1.2rem 2.4rem rgba(var(--shadow-rgb),.12); }
-.adoptionBody { padding: 1rem 1.1rem 1.25rem; }
-.adoptionName { font-size: 1.05rem; font-weight: 800; color: var(--navy-900); }
-.adoptionMeta { margin-top: .25rem; color: var(--ink-600); font-size: .88rem; }
-.adoptionCta { display: inline-flex; margin-top: .9rem; padding: .55rem .9rem; border-radius: .55rem; color: var(--primary-contrast); background: var(--teal-600); font-weight: 700; font-size: .85rem; }
-.adoptionCta:hover { background: var(--primary-hover); }
-
 /* ==========================================================================
    MAP SECTION — 2 columnas (mapa + callout)
    ========================================================================== */
 .mapLayout { display: grid; grid-template-columns: 1fr 19rem; gap: 1.75rem; align-items: start; }
 .mapMain { min-width: 0; }
 .mapMain .sectionTitleText { margin-top: .5rem; }
-
 .mapEmbed { margin-top: 1.5rem; }
 .mapLoading { height: 26rem; border-radius: 1.25rem; border: 1px solid var(--surface-300); background: var(--surface-100); }
-
 .mapAside {
   position: sticky; top: 5.5rem;
   display: flex; flex-direction: column; gap: .8rem;
@@ -269,59 +266,67 @@
 }
 
 /* ==========================================================================
-   INFO SECTION — cómo funciona + placa QR
+   SPONSORS (empresas que apoyan la causa) — estado vacío preparado
    ========================================================================== */
-.infoLayout { display: grid; grid-template-columns: 1fr 20rem; gap: 2.5rem; align-items: start; }
-.infoSteps { list-style: none; margin: 1.75rem 0 0; padding: 0; display: grid; gap: 1rem; }
-.infoStep { display: flex; align-items: flex-start; gap: .9rem; }
-.infoStepNumber { display: grid; place-items: center; width: 2rem; height: 2rem; border-radius: 50%; flex-shrink: 0; background: var(--card); border: 1px solid var(--border); color: var(--teal-600); font-weight: 800; font-size: .9rem; }
-.infoStepTitle { display: block; font-weight: 800; color: var(--navy-900); font-size: .95rem; }
-.infoStepText { display: block; margin-top: .2rem; color: var(--ink-600); font-size: .86rem; line-height: 1.5; }
-
-.qrCallout { display: flex; flex-direction: column; gap: .8rem; padding: 1.5rem; border-radius: 1.25rem; border: 1px solid var(--border); background: var(--card); box-shadow: 0 .8rem 2rem rgba(var(--shadow-rgb), .07); }
-.qrCalloutIcon { display: grid; place-items: center; width: 3rem; height: 3rem; border-radius: .9rem; background: var(--info-bg); color: var(--info-fg); }
-.qrCalloutTitle { font-weight: 800; color: var(--navy-900); font-size: 1rem; line-height: 1.35; letter-spacing: -.02em; }
-.qrCalloutText { color: var(--ink-600); font-size: .86rem; line-height: 1.55; }
-.qrCalloutActions { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: .2rem; }
-.qrCalloutCta { display: inline-flex; padding: .65rem 1rem; border-radius: .65rem; background: var(--teal-600); color: var(--primary-contrast); font-weight: 800; font-size: .85rem; transition: background-color .15s ease; }
-.qrCalloutCta:hover { background: var(--primary-hover); }
-.qrCalloutLink { display: inline-flex; align-items: center; padding: .65rem .5rem; color: var(--teal-600); font-weight: 700; font-size: .85rem; }
-.qrCalloutLink:hover { color: var(--navy-900); }
+.sponsorsEmpty {
+  display: flex; flex-direction: column; align-items: center; text-align: center; gap: .7rem;
+  padding: 2.75rem 1.5rem; border: 1px dashed var(--surface-300); border-radius: 1.25rem; background: var(--card);
+}
+.sponsorsEmptyIcon { display: grid; place-items: center; width: 3.25rem; height: 3.25rem; border-radius: 50%; background: var(--success-bg); color: var(--success-fg); }
+.sponsorsEmptyTitle { font-weight: 800; color: var(--navy-900); font-size: 1.05rem; letter-spacing: -.02em; }
+.sponsorsEmptyText { color: var(--ink-600); font-size: .9rem; line-height: 1.55; max-width: 34rem; }
+.sponsorsEmptyCta {
+  margin-top: .4rem; display: inline-flex; padding: .7rem 1.2rem; border-radius: .7rem;
+  background: var(--teal-600); color: var(--primary-contrast); font-weight: 800; font-size: .88rem;
+}
+.sponsorsEmptyCta:hover { background: var(--primary-hover); }
 
 /* ==========================================================================
-   ORG CTA — ¿Eres una veterinaria o fundación?
+   REENCUENTROS (solo la ilustración `hero-reencuentros.svg`, centrada)
+
+   El SVG trae mucho margen transparente arriba/abajo del banner visible (el
+   pill ocupa solo la franja y≈24%–61% del viewBox), así que se RECORTA a esa
+   franja con `aspect-ratio` + `object-fit: cover` para que la sección quede
+   compacta, sin espacios excesivos, y la ilustración conserve sus proporciones
+   sin deformarse. Centrada con `margin:0 auto` en desktop / tablet / móvil; sin
+   coordenadas fijas.
    ========================================================================== */
-.orgCtaSection { padding: 3rem 1.5rem; }
-.orgCtaInner {
-  max-width: 72rem; margin: 0 auto;
-  display: grid; grid-template-columns: 1.4fr .6fr; gap: 2rem; align-items: center;
-  padding: 2.5rem; border-radius: 1.75rem;
-  background: linear-gradient(120deg, var(--brand-navy), var(--teal-600));
+.reencuentroSection { padding: 2.5rem 1.25rem 3rem; }
+.reencuentroInner {
+  max-width: 78rem;
+  margin: 0 auto;
+}
+.reencuentroMedia {
+  width: 100%;
+  aspect-ratio: 1046 / 250;               /* móvil: franja algo más alta */
   overflow: hidden;
+  border-radius: clamp(.9rem, 2.5vw, 1.35rem);
 }
-.orgCtaCopy { color: #fff; }
-.orgCtaTitle { font-size: clamp(1.4rem, 3vw, 1.9rem); font-weight: 800; letter-spacing: -.02em; }
-.orgCtaText { margin-top: .6rem; max-width: 34rem; color: rgba(255, 255, 255, .9); line-height: 1.6; font-size: .95rem; }
-.orgCtaButton {
-  margin-top: 1.4rem; display: inline-flex; padding: .85rem 1.4rem; border-radius: .75rem;
-  background: #fff; color: var(--brand-navy); font-weight: 800; font-size: .95rem;
-  transition: transform .15s ease;
+.reencuentroImg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;                      /* no deforma: escala a lo ancho y recorta el margen transparente */
+  object-position: center 41%;           /* centra en el banner visible del SVG */
+  /* la sombra sigue la silueta real del banner (el SVG es transparente fuera de él) */
+  filter: drop-shadow(0 .5rem 1.1rem rgba(var(--shadow-rgb), .16));
 }
-.orgCtaButton:hover { transform: translateY(-.15rem); }
-.orgCtaVisual { position: relative; display: grid; place-items: center; min-height: 8rem; }
-.orgCtaBadge {
-  font-family: var(--font-script), "Segoe Script", cursive;
-  font-size: 1.5rem; font-weight: 700; line-height: 1.2; text-align: center;
-  color: rgba(255, 255, 255, .95);
+
+@media (min-width: 48rem) {
+  .reencuentroSection { padding: 3rem 1.5rem 3.25rem; }
+  .reencuentroMedia { aspect-ratio: 1046 / 205; }
 }
-.orgCtaPaw { position: absolute; right: -1rem; bottom: -1.5rem; color: rgba(255, 255, 255, .16); }
+@media (min-width: 64rem) {
+  .reencuentroSection { padding: 3.25rem 1.5rem 3.75rem; }
+  .reencuentroMedia { aspect-ratio: 1046 / 185; }
+}
 
 /* ==========================================================================
    FOOTER
    ========================================================================== */
 .footer { background: var(--brand-navy); color: rgba(255, 255, 255, .78); padding: 3.5rem 1.5rem 2rem; }
-.footerInner { max-width: 72rem; margin: 0 auto; }
-.footerGrid { display: grid; grid-template-columns: 1.6fr 1fr 1fr 1.2fr; gap: 2.5rem; }
+.footerInner { max-width: 78rem; margin: 0 auto; }
+.footerGrid { display: grid; grid-template-columns: 1.6fr 1fr 1fr 1fr; gap: 2.5rem; }
 .footerBrandCol { max-width: 22rem; }
 .footerBrand { display: flex; align-items: center; gap: .6rem; color: #fff; font-weight: 800; }
 .footerBrand > span { display: flex; flex-direction: column; line-height: 1.2; }
@@ -332,9 +337,6 @@
 .footerLinks { display: grid; gap: .55rem; }
 .footerLink { font-size: .85rem; transition: color .15s ease; }
 .footerLink:hover { color: #fff; }
-.footerNewsText { font-size: .82rem; line-height: 1.55; }
-.footerNewsCta { display: inline-flex; margin-top: .8rem; color: var(--teal-500); font-weight: 700; font-size: .82rem; }
-.footerNewsCta:hover { color: #fff; }
 .footerSocial { display: flex; gap: .7rem; margin-top: 1.25rem; }
 .footerSocialIcon { display: grid; place-items: center; width: 2.1rem; height: 2.1rem; border-radius: 50%; background: rgba(255, 255, 255, .1); color: #fff; transition: background-color .15s ease, transform .15s ease; }
 .footerSocialIcon:hover { background: rgba(255, 255, 255, .2); transform: translateY(-.15rem); }
@@ -345,18 +347,13 @@
    RESPONSIVE
    ========================================================================== */
 @media (max-width: 64rem) {
-  .communityGrid { grid-template-columns: 1fr; }
   .mapLayout { grid-template-columns: 1fr; }
   .mapAside { position: static; }
-  .infoLayout { grid-template-columns: 1fr; gap: 1.75rem; }
-  .orgCtaInner { grid-template-columns: 1fr; padding: 2rem; }
-  .orgCtaVisual { display: none; }
   .footerGrid { grid-template-columns: 1fr 1fr; }
   .footerBrandCol { grid-column: 1 / -1; max-width: none; }
 }
 @media (max-width: 40rem) {
-  .section { padding: 3rem 1.25rem; }
-  .communitySection { padding: 2.5rem 1.25rem; }
+  .section { padding: 2.5rem 1.25rem; }
   .orgMapCanvas { height: 24rem; }
   .mapLoading { height: 24rem; }
   .orgMapBar { justify-content: flex-start; }

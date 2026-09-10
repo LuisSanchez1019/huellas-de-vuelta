@@ -1,8 +1,8 @@
 import { getCachedPublicLostPets } from "@/lib/supabase/publicCache";
 import { ageUnitLabels, sexLabels, speciesLabels } from "@/lib/pets/labels";
-import type { LostPetCardData } from "./PetCard";
 import SectionTitle from "./SectionTitle";
-import LostPetsScroller from "./LostPetsScroller";
+import CardSlider from "./CardSlider";
+import PetCard, { type LostPetCardData } from "./PetCard";
 import styles from "./landing.module.css";
 
 function timeAgo(iso: string): string {
@@ -18,12 +18,12 @@ function timeAgo(iso: string): string {
 }
 
 /**
- * Server component: la lista de mascotas perdidas (RPC pública) y la firma
- * de sus fotos vienen cacheadas (ver `publicCache.ts`) — el formato relativo
- * de fecha ("hace X horas") se calcula aquí, en cada render, para que nunca
- * quede desactualizado aunque los datos vengan de caché.
+ * Server component: mascotas REALES con reporte de pérdida activo
+ * (RPC `list_public_lost_pets`, cacheada). El formato relativo de fecha se
+ * calcula en cada render para que no quede desfasado aunque los datos vengan
+ * de caché. Sin mocks; si no hay reportes activos, estado vacío.
  */
-export default async function HelpSection() {
+export default async function LostPetsSection() {
   const rows = await getCachedPublicLostPets().catch(() => []);
   const cards: LostPetCardData[] = rows.map((row) => ({
     publicId: row.publicId,
@@ -35,20 +35,30 @@ export default async function HelpSection() {
         ? `${row.ageValue} ${ageUnitLabels[row.ageUnit].toLowerCase()}`
         : null,
     sex: row.sex ? sexLabels[row.sex] : null,
-    location: `${row.city} · ${row.neighborhood}`,
+    location: [row.city, row.neighborhood].filter(Boolean).join(" · "),
     reportedAgo: timeAgo(row.reportedAt),
     photoUrl: row.photoUrl,
   }));
 
   return (
-    <section id="mascotas" className={styles.section} aria-label="Mascotas que necesitan ayuda">
+    <section id="mascotas" className={styles.section} aria-label="Mascotas perdidas">
       <div className={styles.sectionInner}>
         <SectionTitle
           eyebrow="Comunidad activa"
           title="Mascotas perdidas"
-          subtitle="Todos los reportes activos de mascotas perdidas por sus familias. Compártelos para acelerar el reencuentro."
+          subtitle="Ayúdanos a encontrarlas. Cada reporte es de una familia que está buscando a su mascota ahora mismo."
         />
-        <LostPetsScroller cards={cards} />
+        {cards.length === 0 ? (
+          <p className={styles.scrollerEmpty}>
+            No hay reportes de mascotas perdidas activos en la comunidad en este momento.
+          </p>
+        ) : (
+          <CardSlider ariaLabel="Mascotas perdidas">
+            {cards.map((card) => (
+              <PetCard key={card.publicId} pet={card} />
+            ))}
+          </CardSlider>
+        )}
       </div>
     </section>
   );

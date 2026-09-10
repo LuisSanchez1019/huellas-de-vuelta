@@ -15,12 +15,20 @@ import {
   PUBLIC_ADOPTIONS_TAG,
   PUBLIC_LOST_PETS_TAG,
   PUBLIC_ORGS_TAG,
+  PUBLIC_POSTERS_TAG,
   PUBLIC_STATS_TAG,
 } from "@/lib/cache/tags";
 import type { OrgCategory } from "@/lib/pets/reencuentro";
 import type { OrgCardData } from "@/components/landing/OrgCard";
+import { getPosterSignedUrls, isSafePosterUrl } from "./posters";
 
-export { PUBLIC_ORGS_TAG, PUBLIC_LOST_PETS_TAG, PUBLIC_ADOPTIONS_TAG, PUBLIC_STATS_TAG };
+export {
+  PUBLIC_ORGS_TAG,
+  PUBLIC_LOST_PETS_TAG,
+  PUBLIC_ADOPTIONS_TAG,
+  PUBLIC_STATS_TAG,
+  PUBLIC_POSTERS_TAG,
+};
 
 /**
  * Caché de datos PÚBLICOS reutilizados por Landing/mapa (organizaciones
@@ -36,6 +44,10 @@ export { PUBLIC_ORGS_TAG, PUBLIC_LOST_PETS_TAG, PUBLIC_ADOPTIONS_TAG, PUBLIC_STA
  * organización, publicar/guardar perfil, cambiar estado de mascota).
  */
 const REVALIDATE_SECONDS = 120;
+/** Los posters vencen en un limite de 24 h; una ventana de caché corta evita
+ *  que uno vencido siga apareciendo por caché (§28). Ademas se revalida por tag
+ *  al aprobar/rechazar/desactivar/eliminar. */
+const POSTERS_REVALIDATE_SECONDS = 60;
 
 /**
  * Firma en UNA sola llamada (`createSignedUrls`) las fotos privadas de un
@@ -99,6 +111,58 @@ export const getCachedPartnerOrgs = unstable_cache(
   },
   ["partner-orgs"],
   { revalidate: REVALIDATE_SECONDS, tags: [PUBLIC_ORGS_TAG] },
+);
+
+export interface LandingPoster {
+  id: string;
+  organizationId: string;
+  title: string | null;
+  description: string | null;
+  targetUrl: string | null;
+  orgName: string;
+  orgKind: string;
+  imageUrl: string;
+}
+
+/**
+ * Hasta 4 posters vigentes para la Landing (RPC `list_public_posters`: maximo 1
+ * por organizacion, rotacion cada 3 h, valida tambien el estado de la
+ * organizacion). El bucket es privado: la URL de cada imagen se firma aqui,
+ * server-side (la policy de Storage solo deja leer el archivo mientras el poster
+ * sigue aprobado y vigente). Si un poster ya no es publico, su URL no se firma y
+ * queda fuera del resultado.
+ */
+export const getCachedLandingPosters = unstable_cache(
+  async (): Promise<LandingPoster[]> => {
+    const supabase = createSupabasePublicServerClient();
+    const { data, error } = await supabase.rpc("list_public_posters");
+    if (error) throw error;
+    const rows = (Array.isArray(data) ? data : []) as Record<string, unknown>[];
+    const signed = await getPosterSignedUrls(
+      supabase,
+      rows.map((row) => String(row.image_path ?? "")).filter(Boolean),
+    );
+    return rows
+      .map((row): LandingPoster | null => {
+        const imagePath = String(row.image_path ?? "");
+        const imageUrl = signed.get(imagePath);
+        if (!imageUrl) return null;
+        const targetUrl = (row.target_url as string) ?? null;
+        return {
+          id: String(row.id),
+          organizationId: String(row.organization_id),
+          title: (row.title as string) ?? null,
+          description: (row.description as string) ?? null,
+          targetUrl: isSafePosterUrl(targetUrl) ? targetUrl : null,
+          orgName: String(row.org_name ?? ""),
+          orgKind: String(row.org_kind ?? ""),
+          imageUrl,
+        };
+      })
+      .filter((poster): poster is LandingPoster => poster !== null);
+  },
+  ["landing-posters"],
+  { revalidate: POSTERS_REVALIDATE_SECONDS, tags: [PUBLIC_POSTERS_TAG] },
 );
 
 /** Organizaciones aprobadas+activas con coordenadas, para el mapa del Landing. */
@@ -212,36 +276,77 @@ export const getCachedLandingStats = unstable_cache(
   { revalidate: REVALIDATE_SECONDS, tags: [PUBLIC_STATS_TAG] },
 );
 
-export interface PublicReunion {
-  reportId: string;
-  species: PetSpecies;
+export interface PublicOrgPet {
+  id: string;
+  publicId: string | null;
+  name: string;
+  species: string;
   speciesOther: string | null;
-  city: string;
-  neighborhood: string | null;
-  closedAt: string;
+  breed: string | null;
+  age: string | null;
+  sex: string | null;
+  status: string;
+  needsHome: boolean;
+  needsSponsor: boolean;
+  photoUrl: string | null;
+  org: {
+    id: string;
+    name: string;
+    kind: string;
+    city: string | null;
+    neighborhood: string | null;
+    logoUrl: string | null;
+    whatsapp: string | null;
+  };
 }
 
 /**
- * Reencuentros REALES (RPC `list_public_reunions`): reportes de pérdida ya
- * cerrados. Solo datos públicos — sin propietario ni testimonios inventados.
- * Cacheado y ligado a `PUBLIC_LOST_PETS_TAG` (misma tabla origen), así que se
- * refresca cuando una mascota cambia de estado.
+ * Mascotas de organizaciones (veterinaria/fundación) marcadas para adopción
+ * (`needs_home`) o apadrinamiento (`needs_sponsor`), solo de organizaciones
+ * publicadas + aprobadas + activas (RPC `list_public_org_pets`). Incluye la
+ * atribución pública de la organización — nunca su correo/teléfono privado.
+ * Ligado a `PUBLIC_ADOPTIONS_TAG` y `PUBLIC_ORGS_TAG`.
  */
-export const getCachedReunions = unstable_cache(
-  async (): Promise<PublicReunion[]> => {
+export const getCachedOrgPets = unstable_cache(
+  async (): Promise<PublicOrgPet[]> => {
     const supabase = createSupabasePublicServerClient();
-    const { data, error } = await supabase.rpc("list_public_reunions");
+    const { data, error } = await supabase.rpc("list_public_org_pets");
     if (error) throw error;
     const rows = (Array.isArray(data) ? data : []) as Record<string, unknown>[];
-    return rows.map((row) => ({
-      reportId: String(row.report_id),
-      species: (row.species as PetSpecies) ?? "other",
-      speciesOther: (row.species_other as string) ?? null,
-      city: String(row.city ?? ""),
-      neighborhood: (row.neighborhood as string) ?? null,
-      closedAt: String(row.closed_at ?? ""),
-    }));
+    const signed = await signPetPhotoUrls(
+      supabase,
+      rows.map((row) => (row.photo_path as string) ?? "").filter(Boolean),
+    );
+    return rows.map((row) => {
+      const photoPath = (row.photo_path as string) ?? null;
+      const logoPath = (row.org_logo_path as string) ?? null;
+      return {
+        id: String(row.id),
+        publicId: (row.public_id as string) ?? null,
+        name: String(row.name ?? ""),
+        species: String(row.species ?? "other"),
+        speciesOther: (row.species_other as string) ?? null,
+        breed: (row.breed as string) ?? null,
+        age: (row.age as string) ?? null,
+        sex: (row.sex as string) ?? null,
+        status: String(row.status ?? ""),
+        needsHome: Boolean(row.needs_home),
+        needsSponsor: Boolean(row.needs_sponsor),
+        photoUrl: photoPath ? signed.get(photoPath) ?? null : null,
+        org: {
+          id: String(row.org_id ?? ""),
+          name: String(row.org_name ?? ""),
+          kind: String(row.org_kind ?? ""),
+          city: (row.org_city as string) ?? null,
+          neighborhood: (row.org_neighborhood as string) ?? null,
+          logoUrl: logoPath
+            ? getOrgLogoPublicUrl(supabase, logoPath)
+            : ((row.org_logo_url as string) ?? null),
+          whatsapp: (row.org_whatsapp as string) ?? null,
+        },
+      };
+    });
   },
-  ["public-reunions"],
-  { revalidate: REVALIDATE_SECONDS, tags: [PUBLIC_LOST_PETS_TAG] },
+  ["public-org-pets"],
+  { revalidate: REVALIDATE_SECONDS, tags: [PUBLIC_ADOPTIONS_TAG, PUBLIC_ORGS_TAG] },
 );

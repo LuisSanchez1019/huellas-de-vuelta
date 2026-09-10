@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 import { accountProfileRepository } from "@/lib/profiles/repository";
 import type { AccountProfile } from "@/lib/profiles/types";
 import { roleLabels } from "@/lib/auth/roles";
+import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
+import { fetchMyOrgName } from "@/lib/supabase/orgProfiles";
 import { CheckIcon } from "@/components/icons/Icon";
 import controls from "@/components/ui/controls.module.css";
 import styles from "./settings.module.css";
@@ -17,16 +19,24 @@ function formatDate(iso: string | null): string {
 export default function AccountSettings() {
   const [state, setState] = useState<"loading" | "ready" | "no-session" | "error">("loading");
   const [profile, setProfile] = useState<AccountProfile | null>(null);
+  const [orgName, setOrgName] = useState<string | null>(null);
 
   useEffect(() => {
     accountProfileRepository
       .getMine()
-      .then((mine) => {
+      .then(async (mine) => {
         if (!mine) {
           setState("no-session");
           return;
         }
         setProfile(mine);
+        if (mine.role === "veterinaria" || mine.role === "fundacion") {
+          try {
+            setOrgName(await fetchMyOrgName(createSupabaseBrowserClient(), mine.id));
+          } catch {
+            /* si falla, no se muestra la fila */
+          }
+        }
         setState("ready");
       })
       .catch(() => setState("error"));
@@ -80,6 +90,12 @@ export default function AccountSettings() {
             {roleLabels[profile.role]}{profile.isAdmin ? " · Administrador" : ""}
           </span>
         </div>
+        {(profile.role === "veterinaria" || profile.role === "fundacion") && (
+          <div className={styles.infoRow}>
+            <span className={styles.infoLabel}>Nombre de la organización</span>
+            <span className={styles.infoValue}>{orgName || "—"}</span>
+          </div>
+        )}
         <div className={styles.infoRow}>
           <span className={styles.infoLabel}>Miembro desde</span>
           <span className={styles.infoValue}>{formatDate(profile.createdAt)}</span>

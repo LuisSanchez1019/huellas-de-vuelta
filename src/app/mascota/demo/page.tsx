@@ -52,7 +52,7 @@ export default function ScannedPetProfileDemo() {
               Los datos del propietario están protegidos. Si encuentras a la mascota, avisas a su familia sin ver ni compartir su número ni su dirección.
             </p>
 
-            <Link className={styles.contactCta} href="/auth?mode=sign-up">
+            <Link className={styles.contactCta} href="/auth/usuarios?mode=sign-up">
               <PawIcon size={16} />
               Encontré esta mascota
             </Link>

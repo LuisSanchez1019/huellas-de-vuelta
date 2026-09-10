@@ -5,22 +5,30 @@ import styles from "./landing.module.css";
 
 const columns = [
   {
-    title: "Enlaces",
+    title: "Explora",
     links: [
-      { href: "/", label: "Inicio" },
       { href: "/#mascotas", label: "Mascotas perdidas" },
       { href: "/#adopciones", label: "En adopción" },
-      { href: "/#aliados", label: "Aliados" },
+      { href: "/#apadrinamiento", label: "Apadrinamiento" },
+      { href: "/#empresas", label: "Aliados" },
+    ],
+  },
+  {
+    title: "Organizaciones",
+    links: [
+      { href: "/#veterinarias", label: "Veterinarias" },
+      { href: "/#fundaciones", label: "Fundaciones" },
       { href: "/#mapa", label: "Mapa" },
+      { href: "/auth/vet-fun", label: "Registra tu organización" },
     ],
   },
   {
     title: "Ayuda",
     links: [
-      { href: "/ayuda", label: "Preguntas frecuentes" },
-      { href: "/ayuda", label: "Términos y condiciones" },
-      { href: "/ayuda", label: "Política de privacidad" },
-      { href: "/auth?mode=sign-up", label: "Registra tu organización" },
+      { href: "/ayuda", label: "Centro de ayuda" },
+      { href: "/ayuda", label: "Privacidad" },
+      { href: "/ayuda", label: "Términos de uso" },
+      { href: "/ayuda", label: "Contacto" },
     ],
   },
 ];
@@ -32,7 +40,7 @@ export default function Footer() {
         <div className={styles.footerGrid}>
           <div className={styles.footerBrandCol}>
             <div className={styles.footerBrand}>
-              <Image className={styles.footerLogo} src="/logo.png" alt="Huellas de Vuelta" width={34} height={34} />
+              <Image className={styles.footerLogo} src="/logo-hdv.png" alt="Huellas de Vuelta" width={34} height={34} />
               <span>
                 Huellas de Vuelta
                 <span className={styles.footerBrandTagline}>Conectando corazones</span>
@@ -59,15 +67,6 @@ export default function Footer() {
               </div>
             </div>
           ))}
-
-          <div>
-            <p className={styles.footerColumnTitle}>Novedades</p>
-            <p className={styles.footerNewsText}>
-              Consejos de cuidado y avances de la plataforma. Muy pronto podrás suscribirte a nuestro
-              boletín.
-            </p>
-            <Link className={styles.footerNewsCta} href="/ayuda">Ir al centro de ayuda</Link>
-          </div>
         </div>
 
         <div className={styles.footerBottom}>

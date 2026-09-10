@@ -60,6 +60,71 @@ export function slugify(value: string, fallback: string): string {
   return base || fallback;
 }
 
+/** Nombre normalizado (igual que la columna generada `name_norm` en BD). */
+export function normalizeOrgName(value: string): string {
+  return value.trim().replace(/\s+/g, " ").toLowerCase();
+}
+
+/**
+ * ¿El nombre de organización está libre para ese tipo? RPC `org_name_available`
+ * (SECURITY DEFINER: ve todas las filas, no solo la propia). Solo UX previa; la
+ * garantía real es el índice único `(kind, name_norm)` + `register_org_profile`.
+ */
+export async function orgNameAvailable(
+  supabase: SupabaseClient,
+  kind: OrgProfileKind,
+  name: string,
+): Promise<boolean> {
+  const { data, error } = await supabase.rpc("org_name_available", { p_kind: kind, p_name: name });
+  if (error) throw error;
+  return data === true;
+}
+
+export class OrgDuplicateError extends Error {
+  constructor(public kind: OrgProfileKind) {
+    super("DUPLICATE_ORG");
+    this.name = "OrgDuplicateError";
+  }
+}
+
+/**
+ * Crea (o renombra, si el dueño ya tiene una) la fila mínima de
+ * `organization_profiles` en el registro: solo nombre + tipo. Queda
+ * `status='draft'` y `approval_status='pending'` (aprobación del admin). El rol
+ * real (`profiles.role`) debe coincidir con `kind` — lo valida la RPC en el
+ * servidor. Lanza `OrgDuplicateError` si otra cuenta ya registró ese nombre.
+ */
+export async function registerOrgProfile(
+  supabase: SupabaseClient,
+  kind: OrgProfileKind,
+  name: string,
+): Promise<string> {
+  const { data, error } = await supabase.rpc("register_org_profile", {
+    p_kind: kind,
+    p_name: name,
+    p_slug: slugify(name, kind),
+  });
+  if (error) {
+    if (/DUPLICATE_ORG/.test(error.message)) throw new OrgDuplicateError(kind);
+    throw error;
+  }
+  return String(data);
+}
+
+/** Nombre de la organización de la cuenta autenticada (o `null` si aún no existe). */
+export async function fetchMyOrgName(
+  supabase: SupabaseClient,
+  ownerId: string,
+): Promise<string | null> {
+  const { data, error } = await supabase
+    .from("organization_profiles")
+    .select("name")
+    .eq("owner_id", ownerId)
+    .maybeSingle();
+  if (error) throw error;
+  return (data?.name as string) ?? null;
+}
+
 /** Campos que la app escribe en `organization_profiles` (sin id/owner_id/slug/timestamps). */
 export interface OrgProfileWrite {
   name: string;
@@ -133,7 +198,12 @@ export async function upsertOrgProfileRow(
     .upsert(payload, { onConflict: "owner_id" })
     .select("*")
     .single();
-  if (error) throw error;
+  if (error) {
+    if (error.code === "23505" && /name_norm/.test(error.message)) {
+      throw new OrgDuplicateError(kind);
+    }
+    throw error;
+  }
   return data as OrgProfileRow;
 }
 

@@ -57,6 +57,7 @@ const ADMIN_GROUP: NavEntry = {
   items: [
     { label: "Inicio administrativo", href: "/admin" },
     { label: "Organizaciones", href: "/admin/organizaciones" },
+    { label: "Posters", href: "/admin/posters" },
     { label: "Usuarios", href: "/admin/usuarios" },
   ],
 };

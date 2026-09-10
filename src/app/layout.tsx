@@ -34,6 +34,16 @@ export const metadata: Metadata = {
     template: "%s · Huellas de Vuelta",
   },
   description: "Una plataforma para ayudar a las mascotas a volver a casa.",
+  // El pack de favicons vive en `public/` (16x16, 32x32, apple-touch). El
+  // `favicon.ico` multi-tamaño lo enlaza Next por la convención de archivo
+  // (`src/app/favicon.ico`) y el manifest por `src/app/manifest.ts`.
+  icons: {
+    icon: [
+      { url: "/favicon-16x16.png", type: "image/png", sizes: "16x16" },
+      { url: "/favicon-32x32.png", type: "image/png", sizes: "32x32" },
+    ],
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+  },
   openGraph: {
     type: "website",
     locale: "es_CO",

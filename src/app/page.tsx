@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
 import Header from "@/components/landing/Header";
+import OrgBanner from "@/components/landing/OrgBanner";
 import Hero from "@/components/landing/Hero";
-import CommunitySection from "@/components/landing/CommunitySection";
-import HelpSection from "@/components/landing/HelpSection";
+import LostPetsSection from "@/components/landing/LostPetsSection";
 import AdoptionsSection from "@/components/landing/AdoptionsSection";
+import SponsorPetsSection from "@/components/landing/SponsorPetsSection";
+import OrgsSection from "@/components/landing/OrgsSection";
 import MapSection from "@/components/landing/MapSection";
-import PartnersSection from "@/components/landing/PartnersSection";
-import InfoSection from "@/components/landing/InfoSection";
+import PostersSection from "@/components/landing/PostersSection";
+import SponsorsSection from "@/components/landing/SponsorsSection";
 import CTASection from "@/components/landing/CTASection";
 import Footer from "@/components/landing/Footer";
 
@@ -26,13 +28,16 @@ export default function Home() {
     <>
       <Header />
       <main>
+        <OrgBanner />
         <Hero />
-        <CommunitySection />
-        <HelpSection />
+        <LostPetsSection />
         <AdoptionsSection />
+        <SponsorPetsSection />
         <MapSection />
-        <PartnersSection />
-        <InfoSection />
+        <PostersSection />
+        <OrgsSection kind="veterinaria" />
+        <OrgsSection kind="fundacion" />
+        <SponsorsSection />
         <CTASection />
       </main>
       <Footer />

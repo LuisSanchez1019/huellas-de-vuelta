@@ -1,0 +1,104 @@
+/* Panel "Posters" de veterinarias/fundaciones + modal de apoyo. Reutiliza
+   controls.module.css para botones/campos/secciones; aqui solo lo especifico
+   de posters (lista, estados, vista previa 3:1, dropzone, modal). Tema-aware. */
+
+.quota {
+  display: flex; flex-wrap: wrap; gap: .5rem .9rem; align-items: center;
+  margin: .25rem 0 1.25rem; color: var(--ink-600); font-size: .9rem;
+}
+.quotaStrong { color: var(--navy-900); font-weight: 700; }
+
+.toolbar { display: flex; gap: .75rem; flex-wrap: wrap; margin-bottom: 1.25rem; }
+
+.list { display: grid; gap: 1rem; margin-top: .5rem; }
+
+.card {
+  display: grid; grid-template-columns: 16rem 1fr; gap: 1.1rem;
+  padding: 1rem; border: 1px solid var(--surface-300); border-radius: 1rem; background: var(--card);
+}
+@media (max-width: 40rem) { .card { grid-template-columns: 1fr; } }
+
+.thumb {
+  position: relative; width: 100%; aspect-ratio: 3 / 1; overflow: hidden;
+  border-radius: .7rem; border: 1px solid var(--border); background: var(--surface-100);
+}
+.thumbImg { width: 100%; height: 100%; object-fit: cover; display: block; }
+.thumbEmpty {
+  display: grid; place-items: center; width: 100%; height: 100%;
+  color: var(--ink-600); font-size: .8rem;
+}
+
+.body { display: grid; gap: .5rem; align-content: start; }
+.rowTop { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; }
+.posterTitle { font-weight: 800; color: var(--navy-900); }
+.muted { color: var(--ink-600); font-size: .88rem; line-height: 1.5; }
+.link { color: var(--teal-600); font-weight: 600; word-break: break-all; }
+
+.pill {
+  display: inline-flex; align-items: center; gap: .35rem;
+  padding: .25rem .6rem; border-radius: 999px; font-size: .76rem; font-weight: 800;
+  border: 1px solid var(--border);
+}
+.pill_draft { background: var(--surface-100); color: var(--ink-600); }
+.pill_pending { background: var(--warning-bg); color: var(--warning-fg); border-color: var(--warning-border); }
+.pill_approved { background: var(--success-bg); color: var(--success-fg); border-color: var(--success-border); }
+.pill_rejected { background: var(--danger-bg); color: var(--danger-fg); border-color: var(--danger-border); }
+.pill_expired { background: var(--surface-100); color: var(--ink-600); }
+.pill_inactive { background: var(--surface-100); color: var(--ink-600); }
+
+.actions { display: flex; gap: .5rem; flex-wrap: wrap; margin-top: .25rem; }
+
+/* ---- Editor ---- */
+.editor { margin-top: 1rem; }
+.dropzone {
+  display: grid; place-items: center; gap: .35rem;
+  width: 100%; aspect-ratio: 3 / 1;
+  border: 1px dashed var(--surface-300); border-radius: .8rem;
+  background: var(--surface-100); color: var(--ink-600); cursor: pointer;
+  font: inherit; text-align: center; padding: 1rem;
+}
+.dropzone:hover:not(:disabled) { border-color: var(--teal-600); color: var(--teal-600); }
+.dropzoneTitle { font-weight: 800; color: var(--navy-900); }
+.dropzoneHint { font-size: .8rem; }
+.fileInput { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+
+.previewWrap { display: grid; gap: .5rem; }
+.previewLabel { font-size: .82rem; font-weight: 700; color: var(--ink-600); }
+.previewCard {
+  position: relative; width: 100%; aspect-ratio: 3 / 1; overflow: hidden;
+  border-radius: clamp(.9rem, 2.5vw, 1.25rem);
+  border: 1px solid var(--border); background: var(--surface-100);
+  box-shadow: 0 .6rem 1.6rem rgba(var(--shadow-rgb), .14);
+}
+.previewImg { width: 100%; height: 100%; object-fit: cover; display: block; }
+.previewCaption {
+  position: absolute; left: 0; right: 0; bottom: 0; padding: .7rem .9rem; display: grid; gap: .1rem;
+  color: #fff; background: linear-gradient(to top, rgba(0, 0, 0, .64), rgba(0, 0, 0, 0));
+}
+.previewCaptionTitle { font-weight: 800; font-size: .95rem; line-height: 1.2; }
+.previewCaptionOrg { font-size: .76rem; opacity: .9; }
+.previewActions { display: flex; gap: .5rem; flex-wrap: wrap; }
+
+/* ---- Modal de apoyo ---- */
+.overlay {
+  position: fixed; inset: 0; z-index: 200; display: grid; place-items: center;
+  padding: 1.25rem; background: var(--overlay); backdrop-filter: blur(3px);
+}
+.modal {
+  width: min(32rem, 100%); max-height: calc(100vh - 2.5rem); overflow-y: auto;
+  padding: 1.75rem; border-radius: 1.25rem; border: 1px solid var(--border);
+  background: var(--card); box-shadow: 0 1.5rem 3rem rgba(var(--shadow-rgb), .28);
+}
+.modalTitle { font-size: 1.2rem; font-weight: 800; color: var(--navy-900); }
+.modalText { margin-top: .75rem; color: var(--ink-600); font-size: .92rem; line-height: 1.6; }
+.keyBox {
+  margin: 1.1rem 0 .35rem; padding: 1rem; border-radius: .8rem;
+  border: 1px dashed var(--surface-300); background: var(--surface-100); text-align: center;
+}
+.keyLabel { font-size: .72rem; font-weight: 800; letter-spacing: .12em; color: var(--ink-600); }
+.keyValue { margin-top: .4rem; font-weight: 800; color: var(--navy-900); letter-spacing: .02em; }
+.modalActions { display: flex; gap: .75rem; flex-wrap: wrap; margin-top: 1.1rem; }
+@media (prefers-reduced-motion: no-preference) {
+  .modal { animation: posterModalIn .16s ease-out; }
+}
+@keyframes posterModalIn { from { opacity: 0; transform: translateY(.5rem); } to { opacity: 1; transform: none; } }

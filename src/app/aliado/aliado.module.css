@@ -1,0 +1,30 @@
+.checking { min-height: 100vh; display: grid; place-items: center; color: var(--ink-600); background: var(--surface-100); }
+
+.wrap { max-width: 40rem; }
+.head { margin-bottom: 1.25rem; }
+.title { font-size: 1.5rem; font-weight: 800; letter-spacing: -.02em; color: var(--navy-900); }
+.subtitle { margin-top: .4rem; color: var(--ink-600); line-height: 1.55; }
+
+.card {
+  padding: 1.5rem;
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  background: var(--card);
+}
+.card p { color: var(--ink-600); line-height: 1.6; }
+.card p + p { margin-top: .7rem; }
+
+.list { list-style: none; margin: 1rem 0 0; padding: 0; display: grid; gap: .5rem; }
+.list li { display: flex; align-items: flex-start; gap: .5rem; color: var(--navy-900); font-size: .9rem; line-height: 1.45; }
+.list svg { flex-shrink: 0; margin-top: .15rem; color: var(--teal-600); }
+
+.note {
+  margin-top: 1.25rem;
+  padding: .9rem 1rem;
+  border-radius: .7rem;
+  background: var(--info-bg);
+  color: var(--info-fg);
+  border: 1px solid var(--info-border);
+  font-size: .88rem;
+  line-height: 1.5;
+}

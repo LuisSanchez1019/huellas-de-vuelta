@@ -1,100 +1,71 @@
 import Link from "next/link";
-import { HeartIcon, ReportIcon, SearchIcon } from "@/components/icons/Icon";
-import { getCachedLandingStats } from "@/lib/supabase/publicCache";
+import {
+  HandIcon,
+  HeartIcon,
+  ReportIcon,
+  SearchIcon,
+  UserIcon,
+} from "@/components/icons/Icon";
+import OrgAccessCard from "./OrgAccessCard";
 import styles from "./Hero.module.css";
-
-const numberFormat = new Intl.NumberFormat("es-CO");
 
 const actions = [
   {
-    href: "/auth?mode=sign-up",
-    icon: <ReportIcon size={22} />,
-    title: "Reporta una mascota perdida",
-    text: "Publica el caso y avisa a la comunidad cercana.",
+    href: "/auth/usuarios?mode=sign-up",
+    icon: <ReportIcon size={20} />,
+    title: "Reportar una mascota perdida",
+    text: "Publica el reporte y ayuda a que la comunidad la encuentre.",
     variant: styles.actionLost,
   },
   {
     href: "/#mascotas",
-    icon: <SearchIcon size={22} />,
-    title: "Encontré a una mascota",
-    text: "Revisa los reportes activos y ayúdala a volver a casa.",
+    icon: <SearchIcon size={20} />,
+    title: "Encontré una mascota",
+    text: "Consulta qué hacer si encontraste una mascota.",
     variant: styles.actionFound,
   },
   {
     href: "/#adopciones",
-    icon: <HeartIcon size={22} />,
+    icon: <HeartIcon size={20} />,
     title: "Quiero adoptar",
-    text: "Conoce a las mascotas que esperan un hogar.",
+    text: "Conoce mascotas que buscan un nuevo hogar.",
     variant: styles.actionAdopt,
   },
 ];
 
-const STAT_ORDER = ["registered", "reunions", "orgs"] as const;
-
-export default async function Hero() {
-  const stats = await getCachedLandingStats().catch(() => []);
-  const trust = STAT_ORDER
-    .map((key) => stats.find((s) => s.key === key))
-    .filter((s): s is NonNullable<typeof s> => Boolean(s));
-
+export default function Hero() {
   return (
     <section className={styles.hero} aria-label="Presentación">
-      <div className={styles.inner}>
-        <div className={styles.copy}>
-          <span className={styles.eyebrow}>Red de ayuda para mascotas · Colombia</span>
-          <h1 className={styles.title}>
-            Cada mascota merece <span className={styles.titleAccent}>volver a casa</span>
-          </h1>
-          <p className={styles.description}>
-            Conectamos personas, mascotas y organizaciones para que más historias tengan un final feliz.
-            Reportar, encontrar y adoptar, de forma gratuita y segura.
-          </p>
+      {/* El banner de arriba ya muestra el titular con jerarquía fuerte; aquí
+          va como <h1> real para SEO y accesibilidad, sin repetirlo en grande. */}
+      <h1 className={styles.srOnly}>Cada mascota merece volver a casa</h1>
 
-          <div className={styles.actions}>
-            {actions.map((action) => (
-              <Link key={action.title} href={action.href} className={`${styles.action} ${action.variant}`}>
-                <span className={styles.actionIcon} aria-hidden="true">{action.icon}</span>
-                <span className={styles.actionBody}>
-                  <span className={styles.actionTitle}>{action.title}</span>
-                  <span className={styles.actionText}>{action.text}</span>
-                </span>
-              </Link>
-            ))}
-          </div>
+      <div className={styles.actions}>
+        {actions.map((action) => (
+          <Link key={action.title} href={action.href} className={`${styles.action} ${action.variant}`}>
+            <span className={styles.actionIcon} aria-hidden="true">{action.icon}</span>
+            <span className={styles.actionBody}>
+              <span className={styles.actionTitle}>{action.title}</span>
+              <span className={styles.actionText}>{action.text}</span>
+            </span>
+          </Link>
+        ))}
+      </div>
 
-          {trust.length > 0 && (
-            <dl className={styles.trustRow}>
-              {trust.map((stat) => (
-                <div key={stat.key} className={styles.trustItem}>
-                  <dt className={styles.trustValue}>{numberFormat.format(stat.value)}</dt>
-                  <dd className={styles.trustLabel}>{stat.label}</dd>
-                </div>
-              ))}
-            </dl>
-          )}
-        </div>
+      <div className={styles.access} aria-label="Accesos de cuenta">
+        <Link href="/auth/usuarios" className={`${styles.accessCard} ${styles.accessUser}`}>
+          <span className={styles.accessIcon} aria-hidden="true"><UserIcon size={22} /></span>
+          <span className={styles.accessTitle}>Ingreso usuarios</span>
+          <span className={styles.accessText}>Accede a tus mascotas, reportes y notificaciones.</span>
+        </Link>
 
-        <div className={styles.visual} aria-hidden="true">
-          <div className={styles.visualCard}>
-            <div className={styles.visualGlow} />
-            <svg className={styles.visualPaws} viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <g fill="currentColor">
-                <ellipse cx="40" cy="46" rx="9" ry="11" />
-                <ellipse cx="58" cy="34" rx="6" ry="8" />
-                <ellipse cx="24" cy="36" rx="6" ry="8" />
-                <ellipse cx="41" cy="70" rx="16" ry="13" />
-                <ellipse cx="150" cy="150" rx="9" ry="11" />
-                <ellipse cx="168" cy="138" rx="6" ry="8" />
-                <ellipse cx="134" cy="140" rx="6" ry="8" />
-                <ellipse cx="151" cy="174" rx="16" ry="13" />
-              </g>
-            </svg>
-            <span className={styles.script}>Pequeñas acciones,<br />grandes reencuentros</span>
-            <div className={styles.blob}>
-              <span>Juntos hacemos<br />la diferencia</span>
-            </div>
-          </div>
-        </div>
+        <OrgAccessCard />
+
+        <Link href="/auth/aliado" className={`${styles.accessCard} ${styles.accessAlly}`}>
+          <span className={styles.accessIcon} aria-hidden="true"><HandIcon size={22} /></span>
+          <span className={styles.accessTitle}>Ingreso aliado</span>
+          <span className={styles.accessText}>Accede como aliado de Huellas de Vuelta.</span>
+        </Link>
       </div>
     </section>
   );

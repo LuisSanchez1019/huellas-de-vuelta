@@ -246,7 +246,7 @@ export function TagIcon({ size = 20, className }: IconProps) {
 export function HeartIcon({ size = 20, className }: IconProps) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
-      <path d="M12 20s-7-4.4-9.2-8.6C1.3 8.5 2.8 5.5 6 5.5c2 0 3.3 1.1 4 2.3.7-1.2 2-2.3 4-2.3 3.2 0 4.7 3 3.2 5.9C19 15.6 12 20 12 20Z" />
+      <path d="M12 20.3C12 20.3 3.6 15 3.6 8.9C3.6 6.1 5.9 3.9 8.7 3.9C10.5 3.9 12 5.2 12 5.2C12 5.2 13.5 3.9 15.3 3.9C18.1 3.9 20.4 6.1 20.4 8.9C20.4 15 12 20.3 12 20.3Z" />
     </svg>
   );
 }
@@ -273,7 +273,7 @@ export function EyeIcon({ size = 20, className }: IconProps) {
 export function HandIcon({ size = 20, className }: IconProps) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
-      <path d="M8 11V5.5a1.5 1.5 0 0 1 3 0V10m0 0V4.5a1.5 1.5 0 0 1 3 0V10m0 0V6a1.5 1.5 0 0 1 3 0v6.5c0 3.6-2.4 7-6.5 7-2.7 0-4.3-1.2-5.7-3.3l-2-3.2a1.5 1.5 0 0 1 2.4-1.8L8 12" />
+      <path d="M7 11.6V6.4a1.5 1.5 0 0 1 3 0v4.3m0 0V5.4a1.5 1.5 0 0 1 3 0v5.3m0 0V6.9a1.5 1.5 0 0 1 3 0v6.1c0 3.4-2.3 6.6-6.1 6.6-2.5 0-4-1.1-5.4-3.1l-1.9-3a1.5 1.5 0 0 1 2.3-1.7l1.8 1.7" transform="translate(2.6 0)" />
     </svg>
   );
 }
@@ -323,7 +323,7 @@ export function SunIcon({ size = 20, className }: IconProps) {
 export function MoonIcon({ size = 20, className }: IconProps) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
-      <path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a7 7 0 1 0 10.5 10.5Z" />
+      <path d="M20.5 13.2A8.5 8.5 0 1 1 10.8 3.5 6.6 6.6 0 0 0 20.5 13.2Z" />
     </svg>
   );
 }
@@ -331,10 +331,10 @@ export function MoonIcon({ size = 20, className }: IconProps) {
 export function StethoscopeIcon({ size = 20, className }: IconProps) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
-      <path d="M6.5 3.5v5.3a3.3 3.3 0 0 0 6.6 0V3.5" />
-      <path d="M9.8 8.8v2.7a5.4 5.4 0 0 0 10.8 0V9.2" />
-      <circle cx="20.6" cy="9.2" r="1.4" />
-      <circle cx="15.2" cy="18.7" r="2.4" />
+      <path d="M5.5 4v4.6a3 3 0 0 0 6 0V4" />
+      <path d="M8.5 8.6v2.4a4.8 4.8 0 0 0 9.6 0V9" />
+      <circle cx="18.3" cy="8.6" r="1.3" />
+      <circle cx="13.3" cy="17.6" r="2.3" />
     </svg>
   );
 }
@@ -351,11 +351,13 @@ export function SyringeIcon({ size = 20, className }: IconProps) {
 export function BedIcon({ size = 20, className }: IconProps) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
-      <path d="M3 19v-6.5A1.5 1.5 0 0 1 4.5 11H10a2 2 0 0 1 2 2" />
-      <path d="M12 13h7.5A1.5 1.5 0 0 1 21 14.5V19" />
-      <path d="M3 16h18" />
-      <path d="M3 19v1.5M21 19v1.5" />
-      <rect x="4.5" y="12" width="3.4" height="2" rx=".6" />
+      <g transform="translate(0 -2.4)">
+        <path d="M3 19v-6.5A1.5 1.5 0 0 1 4.5 11H10a2 2 0 0 1 2 2" />
+        <path d="M12 13h7.5A1.5 1.5 0 0 1 21 14.5V19" />
+        <path d="M3 16h18" />
+        <path d="M3 19v1.7M21 19v1.7" />
+        <rect x="4.5" y="12" width="3.4" height="2" rx=".6" />
+      </g>
     </svg>
   );
 }
@@ -402,6 +404,16 @@ export function BookIcon({ size = 20, className }: IconProps) {
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
       <path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11v16H5.5A1.5 1.5 0 0 1 4 18.5v-13Z" />
       <path d="M20 5.5A1.5 1.5 0 0 0 18.5 4H13v16h5.5a1.5 1.5 0 0 0 1.5-1.5v-13Z" />
+    </svg>
+  );
+}
+
+export function MegaphoneIcon({ size = 22, className }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+      <path d="M4 9.5v5a1.5 1.5 0 0 0 1.5 1.5H8l9.5 4.5V5L8 9.5H5.5A1.5 1.5 0 0 0 4 9.5Z" />
+      <path d="M8 16v3.2a1.3 1.3 0 0 0 1.3 1.3h1.1a1.3 1.3 0 0 0 1.3-1.3V17.7" />
+      <path d="M20.5 9.2a3 3 0 0 1 0 5.6" />
     </svg>
   );
 }

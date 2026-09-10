@@ -9,6 +9,7 @@ export const PUBLIC_ORGS_TAG = "public-orgs";
 export const PUBLIC_LOST_PETS_TAG = "public-lost-pets";
 export const PUBLIC_ADOPTIONS_TAG = "public-adoptions";
 export const PUBLIC_STATS_TAG = "public-stats";
+export const PUBLIC_POSTERS_TAG = "public-posters";
 
 /** Todos los tags públicos que la ruta de revalidación acepta. */
 export const PUBLIC_CACHE_TAGS = [
@@ -16,6 +17,7 @@ export const PUBLIC_CACHE_TAGS = [
   PUBLIC_LOST_PETS_TAG,
   PUBLIC_ADOPTIONS_TAG,
   PUBLIC_STATS_TAG,
+  PUBLIC_POSTERS_TAG,
 ] as const;
 
 /**

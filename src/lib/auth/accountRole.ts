@@ -21,10 +21,13 @@ export async function fetchAccountRoleForEmail(
 
 /** Mensaje profesional cuando el tipo elegido no coincide con el rol real. */
 export function roleMismatchLoginMessage(realRole: AccountRole): string {
-  return `Este correo ya está registrado como ${roleLabels[realRole]}. Inicia sesión desde el acceso de ${roleAccessLabels[realRole]}.`;
+  return `Este correo ya está registrado como ${roleLabels[realRole]}. Ingresa desde el acceso de ${roleAccessLabels[realRole]}.`;
 }
 
-/** Mensaje profesional cuando se intenta registrar un correo que ya existe. */
+/**
+ * Mensaje profesional cuando se intenta registrar un correo que ya existe con
+ * otro rol. Indica también por dónde debe ingresar.
+ */
 export function accountExistsMessage(realRole: AccountRole): string {
-  return `Este correo ya está registrado como ${roleLabels[realRole]}.`;
+  return `Este correo ya está registrado como ${roleLabels[realRole]}. Ingresa desde el acceso de ${roleAccessLabels[realRole]}.`;
 }

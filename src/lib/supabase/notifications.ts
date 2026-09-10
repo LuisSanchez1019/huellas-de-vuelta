@@ -8,7 +8,9 @@ export type NotificationType =
   | "event_found_needs_help"
   | "event_org_received"
   | "event_org_declined"
-  | "org_approved";
+  | "org_approved"
+  | "poster_approved"
+  | "poster_rejected";
 
 export interface AppNotification {
   id: string;

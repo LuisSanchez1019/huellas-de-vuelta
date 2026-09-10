@@ -188,7 +188,7 @@ export default function HelpCenter() {
             o vuelve a la página principal.
           </p>
           <div className={styles.ctaLinks}>
-            <Link className={styles.ctaButton} href="/auth?mode=sign-in">
+            <Link className={styles.ctaButton} href="/auth">
               Ir a mi panel
             </Link>
             <Link className={`${styles.ctaButton} ${styles.ctaButtonSecondary}`} href="/">

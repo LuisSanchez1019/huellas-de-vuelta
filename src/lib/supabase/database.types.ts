@@ -143,6 +143,134 @@ export type Database = {
           },
         ]
       }
+      organization_poster_events: {
+        Row: {
+          actor_id: string | null
+          created_at: string
+          event: string
+          id: string
+          organization_id: string
+          poster_id: string | null
+          reason: string | null
+        }
+        Insert: {
+          actor_id?: string | null
+          created_at?: string
+          event: string
+          id?: string
+          organization_id: string
+          poster_id?: string | null
+          reason?: string | null
+        }
+        Update: {
+          actor_id?: string | null
+          created_at?: string
+          event?: string
+          id?: string
+          organization_id?: string
+          poster_id?: string | null
+          reason?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "organization_poster_events_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "organization_poster_events_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organization_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "organization_poster_events_poster_id_fkey"
+            columns: ["poster_id"]
+            isOneToOne: false
+            referencedRelation: "organization_posters"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      organization_posters: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          created_at: string
+          created_by: string
+          description: string | null
+          expires_at: string | null
+          id: string
+          image_path: string
+          organization_id: string
+          rejection_reason: string | null
+          status: string
+          submitted_at: string | null
+          target_url: string | null
+          title: string | null
+          updated_at: string
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          created_by: string
+          description?: string | null
+          expires_at?: string | null
+          id?: string
+          image_path: string
+          organization_id: string
+          rejection_reason?: string | null
+          status?: string
+          submitted_at?: string | null
+          target_url?: string | null
+          title?: string | null
+          updated_at?: string
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          expires_at?: string | null
+          id?: string
+          image_path?: string
+          organization_id?: string
+          rejection_reason?: string | null
+          status?: string
+          submitted_at?: string | null
+          target_url?: string | null
+          title?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "organization_posters_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "organization_posters_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "organization_posters_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organization_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       organization_profiles: {
         Row: {
           address: string | null
@@ -164,6 +292,7 @@ export type Database = {
           logo_url: string | null
           map_url: string | null
           name: string
+          name_norm: string | null
           neighborhood: string | null
           owner_id: string
           phone: string | null
@@ -197,6 +326,7 @@ export type Database = {
           logo_url?: string | null
           map_url?: string | null
           name: string
+          name_norm?: string | null
           neighborhood?: string | null
           owner_id: string
           phone?: string | null
@@ -230,6 +360,7 @@ export type Database = {
           logo_url?: string | null
           map_url?: string | null
           name?: string
+          name_norm?: string | null
           neighborhood?: string | null
           owner_id?: string
           phone?: string | null
@@ -602,6 +733,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      _expire_stale_posters: { Args: { p_org_id?: string }; Returns: number }
+      _poster_caller_org: {
+        Args: never
+        Returns: {
+          org_id: string
+          org_kind: string
+          org_role: string
+        }[]
+      }
       account_role_for_email: { Args: { p_email: string }; Returns: string }
       admin_counts: {
         Args: never
@@ -610,6 +750,28 @@ export type Database = {
           pending_orgs: number
           pets: number
           users: number
+        }[]
+      }
+      admin_get_user: {
+        Args: { p_user_id: string }
+        Returns: {
+          active_reports_count: number
+          confirmed_at: string
+          created_at: string
+          display_name: string
+          email: string
+          first_name: string
+          id: string
+          is_admin: boolean
+          last_name: string
+          org_approval_status: string
+          org_id: string
+          org_is_active: boolean
+          org_kind: string
+          org_name: string
+          pets_count: number
+          phone: string
+          role: string
         }[]
       }
       admin_list_organizations: {
@@ -729,6 +891,46 @@ export type Database = {
           whatsapp: string
         }[]
       }
+      list_org_delivery_events: {
+        Args: never
+        Returns: {
+          city: string
+          description: string
+          id: string
+          neighborhood: string
+          org_declined_at: string
+          org_received_at: string
+          pet_breed: string
+          pet_condition: string
+          pet_id: string
+          pet_name: string
+          pet_photo_path: string
+          pet_species: string
+          pet_species_other: string
+          report_id: string
+          selected_org_at: string
+          type: string
+        }[]
+      }
+      list_public_adoption_pets: {
+        Args: never
+        Returns: {
+          age_unit: string
+          age_value: number
+          breed: string
+          color_primary: string
+          color_secondary: string
+          color_tertiary: string
+          description: string
+          listed_at: string
+          name: string
+          photo_path: string
+          public_id: string
+          sex: string
+          species: string
+          species_other: string
+        }[]
+      }
       list_public_lost_pets: {
         Args: never
         Returns: {
@@ -751,30 +953,129 @@ export type Database = {
           species_other: string
         }[]
       }
-      list_org_delivery_events: {
+      list_public_org_pets: {
+        Args: never
+        Returns: {
+          age: string
+          breed: string
+          created_at: string
+          id: string
+          name: string
+          needs_home: boolean
+          needs_sponsor: boolean
+          org_city: string
+          org_id: string
+          org_kind: string
+          org_logo_path: string
+          org_logo_url: string
+          org_name: string
+          org_neighborhood: string
+          org_whatsapp: string
+          photo_path: string
+          public_id: string
+          sex: string
+          species: string
+          species_other: string
+          status: string
+        }[]
+      }
+      list_public_posters: {
+        Args: never
+        Returns: {
+          description: string
+          id: string
+          image_path: string
+          org_kind: string
+          org_name: string
+          organization_id: string
+          target_url: string
+          title: string
+        }[]
+      }
+      list_public_reunions: {
         Args: never
         Returns: {
           city: string
-          description: string
-          id: string
+          closed_at: string
           neighborhood: string
-          org_declined_at: string
-          org_received_at: string
-          pet_breed: string
-          pet_condition: string
-          pet_id: string
-          pet_name: string
-          pet_photo_path: string
-          pet_species: string
-          pet_species_other: string
           report_id: string
-          selected_org_at: string
-          type: string
+          species: string
+          species_other: string
         }[]
       }
       org_confirm_pet_receipt: {
         Args: { p_event_id: string; p_note?: string; p_received: boolean }
         Returns: undefined
+      }
+      org_name_available: {
+        Args: { p_kind: string; p_name: string }
+        Returns: boolean
+      }
+      poster_admin_list: {
+        Args: never
+        Returns: {
+          approved_at: string
+          created_at: string
+          description: string
+          expires_at: string
+          id: string
+          image_path: string
+          is_live: boolean
+          org_category: string
+          org_kind: string
+          org_name: string
+          organization_id: string
+          owner_email: string
+          rejection_reason: string
+          status: string
+          submitted_at: string
+          target_url: string
+          title: string
+        }[]
+      }
+      poster_admin_review: {
+        Args: { p_action: string; p_id: string; p_reason?: string }
+        Returns: undefined
+      }
+      poster_delete: { Args: { p_id: string }; Returns: undefined }
+      poster_my_quota: {
+        Args: never
+        Returns: {
+          approved_last_7d: number
+          has_live: boolean
+          has_pending: boolean
+          next_slot_at: string
+          weekly_limit: number
+        }[]
+      }
+      poster_object_is_public: {
+        Args: { object_name: string }
+        Returns: boolean
+      }
+      poster_submit: { Args: { p_id: string }; Returns: undefined }
+      poster_upsert: {
+        Args: {
+          p_description?: string
+          p_id: string
+          p_image_path: string
+          p_target_url?: string
+          p_title?: string
+        }
+        Returns: string
+      }
+      public_landing_stats: {
+        Args: never
+        Returns: {
+          partner_orgs: number
+          pets_for_adoption: number
+          pets_lost_now: number
+          pets_registered: number
+          reunions: number
+        }[]
+      }
+      register_org_profile: {
+        Args: { p_kind: string; p_name: string; p_slug: string }
+        Returns: string
       }
       report_accepts_evidence: {
         Args: { object_name: string }
@@ -821,7 +1122,7 @@ export type Database = {
       }
     }
     Enums: {
-      account_role: "usuario" | "fundacion" | "veterinaria"
+      account_role: "usuario" | "fundacion" | "veterinaria" | "aliado"
       pet_status: "at_home" | "lost" | "found" | "for_adoption"
     }
     CompositeTypes: {
@@ -950,7 +1251,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      account_role: ["usuario", "fundacion", "veterinaria"],
+      account_role: ["usuario", "fundacion", "veterinaria", "aliado"],
       pet_status: ["at_home", "lost", "found", "for_adoption"],
     },
   },

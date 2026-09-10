@@ -1,34 +1,86 @@
 import Link from "next/link";
-import { PawIcon } from "@/components/icons/Icon";
-import type { PublicAdoptionPet } from "@/lib/supabase/publicCache";
-import { ageUnitLabels, sexLabels, speciesLabels } from "@/lib/pets/labels";
+import { ChatIcon, PawIcon, PinIcon } from "@/components/icons/Icon";
 import styles from "./landing.module.css";
 
-function metaLine(pet: PublicAdoptionPet): string {
-  const parts = [pet.species === "other" ? pet.speciesOther || "Otro" : speciesLabels[pet.species]];
-  if (pet.ageValue != null && pet.ageUnit) {
-    parts.push(`${pet.ageValue} ${ageUnitLabels[pet.ageUnit].toLowerCase()}`);
-  }
-  if (pet.breed) parts.push(pet.breed);
-  if (pet.sex) parts.push(sexLabels[pet.sex]);
-  return parts.join(" · ");
+export interface AdoptionItem {
+  key: string;
+  name: string;
+  photoUrl: string | null;
+  meta: string;
+  city: string | null;
+  badge: "adopcion" | "padrino";
+  org: { name: string; kindLabel: string; logoUrl: string | null } | null;
+  href: string | null;
+  hrefLabel: string;
+  external: boolean;
 }
 
-export default function AdoptionCard({ pet }: { pet: PublicAdoptionPet }) {
+const BADGE_LABEL: Record<AdoptionItem["badge"], string> = {
+  adopcion: "En adopción",
+  padrino: "Busca padrino",
+};
+
+function monogram(name: string): string {
+  return name.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join("").toUpperCase();
+}
+
+export default function AdoptionCard({ item }: { item: AdoptionItem }) {
   return (
-    <article className={styles.adoptionCard} role="listitem">
-      <div className={`${styles.avatar} ${styles.avatarSmall}`} aria-hidden="true">
-        {pet.photoUrl ? (
+    <article className={styles.petItemCard} role="listitem">
+      <div className={styles.petItemPhoto}>
+        {item.photoUrl ? (
           // eslint-disable-next-line @next/next/no-img-element -- URL firmada temporal de Supabase Storage
-          <img src={pet.photoUrl} alt={`Foto de ${pet.name}`} className={styles.avatarImg} />
+          <img src={item.photoUrl} alt={`Foto de ${item.name}`} />
         ) : (
-          <PawIcon size={34} className={styles.avatarIcon} />
+          <span className={styles.petItemPhotoFallback} aria-hidden="true"><PawIcon size={34} /></span>
         )}
+        <span
+          className={`${styles.petItemBadge} ${item.badge === "padrino" ? styles.petItemBadgeSponsor : styles.petItemBadgeAdopt}`}
+        >
+          {BADGE_LABEL[item.badge]}
+        </span>
       </div>
-      <div className={styles.adoptionBody}>
-        <p className={styles.adoptionName}>{pet.name}</p>
-        <p className={styles.adoptionMeta}>{metaLine(pet)}</p>
-        <Link className={styles.adoptionCta} href={`/m/${pet.publicId}`}>Ver mascota</Link>
+
+      <div className={styles.petItemBody}>
+        <p className={styles.petItemName}>{item.name}</p>
+        <p className={styles.petItemMeta}>{item.meta}</p>
+        {item.city && (
+          <p className={styles.petItemLine}>
+            <PinIcon size={12} /> <span>{item.city}</span>
+          </p>
+        )}
+
+        {item.org && (
+          <div className={styles.petItemOrg}>
+            {item.org.logoUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element -- logo público de Supabase Storage
+              <img src={item.org.logoUrl} alt="" className={styles.petItemOrgLogo} />
+            ) : (
+              <span className={styles.petItemOrgLogoFallback} aria-hidden="true">{monogram(item.org.name)}</span>
+            )}
+            <span className={styles.petItemOrgText}>
+              <span className={styles.petItemOrgKind}>{item.org.kindLabel}</span>
+              <span className={styles.petItemOrgName}>{item.org.name}</span>
+            </span>
+          </div>
+        )}
+
+        {item.href ? (
+          item.external ? (
+            <a
+              className={styles.petItemCta}
+              href={item.href}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <ChatIcon size={14} /> {item.hrefLabel}
+            </a>
+          ) : (
+            <Link className={styles.petItemCta} href={item.href}>{item.hrefLabel}</Link>
+          )
+        ) : (
+          <span className={styles.petItemCtaMuted}>{item.hrefLabel}</span>
+        )}
       </div>
     </article>
   );

@@ -66,7 +66,7 @@ export default function PanelHeader({
       </button>
 
       <Link className={styles.brand} href={brandHref}>
-        <Image className={styles.logo} src="/logo.png" alt="Huellas de Vuelta" width={32} height={32} priority />
+        <Image className={styles.logo} src="/logo-hdv.png" alt="Huellas de Vuelta" width={32} height={32} priority />
         <span className={styles.brandName}>{brandLabel}</span>
         {badge && <span className={styles.badge}>{badge}</span>}
       </Link>

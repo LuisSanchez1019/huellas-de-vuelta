@@ -1,0 +1,39 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: .9rem;
+}
+.card {
+  display: grid;
+  justify-items: center;
+  text-align: center;
+  gap: .3rem;
+  padding: 1.25rem 1rem;
+  border-radius: 1rem;
+  border: 1px solid var(--border);
+  background: var(--card);
+  transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease;
+}
+.card:hover {
+  transform: translateY(-.15rem);
+  border-color: var(--teal-600);
+  box-shadow: 0 .8rem 2rem rgba(var(--shadow-rgb), .1);
+}
+.icon {
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  background: var(--surface-100);
+  color: var(--teal-600);
+  margin-bottom: .3rem;
+}
+.title { font-weight: 800; color: var(--navy-900); font-size: 1rem; }
+.text { color: var(--ink-600); font-size: .82rem; line-height: 1.35; }
+
+@media (max-width: 30rem) {
+  .grid { grid-template-columns: 1fr; }
+  .card { grid-template-columns: auto 1fr; justify-items: start; text-align: left; align-items: center; gap: .2rem .9rem; padding: 1rem; }
+  .icon { grid-row: span 2; margin-bottom: 0; width: 2.6rem; height: 2.6rem; }
+}
