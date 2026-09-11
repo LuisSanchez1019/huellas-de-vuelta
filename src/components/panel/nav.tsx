@@ -1,7 +1,6 @@
 import {
   BellIcon,
   HomeIcon,
-  LockIcon,
   PawIcon,
   ReportIcon,
   ShieldIcon,
@@ -34,8 +33,7 @@ const BASE_NAV: NavEntry[] = [
   },
   { type: "link", label: "Notificaciones", href: "/dashboard/notificaciones", icon: <BellIcon size={20} /> },
   { type: "link", label: "Mi perfil", href: "/dashboard/perfil", icon: <UserIcon size={20} /> },
-  { type: "link", label: "Seguridad", href: "/dashboard/configuracion/seguridad", icon: <ShieldIcon size={19} /> },
-  { type: "link", label: "Privacidad", href: "/dashboard/configuracion/privacidad", icon: <LockIcon size={19} /> },
+  { type: "link", label: "Seguridad y privacidad", href: "/dashboard/configuracion/seguridad", icon: <ShieldIcon size={19} /> },
 ];
 
 /** Sección extra que solo ve un administrador. Se añade al final del menú normal. */

@@ -584,7 +584,7 @@ export default function DataPolicy() {
         </div>
 
         <p className={styles.back}>
-          <Link href="/dashboard/configuracion/privacidad">Volver a Privacidad</Link>
+          <Link href="/dashboard/configuracion/seguridad">Volver a Seguridad y privacidad</Link>
         </p>
       </main>
       <Footer />

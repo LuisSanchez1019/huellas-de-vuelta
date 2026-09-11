@@ -13,6 +13,11 @@
 .card + .card { margin-top: 1rem; }
 .cardTitle { font-weight: 800; color: var(--navy-900); font-size: 1rem; margin-bottom: .9rem; }
 
+/* ---- Divisor entre secciones dentro de la misma pantalla (p. ej. Seguridad → Privacidad) ---- */
+.sectionHeading { margin: 2rem 0 1rem; padding-top: 1.5rem; border-top: 1px solid var(--surface-300); }
+.sectionTitle { font-size: 1.15rem; font-weight: 800; color: var(--navy-900); }
+.sectionSubtitle { margin-top: .35rem; color: var(--ink-600); font-size: .9rem; line-height: 1.6; }
+
 .infoRow {
   display: flex;
   justify-content: space-between;
