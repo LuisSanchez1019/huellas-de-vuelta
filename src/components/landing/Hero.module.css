@@ -31,7 +31,7 @@
 .action:hover {
   transform: translateY(-.2rem);
   box-shadow: 0 1.3rem 2.8rem rgba(var(--shadow-rgb), .18);
-  border-color: var(--teal-600);
+  border-color: var(--brand-blue);
 }
 .actionIcon {
   display: grid;
@@ -73,7 +73,7 @@
 }
 .accessCard:hover {
   transform: translateY(-.15rem);
-  border-color: var(--teal-600);
+  border-color: var(--brand-blue);
   background: var(--card);
   box-shadow: 0 .9rem 2rem rgba(var(--shadow-rgb), .1);
 }
@@ -85,9 +85,11 @@
   border-radius: 50%;
   color: var(--primary-contrast);
 }
-.accessUser .accessIcon { background: var(--teal-600); }
-.accessOrg .accessIcon { background: var(--blue-600); }
-.accessAlly .accessIcon { background: var(--brand-navy); }
+/* Accesos: usuarios y organizaciones = institucional (azul de marca);
+   aliado = invitación a sumarse (verde de acción). */
+.accessUser .accessIcon { background: var(--brand-blue); }
+.accessOrg .accessIcon { background: var(--brand-blue); }
+.accessAlly .accessIcon { background: var(--primary); }
 .accessTitle {
   margin-top: .25rem;
   font-weight: 800;

@@ -1,5 +1,5 @@
-import AppearanceSettings from "@/components/settings/AppearanceSettings";
+import SecuritySettings from "@/components/settings/SecuritySettings";
 
 export default function Page() {
-  return <AppearanceSettings />;
+  return <SecuritySettings />;
 }

@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import PanelHeader, { type PanelHeaderMenuItem } from "./PanelHeader";
 import Sidebar from "./Sidebar";
+import PolicyConsentGate from "@/components/legal/PolicyConsentGate";
 import type { NavEntry, PanelUser } from "./types";
 import styles from "./PanelShell.module.css";
 
@@ -50,6 +51,8 @@ export default function PanelShell({
 
   return (
     <div className={styles.shell}>
+      <PolicyConsentGate onSignOut={handleSignOut} />
+
       {devBanner && (
         <p className={styles.devBanner} role="status">
           {devBanner}

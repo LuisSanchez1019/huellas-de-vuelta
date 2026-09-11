@@ -1,23 +1,20 @@
-.avatarRow { display: flex; align-items: center; gap: 1rem; }
-.avatar {
-  width: 4.5rem; height: 4.5rem; border-radius: 50%; flex-shrink: 0; object-fit: cover;
-  border: 1px solid var(--surface-300); background: var(--surface-100);
-}
+.identityRow { display: flex; align-items: center; gap: 1rem; margin-bottom: .5rem; }
 .avatarFallback {
   display: grid; place-items: center; width: 4.5rem; height: 4.5rem; border-radius: 50%; flex-shrink: 0;
   background: linear-gradient(135deg, var(--teal-600), var(--brand-navy)); color: #fff; font-weight: 800; font-size: 1.2rem;
 }
-.avatarActions { display: flex; gap: .5rem; flex-wrap: wrap; }
-.avatarButton, .avatarButtonDanger {
-  border: 1px solid var(--surface-300); border-radius: .5rem; padding: .45rem .8rem; background: var(--card);
-  font: inherit; font-weight: 700; font-size: .8rem; cursor: pointer; color: var(--navy-900);
-}
-.avatarButton:hover { border-color: var(--teal-600); color: var(--teal-600); }
-.avatarButtonDanger { color: var(--danger-fg); }
-.avatarButtonDanger:hover { background: var(--danger-bg); }
-.hiddenInput { display: none; }
+.identityHint { color: var(--ink-600); font-size: .85rem; line-height: 1.45; }
 
 .readonlyGrid { display: grid; gap: .75rem; }
-.readonlyItem { display: flex; justify-content: space-between; gap: 1rem; font-size: .9rem; }
+.readonlyItem { display: flex; justify-content: space-between; gap: 1rem; font-size: .9rem; align-items: flex-start; }
 .readonlyLabel { color: var(--ink-600); }
-.readonlyValue { color: var(--navy-900); font-weight: 700; text-align: right; word-break: break-word; }
+.readonlyValue {
+  color: var(--navy-900); font-weight: 700; text-align: right; word-break: break-word;
+  display: inline-flex; align-items: center; gap: .5rem; flex-wrap: wrap; justify-content: flex-end;
+}
+.badgeOk, .badgeWarn {
+  display: inline-flex; align-items: center; gap: .25rem;
+  font-size: .7rem; font-weight: 800; padding: .12rem .45rem; border-radius: 999px; border: 1px solid var(--border);
+}
+.badgeOk { background: var(--success-bg); color: var(--success-fg); border-color: var(--success-border); }
+.badgeWarn { background: var(--warning-bg); color: var(--warning-fg); border-color: var(--warning-border); }

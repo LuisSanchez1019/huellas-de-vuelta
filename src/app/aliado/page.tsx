@@ -1,7 +1,27 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { resolvePanelSession } from "@/lib/auth/session";
+import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
+import { fetchMyOrgName } from "@/lib/supabase/orgProfiles";
 import { CheckIcon } from "@/components/icons/Icon";
+import controls from "@/components/ui/controls.module.css";
 import styles from "./aliado.module.css";
 
 export default function AliadoHomePage() {
+  const [companyName, setCompanyName] = useState<string | null>(null);
+
+  useEffect(() => {
+    resolvePanelSession().then(async (check) => {
+      if (check.status === "unauthenticated" || check.status === "dev") return;
+      try {
+        setCompanyName(await fetchMyOrgName(createSupabaseBrowserClient(), check.session.userId));
+      } catch {
+        /* si falla, no se muestra la fila */
+      }
+    });
+  }, []);
+
   return (
     <div className={styles.wrap}>
       <div className={styles.head}>
@@ -10,6 +30,13 @@ export default function AliadoHomePage() {
           Gracias por sumarte a Huellas de Vuelta. Estamos preparando el panel de aliados.
         </p>
       </div>
+
+      {companyName && (
+        <div className={controls.section} style={{ marginTop: 0 }}>
+          <p className={controls.sectionTitle}>Empresa</p>
+          <p className={styles.subtitle} style={{ marginTop: ".4rem" }}>{companyName}</p>
+        </div>
+      )}
 
       <div className={styles.card}>
         <p>

@@ -11,7 +11,7 @@ export interface AccountProfile {
   firstName: string;
   lastName: string;
   phone: string;
-  avatarPath: string | null;
+  phoneAlt: string;
   createdAt: string | null;
 }
 
@@ -20,6 +20,5 @@ export interface AccountProfileInput {
   firstName: string;
   lastName: string;
   phone: string;
-  /** Ruta del avatar en Storage; `null` si se quita, `undefined` si no cambia. */
-  avatarPath?: string | null;
+  phoneAlt: string;
 }

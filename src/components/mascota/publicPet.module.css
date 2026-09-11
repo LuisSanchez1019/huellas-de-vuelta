@@ -68,6 +68,16 @@
 .lostAlertTitle { font-weight: 800; color: var(--danger-fg); font-size: .95rem; letter-spacing: .01em; }
 .lostAlertText { margin-top: .25rem; color: var(--danger-fg); font-size: .85rem; line-height: 1.5; }
 
+/* Alerta medica publica: sobria y clara, no alarmista (paleta informativa). */
+.medicalAlert {
+  display: flex; gap: .75rem; align-items: flex-start; margin-top: 1.5rem;
+  padding: 1rem 1.1rem; border-radius: 1rem;
+  background: var(--info-bg); border: 1px solid var(--info-border);
+}
+.medicalAlertIcon { flex-shrink: 0; color: var(--info-fg); margin-top: .05rem; }
+.medicalAlertTitle { font-weight: 800; color: var(--info-fg); font-size: .95rem; letter-spacing: .04em; text-transform: uppercase; }
+.medicalAlertText { margin-top: .25rem; color: var(--info-fg); font-size: .85rem; line-height: 1.5; }
+
 .lostDetails {
   display: flex; align-items: flex-start; gap: .5rem; margin-top: 1rem;
   padding: .8rem .9rem; border-radius: .7rem; background: var(--surface-100);

@@ -1,26 +1,32 @@
 "use client";
 
-import { type FormEvent, useEffect, useRef, useState } from "react";
-import { accountProfileRepository, getAvatarPublicUrl } from "@/lib/profiles/repository";
+import { type FormEvent, useEffect, useState } from "react";
+import { accountProfileRepository } from "@/lib/profiles/repository";
 import type { AccountProfile } from "@/lib/profiles/types";
 import { roleLabels } from "@/lib/auth/roles";
 import { isValidPhone } from "@/lib/phone";
-import { resizeImage } from "@/lib/images/resizeImage";
+import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
+import { fetchMyOrgName } from "@/lib/supabase/orgProfiles";
 import Toast, { type ToastState } from "@/components/ui/Toast";
-import { CameraIcon } from "@/components/icons/Icon";
+import { CheckIcon } from "@/components/icons/Icon";
 import controls from "@/components/ui/controls.module.css";
 import styles from "./profileForm.module.css";
 
-const AVATAR_TYPES = ["image/jpeg", "image/png", "image/webp"];
-const AVATAR_MAX_BYTES = 3 * 1024 * 1024;
-
-function monogram(name: string): string {
-  return name.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join("").toUpperCase() || "?";
+function initials(first: string, last: string): string {
+  const a = first.trim()[0] ?? "";
+  const b = last.trim()[0] ?? "";
+  return (a + b).toUpperCase() || "?";
 }
 
 function formatDate(iso: string | null): string {
   if (!iso) return "—";
   return new Date(iso).toLocaleDateString("es-CO", { day: "2-digit", month: "long", year: "numeric" });
+}
+
+/** Un teléfono alterno es opcional; si se escribe, se valida como el principal. */
+function altPhoneProblem(value: string): string | null {
+  if (!value.trim()) return null;
+  return isValidPhone(value) ? null : "El teléfono alterno debe tener al menos 10 dígitos.";
 }
 
 export default function ProfileForm() {
@@ -29,12 +35,10 @@ export default function ProfileForm() {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [phone, setPhone] = useState("");
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
-  const [pendingAvatar, setPendingAvatar] = useState<{ blob: Blob; contentType: string; preview: string } | null>(null);
-  const [avatarRemoved, setAvatarRemoved] = useState(false);
+  const [phoneAlt, setPhoneAlt] = useState("");
+  const [orgName, setOrgName] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [toast, setToast] = useState<ToastState | null>(null);
-  const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     (async () => {
@@ -48,39 +52,20 @@ export default function ProfileForm() {
         setFirstName(mine.firstName);
         setLastName(mine.lastName);
         setPhone(mine.phone);
-        setAvatarUrl(mine.avatarPath ? getAvatarPublicUrl(mine.avatarPath) : null);
+        setPhoneAlt(mine.phoneAlt);
+        if (mine.role === "veterinaria" || mine.role === "fundacion" || mine.role === "aliado") {
+          try {
+            setOrgName(await fetchMyOrgName(createSupabaseBrowserClient(), mine.id));
+          } catch {
+            /* si falla, no se muestra la fila */
+          }
+        }
         setState("ready");
       } catch {
         setState("error");
       }
     })();
   }, []);
-
-  async function handleFile(event: React.ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0];
-    event.target.value = "";
-    if (!file) return;
-    if (!AVATAR_TYPES.includes(file.type)) {
-      setToast({ variant: "error", message: "Formato no permitido. Usa JPG, PNG o WebP." });
-      return;
-    }
-    if (file.size > AVATAR_MAX_BYTES) {
-      setToast({ variant: "error", message: "La imagen supera 3 MB. Elige una más liviana." });
-      return;
-    }
-    try {
-      const resized = await resizeImage(file, { maxDimension: 256 });
-      setPendingAvatar({ blob: resized.blob, contentType: resized.contentType, preview: resized.previewUrl });
-      setAvatarRemoved(false);
-    } catch {
-      setToast({ variant: "error", message: "No fue posible procesar la imagen." });
-    }
-  }
-
-  function removeAvatar() {
-    setPendingAvatar(null);
-    setAvatarRemoved(true);
-  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -92,27 +77,20 @@ export default function ProfileForm() {
       setToast({ variant: "error", message: "El teléfono debe tener al menos 10 dígitos." });
       return;
     }
+    const altProblem = altPhoneProblem(phoneAlt);
+    if (altProblem) {
+      setToast({ variant: "error", message: altProblem });
+      return;
+    }
     setIsSaving(true);
     try {
-      let avatarPath: string | null | undefined = undefined;
-      if (pendingAvatar) {
-        avatarPath = await accountProfileRepository.uploadAvatar(pendingAvatar.blob, pendingAvatar.contentType);
-        if (profile?.avatarPath) await accountProfileRepository.deleteAvatar(profile.avatarPath);
-      } else if (avatarRemoved && profile?.avatarPath) {
-        await accountProfileRepository.deleteAvatar(profile.avatarPath);
-        avatarPath = null;
-      }
-
       const updated = await accountProfileRepository.updateMine({
         firstName: firstName.trim(),
         lastName: lastName.trim(),
         phone: phone.trim(),
-        avatarPath,
+        phoneAlt: phoneAlt.trim(),
       });
       setProfile(updated);
-      setAvatarUrl(updated.avatarPath ? getAvatarPublicUrl(updated.avatarPath) : null);
-      setPendingAvatar(null);
-      setAvatarRemoved(false);
       setToast({ variant: "success", message: "Perfil actualizado." });
     } catch (error) {
       setToast({
@@ -132,52 +110,22 @@ export default function ProfileForm() {
     return <p className={controls.empty}>No fue posible cargar tu perfil.</p>;
   }
 
-  const shownAvatar = pendingAvatar ? pendingAvatar.preview : avatarRemoved ? null : avatarUrl;
+  const isOrg = profile.role === "veterinaria" || profile.role === "fundacion" || profile.role === "aliado";
 
   return (
     <form onSubmit={handleSubmit}>
       <section className={controls.section}>
-        <p className={controls.sectionTitle}>Foto de perfil</p>
-        <div className={controls.sectionBody}>
-          <div className={styles.avatarRow}>
-            {shownAvatar ? (
-              // eslint-disable-next-line @next/next/no-img-element -- avatar público de Supabase Storage
-              <img src={shownAvatar} alt="Tu avatar" className={styles.avatar} />
-            ) : (
-              <span className={styles.avatarFallback} aria-hidden="true">
-                {monogram(`${firstName} ${lastName}`)}
-              </span>
-            )}
-            <div className={styles.avatarActions}>
-              <button
-                type="button"
-                className={styles.avatarButton}
-                onClick={() => fileRef.current?.click()}
-                disabled={isSaving}
-              >
-                <CameraIcon size={14} /> {shownAvatar ? "Cambiar" : "Subir foto"}
-              </button>
-              {shownAvatar && (
-                <button type="button" className={styles.avatarButtonDanger} onClick={removeAvatar} disabled={isSaving}>
-                  Quitar
-                </button>
-              )}
-            </div>
-            <input
-              ref={fileRef}
-              type="file"
-              accept="image/jpeg,image/png,image/webp"
-              className={styles.hiddenInput}
-              onChange={handleFile}
-              disabled={isSaving}
-            />
-          </div>
-        </div>
-      </section>
-
-      <section className={controls.section}>
         <p className={controls.sectionTitle}>Datos personales</p>
         <div className={controls.sectionBody}>
+          <div className={styles.identityRow}>
+            <span className={styles.avatarFallback} aria-hidden="true">
+              {initials(firstName, lastName)}
+            </span>
+            <span className={styles.identityHint}>
+              Tu perfil se muestra con tus iniciales en toda la plataforma.
+            </span>
+          </div>
+
           <div className={controls.row2}>
             <label className={controls.field}>
               Nombre
@@ -190,13 +138,22 @@ export default function ProfileForm() {
                 onChange={(e) => setLastName(e.target.value)} />
             </label>
           </div>
-          <label className={controls.field}>
-            Teléfono
-            <input className={controls.input} value={phone} maxLength={30} inputMode="tel"
-              placeholder="(300) 123 4567"
-              onChange={(e) => setPhone(e.target.value)} />
-            <span className={controls.hint}>Mínimo 10 dígitos. Los espacios y guiones no cuentan.</span>
-          </label>
+          <div className={controls.row2}>
+            <label className={controls.field}>
+              Teléfono principal
+              <input className={controls.input} value={phone} maxLength={30} inputMode="tel"
+                placeholder="(300) 123 4567"
+                onChange={(e) => setPhone(e.target.value)} />
+              <span className={controls.hint}>Mínimo 10 dígitos. Los espacios y guiones no cuentan.</span>
+            </label>
+            <label className={controls.field}>
+              Teléfono alterno (opcional)
+              <input className={controls.input} value={phoneAlt} maxLength={30} inputMode="tel"
+                placeholder="(301) 765 4321"
+                onChange={(e) => setPhoneAlt(e.target.value)} />
+              <span className={controls.hint}>Puedes dejarlo vacío.</span>
+            </label>
+          </div>
         </div>
       </section>
 
@@ -205,23 +162,41 @@ export default function ProfileForm() {
         <div className={styles.readonlyGrid} style={{ marginTop: "1rem" }}>
           <div className={styles.readonlyItem}>
             <span className={styles.readonlyLabel}>Correo</span>
-            <span className={styles.readonlyValue}>{profile.email ?? "—"}</span>
+            <span className={styles.readonlyValue}>
+              {profile.email ?? "—"}
+              {profile.email && (
+                <span className={profile.emailConfirmed ? styles.badgeOk : styles.badgeWarn}>
+                  {profile.emailConfirmed ? (
+                    <>
+                      <CheckIcon size={11} /> Verificado
+                    </>
+                  ) : (
+                    "Sin verificar"
+                  )}
+                </span>
+              )}
+            </span>
           </div>
           <div className={styles.readonlyItem}>
             <span className={styles.readonlyLabel}>Tipo de cuenta</span>
             <span className={styles.readonlyValue}>
-              {roleLabels[profile.role]}{profile.isAdmin ? " · Administrador" : ""}
+              {roleLabels[profile.role]}
+              {profile.isAdmin ? " · Administrador" : ""}
             </span>
           </div>
+          {isOrg && (
+            <div className={styles.readonlyItem}>
+              <span className={styles.readonlyLabel}>
+                {profile.role === "aliado" ? "Nombre de la empresa" : "Nombre de la organización"}
+              </span>
+              <span className={styles.readonlyValue}>{orgName || "—"}</span>
+            </div>
+          )}
           <div className={styles.readonlyItem}>
             <span className={styles.readonlyLabel}>Miembro desde</span>
             <span className={styles.readonlyValue}>{formatDate(profile.createdAt)}</span>
           </div>
         </div>
-        <p className={controls.hint} style={{ marginTop: ".75rem" }}>
-          El correo y el tipo de cuenta no se cambian desde aquí. Para cambiar el correo usa el flujo de
-          Supabase; el tipo de cuenta lo define el sistema.
-        </p>
       </section>
 
       <div className={controls.buttonRow} style={{ marginTop: "1.5rem" }}>

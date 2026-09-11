@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import { useAdminGuard } from "@/components/panel/useAdminGuard";
 import PanelShell from "@/components/panel/PanelShell";
 import { buildPanelNav } from "@/components/panel/nav";
-import { SettingsIcon, UserIcon } from "@/components/icons/Icon";
+import { LockIcon, UserIcon } from "@/components/icons/Icon";
 import styles from "./admin.module.css";
 
 /**
@@ -39,7 +39,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
       notificationsHref="/dashboard/notificaciones"
       menuItems={[
         { label: "Mi perfil", href: "/dashboard/perfil", icon: <UserIcon size={17} /> },
-        { label: "Configuración", href: "/dashboard/configuracion/cuenta", icon: <SettingsIcon size={17} /> },
+        { label: "Privacidad", href: "/dashboard/configuracion/privacidad", icon: <LockIcon size={17} /> },
       ]}
     >
       {children}

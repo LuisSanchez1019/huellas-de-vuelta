@@ -6,7 +6,7 @@ export default function Page() {
     <div>
       <div className={controls.pageHead}>
         <h1 className={controls.pageTitle}>Mi perfil</h1>
-        <p className={controls.pageSubtitle}>Tu nombre, teléfono y foto. Solo tú puedes verlos y cambiarlos.</p>
+        <p className={controls.pageSubtitle}>Tu nombre y teléfonos de contacto. Solo tú puedes verlos y cambiarlos.</p>
       </div>
       <ProfileForm />
     </div>

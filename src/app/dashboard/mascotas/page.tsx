@@ -7,6 +7,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { deletePet, fetchPets, getPetPhotoSignedUrl } from "@/lib/supabase/pets";
 import { fetchActiveReportsByPet } from "@/lib/supabase/reports";
+import { fetchMyPetsForPlate, ORDER_STATUS_LABEL, type PetForPlate } from "@/lib/supabase/plateOrders";
 import type { Pet } from "@/lib/supabase/types";
 import type { PetReport } from "@/lib/pets/reports";
 import { ageUnitLabels, catColorLabels, sexLabels, speciesLabels, statusLabels } from "@/lib/pets/labels";
@@ -59,6 +60,7 @@ function MascotasPanelContent() {
   const [checking, setChecking] = useState(true);
   const [pets, setPets] = useState<Pet[]>([]);
   const [reports, setReports] = useState<Record<string, PetReport>>({});
+  const [plateInfo, setPlateInfo] = useState<Record<string, PetForPlate>>({});
   const [photoUrls, setPhotoUrls] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -81,12 +83,14 @@ function MascotasPanelContent() {
       setError(null);
       try {
         const supabase = createSupabaseBrowserClient();
-        const [petList, reportMap] = await Promise.all([
+        const [petList, reportMap, plateList] = await Promise.all([
           fetchPets(supabase, { includeArchived: false }),
           fetchActiveReportsByPet(supabase),
+          fetchMyPetsForPlate(supabase).catch(() => [] as PetForPlate[]),
         ]);
         setPets(petList);
         setReports(reportMap);
+        setPlateInfo(Object.fromEntries(plateList.map((entry) => [entry.petId, entry])));
 
         const entries = await Promise.all(
           petList
@@ -127,6 +131,15 @@ function MascotasPanelContent() {
       });
     } finally {
       setIsDeleting(false);
+    }
+  }
+
+  async function copyPlate(code: string) {
+    try {
+      await navigator.clipboard.writeText(code);
+      setToast({ variant: "success", message: "Copiado" });
+    } catch {
+      setToast({ variant: "error", message: "No fue posible copiar." });
     }
   }
 
@@ -202,12 +215,51 @@ function MascotasPanelContent() {
                       )}
                     </div>
 
+                    {(() => {
+                      const info = plateInfo[pet.id];
+                      if (info?.plateCode) {
+                        return (
+                          <div className={styles.plateRow}>
+                            <span className={styles.plateLabel}>Placa</span>
+                            <span className={styles.plateCode}>{info.plateCode}</span>
+                            <button
+                              type="button"
+                              className={styles.plateCopy}
+                              onClick={() => copyPlate(info.plateCode as string)}
+                            >
+                              Copiar
+                            </button>
+                          </div>
+                        );
+                      }
+                      if (info?.activeOrderRef) {
+                        return (
+                          <div className={styles.plateRow}>
+                            <span className={styles.plateLabel}>Solicitud de placa</span>
+                            <span className={styles.plateCode}>{info.activeOrderRef}</span>
+                            <span className={styles.plateHint}>
+                              {info.activeOrderStatus ? ORDER_STATUS_LABEL[info.activeOrderStatus] : ""}
+                            </span>
+                          </div>
+                        );
+                      }
+                      return null;
+                    })()}
+
                     <div className={styles.footer}>
                       <span className={`${styles.statusBadge} ${badgeClassByStatus[pet.status]}`}>
                         <StatusIcon status={pet.status} />
                         {statusLabels[pet.status]}
                       </span>
                       <div className={styles.actions}>
+                        {plateInfo[pet.id]?.eligible && (
+                          <Link
+                            className={styles.actionEdit}
+                            href={`/dashboard/mascotas/solicitar-placa?pet=${pet.id}`}
+                          >
+                            Solicitar placa
+                          </Link>
+                        )}
                         <button type="button" className={styles.actionEdit} onClick={() => setEditingPet(pet)}>
                           Editar
                         </button>

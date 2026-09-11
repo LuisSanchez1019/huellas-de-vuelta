@@ -44,7 +44,7 @@
 }
 .hdv-map .leaflet-bar a:hover {
   background: var(--surface-100);
-  color: var(--primary);
+  color: var(--brand-blue);
 }
 .hdv-map .leaflet-bar a.leaflet-disabled {
   background: var(--surface-100);
@@ -82,6 +82,7 @@
   transform: rotate(-45deg);
   border: 2px solid var(--card);
   box-shadow: 0 0.35rem 0.9rem rgba(0, 0, 0, 0.35);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
 }
 .hdv-marker svg {
   transform: rotate(45deg);
@@ -89,11 +90,22 @@
   height: 1rem;
   color: #fff;
 }
-.hdv-marker--veterinaria { background: var(--teal-600); }
-.hdv-marker--fundacion { background: var(--blue-600); }
+/* Organizaciones en el mapa = identidad institucional (azul); la fundación usa
+   el verde de marca solo para distinguirla de la veterinaria. */
+.hdv-marker--veterinaria { background: var(--brand-blue); }
+.hdv-marker--fundacion { background: var(--brand-teal); }
 .hdv-marker--pick { background: var(--primary); }
-:root[data-theme="dark"] .hdv-marker--veterinaria { background: var(--teal-500); }
-:root[data-theme="dark"] .hdv-marker--fundacion { background: var(--blue-500); }
+
+/* Marcador consultado (hover / foco / selección) o enfocado por teclado. */
+.hdv-marker-wrap { outline: none; }
+.hdv-marker-wrap--active .hdv-marker,
+.hdv-marker-wrap:focus-visible .hdv-marker {
+  transform: rotate(-45deg) scale(1.16);
+  box-shadow: 0 0 0 4px var(--focus-ring), 0 0.4rem 1rem rgba(0, 0, 0, 0.4);
+}
+@media (prefers-reduced-motion: reduce) {
+  .hdv-marker { transition: none; }
+}
 
 /* --------- Tarjeta del marcador (popup) --------- */
 .hdv-popup-wrap .leaflet-popup-content-wrapper {

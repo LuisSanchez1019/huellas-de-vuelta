@@ -1,16 +1,31 @@
 /* ==========================================================================
    LAYOUT SHELLS
    ========================================================================== */
-.section { padding: 3.25rem 1.5rem; scroll-margin-top: 5rem; }
-.sectionAlt { background: var(--surface-100); }
+.section { padding: 3.25rem 1.5rem; scroll-margin-top: 4.5rem; }
+/* Sección alterna: superficie ligeramente más honda que el lienzo + hairlines
+   para que el cambio de sección se perciba al hacer scroll sin bloques fuertes. */
+.sectionAlt {
+  background: var(--surface-100);
+  border-block: 1px solid var(--border);
+}
 .sectionInner { max-width: 78rem; margin: 0 auto; }
 .sectionHeader { display: flex; align-items: flex-end; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap; margin-bottom: 1.75rem; }
-.eyebrow { display: flex; align-items: center; gap: .5rem; color: var(--teal-600); font-size: .74rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+.eyebrow { display: flex; align-items: center; gap: .5rem; color: var(--brand-blue); font-size: .74rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
 .sectionTitleText { margin-top: .5rem; color: var(--navy-900); font-size: clamp(1.5rem, 3vw, 2.05rem); font-weight: 800; letter-spacing: -.03em; }
 .sectionSubtitle { margin-top: .5rem; max-width: 42rem; color: var(--ink-600); line-height: 1.6; }
-.viewAllLink { flex-shrink: 0; align-self: center; color: var(--teal-600); font-weight: 700; font-size: .9rem; white-space: nowrap; transition: color .15s ease; }
-.viewAllLink:hover { color: var(--navy-900); }
-.inlineIcon { flex-shrink: 0; color: var(--teal-600); }
+/* "Ver en el mapa": navegación -> azul institucional. */
+.viewAllLink {
+  flex-shrink: 0; align-self: center;
+  display: inline-flex; align-items: center; gap: .35rem;
+  padding: .4rem .7rem; border-radius: .55rem;
+  border: 1px solid var(--border); background: var(--card);
+  color: var(--brand-blue); font: inherit; font-weight: 700; font-size: .85rem;
+  white-space: nowrap; cursor: pointer;
+  transition: color .15s ease, border-color .15s ease, background-color .15s ease;
+}
+.viewAllLink:hover { color: #fff; background: var(--brand-blue-fill); border-color: var(--brand-blue-fill); }
+.viewAllLink svg { flex-shrink: 0; }
+.inlineIcon { flex-shrink: 0; color: var(--brand-blue); }
 
 .scrollerEmpty {
   padding: 2rem 1.5rem; border: 1px dashed var(--surface-300); border-radius: 1rem;
@@ -49,7 +64,7 @@
   box-shadow: 0 .5rem 1.4rem rgba(var(--shadow-rgb), .16);
   cursor: pointer; transition: background-color .15s ease, color .15s ease, opacity .15s ease;
 }
-.sliderArrow:hover { background: var(--surface-100); color: var(--teal-600); }
+.sliderArrow:hover { background: var(--surface-100); color: var(--brand-blue); }
 .sliderArrow:disabled { opacity: 0; pointer-events: none; }
 .sliderArrowPrev { left: -1.1rem; }
 .sliderArrowPrev svg { transform: rotate(90deg); }
@@ -62,7 +77,7 @@
   width: .5rem; height: .5rem; border-radius: 50%; border: 0; padding: 0; cursor: pointer;
   background: var(--surface-300); transition: background-color .15s ease, width .15s ease;
 }
-.sliderDotActive { width: 1.4rem; border-radius: 999px; background: var(--teal-600); }
+.sliderDotActive { width: 1.4rem; border-radius: 999px; background: var(--brand-blue); }
 
 /* ==========================================================================
    LOST PET CARD
@@ -155,7 +170,7 @@
   transition: transform .2s ease, box-shadow .2s ease;
 }
 .orgCard:hover { transform: translateY(-.25rem); box-shadow: 0 1.1rem 2.2rem rgba(var(--shadow-rgb), .1); }
-.orgCardFeatured { border-color: var(--teal-500); box-shadow: 0 .8rem 2rem rgba(20, 168, 157, .18); }
+.orgCardFeatured { border-color: var(--brand-blue); box-shadow: 0 .8rem 2rem rgba(var(--shadow-rgb), .16); }
 .orgHead { display: flex; align-items: center; gap: .8rem; }
 .orgLogo {
   width: 3.1rem; height: 3.1rem; border-radius: .8rem; object-fit: contain;
@@ -192,71 +207,109 @@
 .orgServices { display: flex; flex-wrap: wrap; gap: .35rem; margin-top: .15rem; }
 .orgServiceIcon {
   display: grid; place-items: center; width: 1.95rem; height: 1.95rem; border-radius: 50%;
-  background: var(--surface-100); border: 1px solid var(--surface-300); color: var(--primary); flex-shrink: 0;
+  background: var(--surface-blue-soft); border: 1px solid var(--border); color: var(--brand-blue); flex-shrink: 0;
 }
 .orgServiceMore {
   display: grid; place-items: center; min-width: 1.95rem; height: 1.95rem; padding: 0 .4rem; border-radius: 999px;
   background: var(--surface-100); border: 1px solid var(--surface-300); color: var(--ink-600);
   font-size: .68rem; font-weight: 800; flex-shrink: 0;
 }
-.orgActions { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .35rem; }
-.orgActionWhatsapp, .orgActionMaps {
-  flex: 1; min-width: 8rem; display: inline-flex; align-items: center; justify-content: center; gap: .35rem;
-  padding: .55rem .7rem; border-radius: .6rem; font-size: .78rem; font-weight: 800; text-decoration: none;
-  border: 1px solid var(--surface-300);
+.orgActions { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .4rem; }
+/* Tres hermanos con la misma forma; el color sigue la función:
+   WhatsApp = contacto/acción -> verde de marca;
+   "Ver en el mapa" y "Google Maps" = navegación/ubicación -> azul de marca. */
+.orgActionWhatsapp, .orgActionMaps, .orgActionMap {
+  flex: 1 1 8rem; min-width: 7.5rem;
+  display: inline-flex; align-items: center; justify-content: center; gap: .4rem;
+  padding: .55rem .7rem; border-radius: .6rem;
+  font: inherit; font-size: .78rem; font-weight: 800; text-decoration: none; cursor: pointer;
+  border: 1px solid var(--border); background: var(--surface-100); color: var(--navy-900);
+  transition: border-color .15s ease, color .15s ease, background-color .15s ease;
 }
-.orgActionWhatsapp { background: var(--success-bg); color: var(--success-fg); border-color: var(--success-border); }
-.orgActionWhatsapp:hover { background: var(--success-border); }
-.orgActionMaps { background: var(--surface-100); color: var(--navy-900); }
-.orgActionMaps:hover { border-color: var(--teal-600); color: var(--teal-600); }
+.orgActionWhatsapp svg, .orgActionMaps svg, .orgActionMap svg { flex-shrink: 0; }
+.orgActionWhatsapp { color: var(--primary); }
+.orgActionWhatsapp:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-soft); }
+.orgActionMaps, .orgActionMap { color: var(--brand-blue); }
+.orgActionMaps:hover, .orgActionMap:hover { border-color: var(--brand-blue); color: var(--brand-blue); background: var(--surface-blue-soft); }
 
 /* ==========================================================================
-   MAP SECTION — 2 columnas (mapa + callout)
+   MAP SECTION — instrucciones + filtros arriba; mapa (izq) + panel (der)
    ========================================================================== */
-.mapLayout { display: grid; grid-template-columns: 1fr 19rem; gap: 1.75rem; align-items: start; }
-.mapMain { min-width: 0; }
-.mapMain .sectionTitleText { margin-top: .5rem; }
 .mapEmbed { margin-top: 1.5rem; }
-.mapLoading { height: 26rem; border-radius: 1.25rem; border: 1px solid var(--surface-300); background: var(--surface-100); }
-.mapAside {
-  position: sticky; top: 5.5rem;
-  display: flex; flex-direction: column; gap: .8rem;
-  padding: 1.5rem; border-radius: 1.25rem;
-  border: 1px solid var(--border); background: var(--card);
-  box-shadow: 0 .8rem 2rem rgba(var(--shadow-rgb), .07);
-}
-.mapAsideIcon { display: grid; place-items: center; width: 3rem; height: 3rem; border-radius: .9rem; background: var(--success-bg); color: var(--success-fg); }
-.mapAsideTitle { font-weight: 800; color: var(--navy-900); font-size: 1.1rem; letter-spacing: -.02em; }
-.mapAsideText { color: var(--ink-600); font-size: .88rem; line-height: 1.55; }
-.mapAsideList { list-style: none; margin: 0; padding: 0; display: grid; gap: .55rem; }
-.mapAsideList li { display: flex; align-items: flex-start; gap: .5rem; color: var(--navy-900); font-size: .82rem; font-weight: 600; line-height: 1.45; }
-.mapAsideList svg { margin-top: .15rem; }
-.mapAsideCta {
-  margin-top: .3rem; display: inline-flex; align-items: center; justify-content: center;
-  padding: .7rem 1rem; border-radius: .7rem; background: var(--teal-600); color: var(--primary-contrast);
-  font-weight: 800; font-size: .88rem; transition: background-color .15s ease;
-}
-.mapAsideCta:hover { background: var(--primary-hover); }
+.mapLoading { height: 30rem; border-radius: 1.25rem; border: 1px solid var(--surface-300); background: var(--surface-100); }
 
-/* ---------- map widget (OrgMapInner) ---------- */
-.orgMap { display: grid; gap: .9rem; }
-.orgMapBar { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
-.orgMapFilters { display: inline-flex; gap: .25rem; padding: .25rem; border-radius: .7rem; background: var(--surface-100); border: 1px solid var(--border); }
+/* ---------- controles compactos encima del mapa ---------- */
+.orgMap { display: grid; gap: 1.1rem; margin-top: 1.5rem; }
+.orgMapControls { display: flex; align-items: center; gap: .75rem 1.25rem; flex-wrap: wrap; }
+.orgMapFilters { display: inline-flex; gap: .25rem; padding: .25rem; border-radius: .7rem; background: var(--card); border: 1px solid var(--border); }
 .orgMapFilter, .orgMapFilterActive {
   display: inline-flex; align-items: center; gap: .4rem;
   border: 0; border-radius: .5rem; padding: .5rem .8rem;
   font: inherit; font-weight: 700; font-size: .85rem; cursor: pointer;
   color: var(--ink-600); background: transparent;
+  transition: color .15s ease, background-color .15s ease;
 }
-.orgMapFilterActive { color: var(--navy-900); background: var(--card); box-shadow: 0 .1rem .5rem rgba(var(--shadow-rgb), .12); }
+.orgMapFilter:hover { color: var(--brand-blue); }
+/* Filtros del mapa = navegación/info -> azul de marca. */
+.orgMapFilterActive { color: #fff; background: var(--brand-blue-fill); }
 .orgMapFilterCount { min-width: 1.25rem; padding: 0 .35rem; border-radius: 999px; background: var(--surface-300); color: var(--ink-600); font-size: .72rem; font-weight: 800; text-align: center; }
-.orgMapFilterActive .orgMapFilterCount { background: var(--primary); color: var(--primary-contrast); }
-.orgMapLegend { display: inline-flex; gap: 1rem; color: var(--ink-600); font-size: .82rem; font-weight: 700; }
-.orgMapLegendItem { display: inline-flex; align-items: center; gap: .4rem; }
-.orgMapDot { width: .7rem; height: .7rem; border-radius: 50%; }
-.orgMapDotVet { background: var(--teal-600); }
-.orgMapDotFund { background: var(--blue-600); }
-.orgMapCanvas { position: relative; height: 30rem; border-radius: 1.25rem; overflow: hidden; border: 1px solid var(--surface-300); box-shadow: 0 1.5rem 3rem rgba(var(--shadow-rgb), .12); }
+.orgMapFilterActive .orgMapFilterCount { background: rgba(255, 255, 255, .25); color: #fff; }
+.orgMapHint { flex: 1; min-width: 14rem; color: var(--ink-600); font-size: .84rem; line-height: 1.45; }
+
+/* ---------- rejilla mapa + panel ---------- */
+.orgMapGrid { display: grid; grid-template-columns: minmax(0, 1fr) 20rem; gap: 1.25rem; align-items: stretch; }
+.orgMapCanvas {
+  position: relative; min-width: 0; min-height: 30rem;
+  border-radius: 1.25rem; overflow: hidden; border: 1px solid var(--surface-300);
+  box-shadow: 0 1.25rem 2.75rem rgba(var(--shadow-rgb), .1);
+}
+
+/* ---------- panel de información (fuera del mapa) ---------- */
+.mapPanel {
+  display: flex; flex-direction: column; gap: .8rem;
+  min-width: 0; padding: 1.25rem; border-radius: 1.25rem;
+  border: 1px solid var(--border); background: var(--card);
+  box-shadow: 0 1rem 2.25rem rgba(var(--shadow-rgb), .07);
+  min-height: 30rem;
+}
+.mapPanelEmpty { margin: auto 0; display: flex; flex-direction: column; align-items: center; text-align: center; gap: .55rem; padding: 1rem .25rem; }
+.mapPanelEmptyIcon { display: grid; place-items: center; width: 3rem; height: 3rem; border-radius: .9rem; background: var(--surface-blue-soft); color: var(--brand-blue); }
+.mapPanelEmptyTitle { font-weight: 800; color: var(--navy-900); font-size: .95rem; }
+.mapPanelEmptyText { color: var(--ink-600); font-size: .84rem; line-height: 1.55; max-width: 18rem; }
+
+.mapPanelHead { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: .75rem; }
+.mapPanelLogo, .mapPanelLogoFallback { width: 3rem; height: 3rem; border-radius: .7rem; flex-shrink: 0; }
+.mapPanelLogo { object-fit: contain; border: 1px solid var(--border); background: var(--card); }
+.mapPanelLogoFallback {
+  display: grid; place-items: center; color: #fff; font-weight: 800; font-size: .9rem;
+  background: linear-gradient(135deg, var(--brand-teal), var(--brand-navy));
+}
+.mapPanelId { min-width: 0; }
+.mapPanelBadge {
+  display: inline-block; padding: .12rem .5rem; border-radius: 999px;
+  background: var(--surface-blue-soft); color: var(--brand-blue);
+  font-size: .62rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase;
+}
+.mapPanelName { margin-top: .3rem; font-weight: 800; font-size: 1.05rem; letter-spacing: -.02em; color: var(--navy-900); line-height: 1.2; }
+.mapPanelDesc {
+  color: var(--ink-600); font-size: .84rem; line-height: 1.5;
+  display: -webkit-box; -webkit-line-clamp: 3; line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+}
+.mapPanelRows { display: grid; gap: .55rem; }
+.mapPanelRow { display: grid; grid-template-columns: 1.1rem 1fr; gap: .55rem; align-items: start; color: var(--navy-900); font-size: .83rem; line-height: 1.4; }
+.mapPanelRow svg { margin-top: .12rem; color: var(--ink-600); flex-shrink: 0; }
+.mapPanelRow span { min-width: 0; }
+.mapPanelMuted { color: var(--ink-600); }
+.mapPanelPhone { color: var(--brand-blue); font-weight: 700; }
+.mapPanelPhone:hover { text-decoration: underline; }
+.mapPanelServices { display: grid; gap: .45rem; }
+.mapPanelServicesTitle { font-weight: 800; font-size: .8rem; color: var(--navy-900); }
+.mapPanelServiceRow { display: flex; flex-wrap: wrap; gap: .35rem; }
+.mapPanelServiceIcon {
+  display: grid; place-items: center; width: 2rem; height: 2rem; border-radius: 50%;
+  background: var(--surface-blue-soft); border: 1px solid var(--border); color: var(--brand-blue);
+}
+.mapPanelActions { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: auto; padding-top: .35rem; }
 .orgMapEmpty {
   position: absolute; inset: auto 1rem 1rem; z-index: 500;
   padding: .7rem .9rem; border-radius: .7rem;
@@ -272,12 +325,13 @@
   display: flex; flex-direction: column; align-items: center; text-align: center; gap: .7rem;
   padding: 2.75rem 1.5rem; border: 1px dashed var(--surface-300); border-radius: 1.25rem; background: var(--card);
 }
-.sponsorsEmptyIcon { display: grid; place-items: center; width: 3.25rem; height: 3.25rem; border-radius: 50%; background: var(--success-bg); color: var(--success-fg); }
+.sponsorsEmptyIcon { display: grid; place-items: center; width: 3.25rem; height: 3.25rem; border-radius: 50%; background: var(--surface-blue-soft); color: var(--brand-blue); }
 .sponsorsEmptyTitle { font-weight: 800; color: var(--navy-900); font-size: 1.05rem; letter-spacing: -.02em; }
 .sponsorsEmptyText { color: var(--ink-600); font-size: .9rem; line-height: 1.55; max-width: 34rem; }
 .sponsorsEmptyCta {
   margin-top: .4rem; display: inline-flex; padding: .7rem 1.2rem; border-radius: .7rem;
-  background: var(--teal-600); color: var(--primary-contrast); font-weight: 800; font-size: .88rem;
+  background: var(--primary); color: var(--primary-contrast); font-weight: 800; font-size: .88rem;
+  transition: background-color .15s ease;
 }
 .sponsorsEmptyCta:hover { background: var(--primary-hover); }
 
@@ -346,17 +400,22 @@
 /* ==========================================================================
    RESPONSIVE
    ========================================================================== */
-@media (max-width: 64rem) {
-  .mapLayout { grid-template-columns: 1fr; }
-  .mapAside { position: static; }
+@media (max-width: 62rem) {
+  /* Móvil / tablet: mapa arriba, panel de información debajo. */
+  .orgMapGrid { grid-template-columns: 1fr; }
+  .orgMapCanvas { min-height: 24rem; }
+  .mapPanel { min-height: 0; }
+  .mapPanelEmpty { padding: 1.5rem .25rem; }
   .footerGrid { grid-template-columns: 1fr 1fr; }
   .footerBrandCol { grid-column: 1 / -1; max-width: none; }
 }
 @media (max-width: 40rem) {
   .section { padding: 2.5rem 1.25rem; }
-  .orgMapCanvas { height: 24rem; }
-  .mapLoading { height: 24rem; }
-  .orgMapBar { justify-content: flex-start; }
+  .orgMapCanvas { min-height: 20rem; }
+  .mapLoading { height: 20rem; }
+  .orgMapControls { gap: .6rem; }
+  .orgMapFilters { width: 100%; justify-content: space-between; }
+  .orgActionWhatsapp, .orgActionMaps, .orgActionMap { flex-basis: 100%; }
   .footerGrid { grid-template-columns: 1fr; gap: 1.75rem; }
   .footerBottom { flex-direction: column; gap: .5rem; }
 }

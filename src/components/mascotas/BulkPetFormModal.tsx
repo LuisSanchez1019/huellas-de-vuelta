@@ -3,6 +3,7 @@
 import { type FormEvent, useEffect, useState } from "react";
 import Modal from "@/components/ui/Modal";
 import PetPhotoInput, { type PreparedPhoto } from "./PetPhotoInput";
+import MedicalInfoSection from "./MedicalInfoSection";
 import { speciesLabels, sexLabels } from "@/lib/pets/labels";
 import { bulkStatusLabels, bulkStatusOptions, type BulkPet, type BulkPetInput } from "@/lib/pets/bulkPets";
 import type { PetSex, PetSpecies } from "@/lib/supabase/types";
@@ -212,6 +213,8 @@ export default function BulkPetFormModal({
           </button>
         </div>
       </form>
+
+      {mode === "edit" && pet && <MedicalInfoSection petKind="org" petId={pet.id} />}
     </Modal>
   );
 }

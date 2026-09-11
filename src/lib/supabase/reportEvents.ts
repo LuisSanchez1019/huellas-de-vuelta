@@ -152,6 +152,37 @@ export async function fetchOrgDeliveryEvents(supabase: SupabaseClient): Promise<
   }));
 }
 
+export interface OrgPetOwnerContact {
+  authorized: boolean;
+  ownerName: string | null;
+  ownerPhone: string | null;
+  ownerPhoneAlt: string | null;
+  ownerEmail: string | null;
+}
+
+/**
+ * Datos de contacto del propietario de la mascota que YA recibió esta
+ * organización. El backend (RPC `security definer`) valida que quien llama es la
+ * organización seleccionada, que confirmó la recepción y que el propietario
+ * activó la autorización `allow_org_contact_access`. Si no la activó, devuelve
+ * `authorized: false` sin ningún dato.
+ */
+export async function fetchOrgPetOwnerContact(
+  supabase: SupabaseClient,
+  eventId: string,
+): Promise<OrgPetOwnerContact> {
+  const { data, error } = await supabase.rpc("org_pet_owner_contact", { p_event_id: eventId });
+  if (error) throw error;
+  const row = (Array.isArray(data) ? data[0] : data) as Record<string, unknown> | null;
+  return {
+    authorized: Boolean(row?.authorized),
+    ownerName: (row?.owner_name as string) ?? null,
+    ownerPhone: (row?.owner_phone as string) ?? null,
+    ownerPhoneAlt: (row?.owner_phone_alt as string) ?? null,
+    ownerEmail: (row?.owner_email as string) ?? null,
+  };
+}
+
 /**
  * La organización confirma o declina la recepción de la mascota (RPC
  * `security definer`: valida server-side que quien llama es dueño de la

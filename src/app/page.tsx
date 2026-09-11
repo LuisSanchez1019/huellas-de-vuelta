@@ -30,13 +30,13 @@ export default function Home() {
       <main>
         <OrgBanner />
         <Hero />
+        <PostersSection />
         <LostPetsSection />
         <AdoptionsSection />
         <SponsorPetsSection />
-        <MapSection />
-        <PostersSection />
         <OrgsSection kind="veterinaria" />
         <OrgsSection kind="fundacion" />
+        <MapSection />
         <SponsorsSection />
         <CTASection />
       </main>

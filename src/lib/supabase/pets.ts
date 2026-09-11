@@ -106,6 +106,14 @@ export async function uploadPetPhoto(
   return path;
 }
 
+export type PublicPetTagState =
+  | "active"
+  | "assigned"
+  | "suspended"
+  | "replaced"
+  | "annulled"
+  | "legacy";
+
 export interface PublicPet {
   publicId: string;
   name: string;
@@ -117,6 +125,8 @@ export interface PublicPet {
   colorTertiary: string | null;
   ageValue: number | null;
   ageUnit: PetAgeUnit | null;
+  /** Edad en texto libre (mascotas de organización, que no usan valor + unidad). */
+  ageText: string | null;
   sex: PetSex | null;
   description: string | null;
   status: PetStatus;
@@ -128,38 +138,96 @@ export interface PublicPet {
   lostNeighborhood: string | null;
   lostDetails: string | null;
   reportedAt: string | null;
+  /** Código corto de la placa (HV-…) cuando se resolvió por placa. */
+  plateCode: string | null;
+  /** Origen de la mascota: `owner` (usuario) u `org` (organización). */
+  sourceKind: "owner" | "org" | null;
+  /** Estado de la placa. `null` cuando el perfil se muestra pero la placa no aplica. */
+  tagState: PublicPetTagState | null;
+  /** Hay una necesidad médica registrada y el propietario autorizó mostrar la alerta. */
+  medicalAlert: boolean;
+  /** El propietario autorizó indicar que requiere medicamento urgente. */
+  medicalUrgent: boolean;
 }
 
+/** Resultado de resolver una placa que existe pero cuyo perfil no debe mostrarse. */
+export interface PublicPetInactive {
+  publicId: string;
+  plateCode: string | null;
+  tagState: Exclude<PublicPetTagState, "active" | "legacy">;
+}
+
+export type PublicPetResult =
+  | { kind: "pet"; pet: PublicPet }
+  | { kind: "inactive"; info: PublicPetInactive }
+  | { kind: "not-found" };
+
 /**
- * Datos públicos de una mascota por su `public_id` (para la página del QR).
- * Llama al RPC `get_public_pet`, que solo devuelve columnas seguras (sin owner).
+ * Datos públicos de una mascota por su `public_id` de placa o histórico (para
+ * la página del QR). Llama al RPC `get_public_pet`, que resuelve la placa
+ * (`qr_tags`) y solo devuelve columnas seguras (sin owner). También informa si
+ * la placa existe pero no está activa (reemplazada, suspendida, anulada).
  */
-export async function fetchPublicPet(supabase: SupabaseClient, publicId: string): Promise<PublicPet | null> {
+export async function fetchPublicPet(
+  supabase: SupabaseClient,
+  publicId: string,
+): Promise<PublicPetResult> {
   const { data, error } = await supabase.rpc("get_public_pet", { p_public_id: publicId });
   if (error) throw error;
   const row = (Array.isArray(data) ? data[0] : null) as Record<string, unknown> | null;
-  if (!row) return null;
+  if (!row) return { kind: "not-found" };
+
+  const tagState = (row.tag_state as PublicPetTagState | null) ?? null;
+
+  if (!row.name) {
+    if (
+      tagState === "assigned" ||
+      tagState === "suspended" ||
+      tagState === "replaced" ||
+      tagState === "annulled"
+    ) {
+      return {
+        kind: "inactive",
+        info: {
+          publicId: String(row.public_id),
+          plateCode: (row.plate_code as string) ?? null,
+          tagState,
+        },
+      };
+    }
+    return { kind: "not-found" };
+  }
+
   return {
-    publicId: String(row.public_id),
-    name: String(row.name),
-    species: row.species as PetSpecies,
-    speciesOther: (row.species_other as string) ?? null,
-    breed: (row.breed as string) ?? null,
-    colorPrimary: (row.color_primary as string) ?? null,
-    colorSecondary: (row.color_secondary as string) ?? null,
-    colorTertiary: (row.color_tertiary as string) ?? null,
-    ageValue: (row.age_value as number) ?? null,
-    ageUnit: (row.age_unit as PetAgeUnit) ?? null,
-    sex: (row.sex as PetSex) ?? null,
-    description: (row.description as string) ?? null,
-    status: row.status as PetStatus,
-    photoPath: (row.photo_path as string) ?? null,
-    reportId: (row.report_id as string) ?? null,
-    reportStage: (row.report_stage as string) ?? null,
-    lostCity: (row.lost_city as string) ?? null,
-    lostNeighborhood: (row.lost_neighborhood as string) ?? null,
-    lostDetails: (row.lost_details as string) ?? null,
-    reportedAt: (row.reported_at as string) ?? null,
+    kind: "pet",
+    pet: {
+      publicId: String(row.public_id),
+      name: String(row.name),
+      species: row.species as PetSpecies,
+      speciesOther: (row.species_other as string) ?? null,
+      breed: (row.breed as string) ?? null,
+      colorPrimary: (row.color_primary as string) ?? null,
+      colorSecondary: (row.color_secondary as string) ?? null,
+      colorTertiary: (row.color_tertiary as string) ?? null,
+      ageValue: (row.age_value as number) ?? null,
+      ageUnit: (row.age_unit as PetAgeUnit) ?? null,
+      ageText: (row.age_text as string) ?? null,
+      sex: (row.sex as PetSex) ?? null,
+      description: (row.description as string) ?? null,
+      status: row.status as PetStatus,
+      photoPath: (row.photo_path as string) ?? null,
+      reportId: (row.report_id as string) ?? null,
+      reportStage: (row.report_stage as string) ?? null,
+      lostCity: (row.lost_city as string) ?? null,
+      lostNeighborhood: (row.lost_neighborhood as string) ?? null,
+      lostDetails: (row.lost_details as string) ?? null,
+      reportedAt: (row.reported_at as string) ?? null,
+      plateCode: (row.plate_code as string) ?? null,
+      sourceKind: (row.source_kind as "owner" | "org" | null) ?? null,
+      tagState,
+      medicalAlert: Boolean(row.medical_alert),
+      medicalUrgent: Boolean(row.medical_urgent),
+    },
   };
 }
 

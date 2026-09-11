@@ -5,9 +5,9 @@ import styles from "./posters.module.css";
 
 /**
  * Server component: trae hasta 4 posters vigentes (RPC pública cacheada, ventana
- * corta + revalidación por tag). Va DESPUÉS del mapa y ANTES de la sección de
- * Veterinarias. Si no hay posters vigentes no renderiza nada — sin caja vacía,
- * sin espacios verticales de más.
+ * corta + revalidación por tag). Va INMEDIATAMENTE DESPUÉS del bloque principal
+ * (Hero) y ANTES de "Mascotas perdidas". Si no hay posters vigentes no renderiza
+ * nada — sin caja vacía, sin espacios verticales de más.
  */
 export default async function PostersSection() {
   const posters = await getCachedLandingPosters().catch(() => []);

@@ -93,7 +93,7 @@ export default function DashboardHome() {
       <div className={controls.pageHead}>
         <h1 className={styles.greeting}>Hola{name ? `, ${name}` : ""}</h1>
         <p className={styles.greetingSub}>
-          Este es el resumen de tus mascotas y tu actividad reciente.
+          Este es el resumen de tus mascotas y tus reportes.
         </p>
       </div>
 
@@ -117,7 +117,7 @@ export default function DashboardHome() {
           </span>
         </Link>
 
-        <Link href="/dashboard/actividad" className={styles.card}>
+        <Link href="/dashboard/mascotas" className={styles.card}>
           <span className={styles.iconWrap}><HeartIcon size={22} /></span>
           <span className={styles.cardBody}>
             <span className={styles.value}>{summary.petsAdoption}</span>
@@ -144,7 +144,7 @@ export default function DashboardHome() {
           </span>
         </Link>
 
-        <Link href="/dashboard/actividad" className={styles.card}>
+        <Link href="/dashboard/mascotas" className={styles.card}>
           <span className={styles.iconWrap}><HandIcon size={22} /></span>
           <span className={styles.cardBody}>
             <span className={styles.value}>{summary.petsInOrg}</span>
@@ -162,8 +162,8 @@ export default function DashboardHome() {
           <Link href="/dashboard/mascotas" className={`${styles.action} ${styles.actionSecondary}`}>
             <AlertIcon size={16} /> Reportar una pérdida
           </Link>
-          <Link href="/dashboard/mascotas/qr" className={`${styles.action} ${styles.actionSecondary}`}>
-            <ReportIcon size={16} /> Ver placas QR
+          <Link href="/dashboard/mascotas/solicitar-placa" className={`${styles.action} ${styles.actionSecondary}`}>
+            <ReportIcon size={16} /> Solicitar placa
           </Link>
         </div>
       </div>

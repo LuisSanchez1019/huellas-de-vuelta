@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { HeartIcon } from "@/components/icons/Icon";
+import { HandIcon } from "@/components/icons/Icon";
 import SectionTitle from "./SectionTitle";
 import styles from "./landing.module.css";
 
@@ -23,13 +23,13 @@ export default function SponsorsSection() {
           subtitle="Gracias a nuestros aliados podemos seguir trabajando para ayudar a más mascotas."
         />
         <div className={styles.sponsorsEmpty}>
-          <span className={styles.sponsorsEmptyIcon} aria-hidden="true"><HeartIcon size={26} /></span>
+          <span className={styles.sponsorsEmptyIcon} aria-hidden="true"><HandIcon size={26} /></span>
           <p className={styles.sponsorsEmptyTitle}>Este espacio es para las empresas que apoyan a Huellas de Vuelta</p>
           <p className={styles.sponsorsEmptyText}>
-            Aún no hay patrocinadores publicados. Si tu empresa quiere apoyar la plataforma y aparecer
-            aquí, escríbenos.
+            Aún no hay aliados comerciales publicados. Si tu empresa quiere apoyar la plataforma y
+            aparecer aquí, únete como aliado.
           </p>
-          <Link className={styles.sponsorsEmptyCta} href="/ayuda">Quiero ser aliado</Link>
+          <Link className={styles.sponsorsEmptyCta} href="/auth/aliado">Quiero ser aliado</Link>
         </div>
       </div>
     </section>

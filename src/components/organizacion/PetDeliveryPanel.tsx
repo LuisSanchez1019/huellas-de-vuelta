@@ -4,7 +4,12 @@ import { useCallback, useEffect, useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { resolvePanelSession } from "@/lib/auth/session";
 import { fetchOrgProfileRow, type OrgProfileKind } from "@/lib/supabase/orgProfiles";
-import { fetchOrgDeliveryEvents, orgConfirmPetReceipt } from "@/lib/supabase/reportEvents";
+import {
+  fetchOrgDeliveryEvents,
+  fetchOrgPetOwnerContact,
+  orgConfirmPetReceipt,
+  type OrgPetOwnerContact,
+} from "@/lib/supabase/reportEvents";
 import { getPetPhotoSignedUrl } from "@/lib/supabase/pets";
 import { orgDeliveryEventStatus, orgDeliveryStatusLabels, petConditionLabels, type OrgDeliveryEvent } from "@/lib/pets/reencuentro";
 import { speciesLabels } from "@/lib/pets/labels";
@@ -45,6 +50,7 @@ export default function PetDeliveryPanel({ kind }: { kind: OrgProfileKind }) {
   const [photoUrls, setPhotoUrls] = useState<Record<string, string>>({});
   const [busyId, setBusyId] = useState<string | null>(null);
   const [confirming, setConfirming] = useState<{ event: OrgDeliveryEvent; received: boolean } | null>(null);
+  const [contacts, setContacts] = useState<Record<string, OrgPetOwnerContact | "loading">>({});
   const [toast, setToast] = useState<ToastState | null>(null);
   // Se lee una sola vez (no en cada render) para decidir si mostrar el aviso
   // de "espera 3 horas" — no hace falta que se actualice en tiempo real.
@@ -105,6 +111,21 @@ export default function PetDeliveryPanel({ kind }: { kind: OrgProfileKind }) {
       });
     } finally {
       setBusyId(null);
+    }
+  }
+
+  async function loadOwnerContact(eventId: string) {
+    setContacts((cur) => ({ ...cur, [eventId]: "loading" }));
+    try {
+      const result = await fetchOrgPetOwnerContact(createSupabaseBrowserClient(), eventId);
+      setContacts((cur) => ({ ...cur, [eventId]: result }));
+    } catch {
+      setContacts((cur) => {
+        const next = { ...cur };
+        delete next[eventId];
+        return next;
+      });
+      setToast({ variant: "error", message: "No fue posible consultar el contacto del propietario." });
     }
   }
 
@@ -197,6 +218,37 @@ export default function PetDeliveryPanel({ kind }: { kind: OrgProfileKind }) {
                   </button>
                 </div>
               )}
+
+              {status === "received" && (() => {
+                const contact = contacts[ev.id];
+                if (!contact) {
+                  return (
+                    <button type="button" className={styles.contactButton} onClick={() => loadOwnerContact(ev.id)}>
+                      Ver datos de contacto del propietario
+                    </button>
+                  );
+                }
+                if (contact === "loading") {
+                  return <p className={styles.detail}>Consultando…</p>;
+                }
+                if (!contact.authorized) {
+                  return (
+                    <p className={styles.contactNote}>
+                      El propietario no autorizó compartir sus datos de contacto. Espera a que se
+                      comunique contigo tras la notificación de recepción.
+                    </p>
+                  );
+                }
+                return (
+                  <div className={styles.contactBox}>
+                    <p className={styles.contactTitle}>Contacto del propietario (autorizado)</p>
+                    {contact.ownerName && <p className={styles.detail}>{contact.ownerName}</p>}
+                    {contact.ownerPhone && <p className={styles.detail}>Teléfono: {contact.ownerPhone}</p>}
+                    {contact.ownerPhoneAlt && <p className={styles.detail}>Teléfono alterno: {contact.ownerPhoneAlt}</p>}
+                    {contact.ownerEmail && <p className={styles.detail}>Correo: {contact.ownerEmail}</p>}
+                  </div>
+                );
+              })()}
             </li>
           );
         })}

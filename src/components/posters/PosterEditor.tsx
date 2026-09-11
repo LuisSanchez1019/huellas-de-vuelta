@@ -12,11 +12,12 @@ import {
   type MyPoster,
 } from "@/lib/supabase/posters";
 import {
-  POSTER_ALLOWED_TYPES,
   POSTER_RECOMMENDED_LABEL,
-  preparePoster,
+  loadPosterSource,
+  type PosterSource,
   type PreparedPoster,
 } from "@/lib/images/preparePoster";
+import PosterCropper from "./PosterCropper";
 import controls from "@/components/ui/controls.module.css";
 import styles from "./postersPanel.module.css";
 
@@ -34,16 +35,28 @@ export default function PosterEditor({ ownerId, orgName, editing, existingImageU
   const [title, setTitle] = useState(editing?.title ?? "");
   const [description, setDescription] = useState(editing?.description ?? "");
   const [targetUrl, setTargetUrl] = useState(editing?.targetUrl ?? "");
+  const [source, setSource] = useState<PosterSource | null>(null);
   const [prepared, setPrepared] = useState<PreparedPoster | null>(null);
   const [processing, setProcessing] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Limpiar URLs de objeto SOLO al desmontar (las transiciones ya revocan a mano).
+  const preparedRef = useRef<PreparedPoster | null>(null);
+  const sourceRef = useRef<PosterSource | null>(null);
   useEffect(() => {
-    return () => {
-      if (prepared) URL.revokeObjectURL(prepared.previewUrl);
-    };
+    preparedRef.current = prepared;
   }, [prepared]);
+  useEffect(() => {
+    sourceRef.current = source;
+  }, [source]);
+  useEffect(
+    () => () => {
+      if (preparedRef.current) URL.revokeObjectURL(preparedRef.current.previewUrl);
+      if (sourceRef.current) URL.revokeObjectURL(sourceRef.current.objectUrl);
+    },
+    [],
+  );
 
   const previewUrl = prepared?.previewUrl ?? existingImageUrl;
   const hasImage = Boolean(prepared || editing?.imagePath);
@@ -53,26 +66,34 @@ export default function PosterEditor({ ownerId, orgName, editing, existingImageU
     event.target.value = "";
     if (!file) return;
     setError(null);
-    if (!(POSTER_ALLOWED_TYPES as readonly string[]).includes(file.type)) {
-      setError("El formato del poster no es válido. Usa JPG, PNG o WebP.");
-      return;
-    }
     setProcessing(true);
     try {
-      const next = await preparePoster(file);
-      if (prepared) URL.revokeObjectURL(prepared.previewUrl);
-      setPrepared(next);
+      const next = await loadPosterSource(file);
+      if (source) URL.revokeObjectURL(source.objectUrl);
+      setSource(next);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "No fue posible procesar la imagen.");
+      setError(err instanceof Error ? err.message : "No fue posible cargar la imagen.");
     } finally {
       setProcessing(false);
     }
   }
 
+  function handleCropApplied(result: PreparedPoster) {
+    if (prepared) URL.revokeObjectURL(prepared.previewUrl);
+    if (source) URL.revokeObjectURL(source.objectUrl);
+    setSource(null);
+    setPrepared(result);
+  }
+
+  function discardSource() {
+    if (source) URL.revokeObjectURL(source.objectUrl);
+    setSource(null);
+  }
+
   async function save(submitAfter: boolean) {
     setError(null);
     if (!hasImage) {
-      setError("Sube la imagen del poster.");
+      setError("Sube la imagen del poster y aplica el recorte.");
       return;
     }
     if (targetUrl.trim() && !isSafePosterUrl(targetUrl)) {
@@ -97,7 +118,6 @@ export default function PosterEditor({ ownerId, orgName, editing, existingImageU
         targetUrl: targetUrl.trim() || null,
       });
 
-      // Se guardó bien: si se reemplazó la imagen, borra la anterior.
       if (prepared && editing?.imagePath && editing.imagePath !== imagePath) {
         await deletePosterImage(supabase, editing.imagePath);
       }
@@ -109,7 +129,6 @@ export default function PosterEditor({ ownerId, orgName, editing, existingImageU
         onSaved("Borrador guardado.");
       }
     } catch (err) {
-      // Si la subida quedó huérfana (falló el upsert), límpiala.
       if (uploadedPath) await deletePosterImage(supabase, uploadedPath);
       setError(posterErrorMessage(err));
       setBusy(false);
@@ -125,59 +144,70 @@ export default function PosterEditor({ ownerId, orgName, editing, existingImageU
       <section className={controls.section}>
         <p className={controls.sectionTitle}>{editing ? "Editar poster" : "Nuevo poster"}</p>
         <div className={controls.sectionBody}>
-          <div>
-            <input
-              ref={inputRef}
-              type="file"
-              accept="image/jpeg,image/png,image/webp"
-              className={styles.fileInput}
-              onChange={handleFile}
-              disabled={busy || processing}
+          <input
+            ref={inputRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            className={styles.fileInput}
+            onChange={handleFile}
+            disabled={busy || processing}
+          />
+
+          {source ? (
+            <PosterCropper
+              source={source}
+              orgName={orgName}
+              title={title}
+              disabled={busy}
+              onApply={handleCropApplied}
+              onPickAnother={() => {
+                discardSource();
+                inputRef.current?.click();
+              }}
+              onCancel={discardSource}
             />
-            {previewUrl ? (
-              <div className={styles.previewWrap}>
-                <span className={styles.previewLabel}>Vista previa (así se verá en la Landing)</span>
-                <div className={styles.previewCard}>
-                  {/* eslint-disable-next-line @next/next/no-img-element -- vista previa local / imagen firmada */}
-                  <img src={previewUrl} alt="Vista previa del poster" className={styles.previewImg} />
-                  {title.trim() && (
-                    <div className={styles.previewCaption}>
-                      <span className={styles.previewCaptionTitle}>{title.trim()}</span>
-                      <span className={styles.previewCaptionOrg}>{orgName}</span>
-                    </div>
-                  )}
-                </div>
-                <div className={styles.previewActions}>
-                  <button
-                    type="button"
-                    className={controls.buttonSecondary}
-                    onClick={() => inputRef.current?.click()}
-                    disabled={busy || processing}
-                  >
-                    {processing ? "Procesando…" : "Cambiar imagen"}
-                  </button>
-                </div>
-                {prepared?.wasCropped && (
-                  <p className={styles.muted}>
-                    La imagen se ajustó al formato banner 3:1 (recorte centrado, sin deformar). Revisa la
-                    vista previa.
-                  </p>
+          ) : previewUrl ? (
+            <div className={styles.previewWrap}>
+              <span className={styles.previewLabel}>
+                Vista previa · así aparecerá en la Landing ({POSTER_RECOMMENDED_LABEL}, 3:1)
+              </span>
+              <div className={styles.previewCard}>
+                {/* eslint-disable-next-line @next/next/no-img-element -- vista previa local / imagen firmada */}
+                <img src={previewUrl} alt="Vista previa del poster" className={styles.previewImg} />
+                {title.trim() && (
+                  <div className={styles.previewCaption}>
+                    <span className={styles.previewCaptionTitle}>{title.trim()}</span>
+                    <span className={styles.previewCaptionOrg}>{orgName}</span>
+                  </div>
                 )}
               </div>
-            ) : (
-              <button
-                type="button"
-                className={styles.dropzone}
-                onClick={() => inputRef.current?.click()}
-                disabled={busy || processing}
-              >
-                <span className={styles.dropzoneTitle}>{processing ? "Procesando…" : "Subir imagen del poster"}</span>
-                <span className={styles.dropzoneHint}>
-                  Formato recomendado: {POSTER_RECOMMENDED_LABEL} (proporción 3:1). JPG, PNG o WebP · máx. 3 MB.
-                </span>
-              </button>
-            )}
-          </div>
+              <div className={styles.previewActions}>
+                <button
+                  type="button"
+                  className={controls.buttonSecondary}
+                  onClick={() => inputRef.current?.click()}
+                  disabled={busy || processing}
+                >
+                  {processing ? "Cargando…" : "Cambiar imagen"}
+                </button>
+              </div>
+            </div>
+          ) : (
+            <button
+              type="button"
+              className={styles.dropzone}
+              onClick={() => inputRef.current?.click()}
+              disabled={busy || processing}
+            >
+              <span className={styles.dropzoneTitle}>
+                {processing ? "Cargando…" : "Subir imagen del poster"}
+              </span>
+              <span className={styles.dropzoneHint}>
+                Formato final: {POSTER_RECOMMENDED_LABEL} (proporción 3:1). JPG, PNG o WebP · máx. 3 MB ·
+                mínimo equivalente a {POSTER_RECOMMENDED_LABEL}.
+              </span>
+            </button>
+          )}
 
           <label className={controls.field}>
             Título (opcional)
@@ -221,10 +251,20 @@ export default function PosterEditor({ ownerId, orgName, editing, existingImageU
           {error && <p className={controls.errorText}>{error}</p>}
 
           <div className={controls.buttonRow}>
-            <button type="button" className={controls.button} onClick={() => save(true)} disabled={busy || processing}>
+            <button
+              type="button"
+              className={controls.button}
+              onClick={() => save(true)}
+              disabled={busy || processing || Boolean(source)}
+            >
               {busy ? "Guardando…" : "Guardar y enviar a revisión"}
             </button>
-            <button type="button" className={controls.buttonSecondary} onClick={() => save(false)} disabled={busy || processing}>
+            <button
+              type="button"
+              className={controls.buttonSecondary}
+              onClick={() => save(false)}
+              disabled={busy || processing || Boolean(source)}
+            >
               Guardar borrador
             </button>
             <button type="button" className={controls.buttonSecondary} onClick={onCancel} disabled={busy}>

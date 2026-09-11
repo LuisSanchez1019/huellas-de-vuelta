@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import RegisterPetForm from "@/components/mascotas/RegisterPetForm";
 import styles from "@/components/mascotas/registerPet.module.css";
 
@@ -10,7 +11,9 @@ export default function Page() {
           Completa los datos básicos de tu mascota. Podrás editarlos y añadir más información después.
         </p>
       </div>
-      <RegisterPetForm />
+      <Suspense fallback={null}>
+        <RegisterPetForm />
+      </Suspense>
     </div>
   );
 }

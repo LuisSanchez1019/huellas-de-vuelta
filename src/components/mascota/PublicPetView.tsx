@@ -3,9 +3,14 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
-import { fetchPublicPet, PET_PHOTO_BUCKET, type PublicPet } from "@/lib/supabase/pets";
+import {
+  fetchPublicPet,
+  PET_PHOTO_BUCKET,
+  type PublicPet,
+  type PublicPetInactive,
+} from "@/lib/supabase/pets";
 import { speciesLabels, statusLabels, sexLabels, ageUnitLabels, catColorLabels } from "@/lib/pets/labels";
-import { AlertIcon, LockIcon, PawIcon, PinIcon } from "@/components/icons/Icon";
+import { AlertIcon, LockIcon, PawIcon, PinIcon, StethoscopeIcon } from "@/components/icons/Icon";
 import ThemeToggle from "@/components/theme/ThemeToggle";
 import FoundPetWizard from "@/components/reencuentro/FoundPetWizard";
 import styles from "./publicPet.module.css";
@@ -34,9 +39,17 @@ function formatDate(iso: string): string {
  * "encontré esta mascota". El `page.tsx` (servidor) solo aporta metadata
  * (título/OG) a partir de los mismos datos públicos.
  */
+const INACTIVE_MESSAGE: Record<PublicPetInactive["tagState"], string> = {
+  assigned: "Esta placa está registrada pero todavía no se ha activado.",
+  suspended: "Esta placa está temporalmente suspendida.",
+  replaced: "Esta placa fue reemplazada por una nueva. Pide la placa vigente de la mascota.",
+  annulled: "Esta placa fue anulada y ya no está en uso.",
+};
+
 export default function PublicPetView({ publicId }: { publicId: string }) {
-  const [state, setState] = useState<"loading" | "found" | "not-found" | "error">("loading");
+  const [state, setState] = useState<"loading" | "found" | "inactive" | "not-found" | "error">("loading");
   const [pet, setPet] = useState<PublicPet | null>(null);
+  const [inactive, setInactive] = useState<PublicPetInactive | null>(null);
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
 
   useEffect(() => {
@@ -44,16 +57,21 @@ export default function PublicPetView({ publicId }: { publicId: string }) {
     const supabase = createSupabaseBrowserClient();
     fetchPublicPet(supabase, publicId)
       .then(async (result) => {
-        if (!result) {
+        if (result.kind === "not-found") {
           setState("not-found");
           return;
         }
-        setPet(result);
+        if (result.kind === "inactive") {
+          setInactive(result.info);
+          setState("inactive");
+          return;
+        }
+        setPet(result.pet);
         setState("found");
-        if (result.photoPath) {
+        if (result.pet.photoPath) {
           const { data } = await supabase.storage
             .from(PET_PHOTO_BUCKET)
-            .createSignedUrl(result.photoPath, 3600);
+            .createSignedUrl(result.pet.photoPath, 3600);
           if (data?.signedUrl) setPhotoUrl(data.signedUrl);
         }
       })
@@ -74,12 +92,33 @@ export default function PublicPetView({ publicId }: { publicId: string }) {
         {state === "not-found" && (
           <p className={styles.state}>No encontramos ninguna mascota con este código.</p>
         )}
+        {state === "inactive" && inactive && (
+          <p className={styles.state}>
+            {INACTIVE_MESSAGE[inactive.tagState]}
+            {inactive.plateCode ? ` (${inactive.plateCode})` : ""}
+          </p>
+        )}
         {state === "error" && (
           <p className={styles.state}>No fue posible cargar la información. Intenta de nuevo más tarde.</p>
         )}
 
         {state === "found" && pet && (
           <>
+            {pet.medicalAlert && (
+              <div className={styles.medicalAlert} role="note">
+                <span className={styles.medicalAlertIcon} aria-hidden="true">
+                  <StethoscopeIcon size={20} />
+                </span>
+                <div>
+                  <p className={styles.medicalAlertTitle}>Alerta médica</p>
+                  <p className={styles.medicalAlertText}>
+                    Esta mascota tiene una necesidad médica registrada.
+                    {pet.medicalUrgent ? " Requiere medicamento urgente." : ""}
+                  </p>
+                </div>
+              </div>
+            )}
+
             {isLost && (
               <div className={styles.lostAlert} role="alert">
                 <span className={styles.lostAlertIcon} aria-hidden="true"><AlertIcon size={20} /></span>
@@ -112,14 +151,16 @@ export default function PublicPetView({ publicId }: { publicId: string }) {
                 {pet.description && <p className={`${styles.desc} ${styles.clamp}`}>{pet.description}</p>}
 
                 <div className={styles.detailsGrid}>
-                  {pet.ageValue != null && pet.ageUnit && (
+                  {(pet.ageValue != null && pet.ageUnit) || pet.ageText ? (
                     <div className={styles.detailItem}>
                       <span className={styles.detailLabel}>Edad</span>
                       <span className={styles.detailValue}>
-                        {pet.ageValue} {ageUnitLabels[pet.ageUnit].toLowerCase()}
+                        {pet.ageValue != null && pet.ageUnit
+                          ? `${pet.ageValue} ${ageUnitLabels[pet.ageUnit].toLowerCase()}`
+                          : pet.ageText}
                       </span>
                     </div>
-                  )}
+                  ) : null}
                   {pet.sex && (
                     <div className={styles.detailItem}>
                       <span className={styles.detailLabel}>Sexo</span>
@@ -162,7 +203,7 @@ export default function PublicPetView({ publicId }: { publicId: string }) {
                   muestra su teléfono, correo ni dirección.
                 </p>
 
-                <p className={styles.plateId}>ID de placa: {pet.publicId}</p>
+                <p className={styles.plateId}>ID de placa: {pet.plateCode ?? pet.publicId}</p>
               </div>
             </div>
 

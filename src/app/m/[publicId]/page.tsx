@@ -21,11 +21,12 @@ export async function generateMetadata({
   params: Promise<Params>;
 }): Promise<Metadata> {
   const { publicId } = await params;
-  const pet = await fetchPublicPet(createSupabasePublicServerClient(), publicId).catch(() => null);
+  const result = await fetchPublicPet(createSupabasePublicServerClient(), publicId).catch(() => null);
 
-  if (!pet) {
+  if (!result || result.kind !== "pet") {
     return { title: "Mascota no encontrada", robots: { index: false, follow: false } };
   }
+  const pet = result.pet;
 
   const title = pet.status === "lost" ? `${pet.name} está perdido` : pet.name;
   const description =

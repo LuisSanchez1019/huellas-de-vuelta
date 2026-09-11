@@ -14,7 +14,8 @@ import {
   roleMismatchLoginMessage,
 } from "@/lib/auth/accountRole";
 import { roleHome, type AccountRole } from "@/lib/auth/roles";
-import { orgNameAvailable, type OrgProfileKind } from "@/lib/supabase/orgProfiles";
+import { orgNameAvailable, type OrgNameKind } from "@/lib/supabase/orgProfiles";
+import { DATA_POLICY_PATH, DATA_POLICY_VERSION } from "@/lib/legal/policy";
 import { CheckIcon, HeartIcon, StethoscopeIcon, UserIcon } from "@/components/icons/Icon";
 import ThemeToggle from "@/components/theme/ThemeToggle";
 import styles from "@/app/auth/page.module.css";
@@ -75,7 +76,10 @@ const CONFIG: Record<PortalVariant, VariantConfig> = {
     hint: "Accede como aliado de Huellas de Vuelta.",
     description: "Accede como aliado de Huellas de Vuelta.",
     icon: <CheckIcon size={18} />,
-    note: "El panel de aliados (perfil de empresa, campañas y patrocinios) estará disponible más adelante.",
+    orgNameLabel: "Nombre de la empresa",
+    orgNamePlaceholder: "Empresa XYZ S.A.S.",
+    note:
+      "El nombre de la empresa corresponde al nombre con el que tu empresa aparecerá asociada a esta cuenta; es un dato distinto de tu nombre personal. El panel de aliados (perfil de empresa, campañas y patrocinios) estará disponible más adelante.",
   },
 };
 
@@ -99,7 +103,11 @@ function EyeIcon({ hidden }: { hidden: boolean }) {
 
 function PortalForm({ variant }: { variant: PortalVariant }) {
   const cfg = CONFIG[variant];
-  const isOrg = variant === "veterinaria" || variant === "fundacion";
+  // Vet/fun/aliado piden "nombre de organización/empresa"; solo vet/fun vienen del selector /auth/vet-fun.
+  const hasOrgName = variant !== "usuario";
+  const isVetFun = variant === "veterinaria" || variant === "fundacion";
+  const orgKindLabel =
+    variant === "veterinaria" ? "veterinaria" : variant === "fundacion" ? "fundación" : "empresa aliada";
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialMode: Mode = searchParams.get("mode") === "sign-in" ? "sign-in" : "sign-up";
@@ -110,6 +118,7 @@ function PortalForm({ variant }: { variant: PortalVariant }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [policyAccepted, setPolicyAccepted] = useState(false);
 
   function resetFeedback() {
     setError(null);
@@ -117,6 +126,7 @@ function PortalForm({ variant }: { variant: PortalVariant }) {
   }
   function handleModeChange(nextMode: Mode) {
     setMode(nextMode);
+    setPolicyAccepted(false);
     resetFeedback();
   }
 
@@ -141,8 +151,14 @@ function PortalForm({ variant }: { variant: PortalVariant }) {
       setError("Las contraseñas no coinciden.");
       return;
     }
-    if (mode === "sign-up" && isOrg && orgName.length < 2) {
+    if (mode === "sign-up" && hasOrgName && orgName.length < 2) {
       setError(`Escribe el ${cfg.orgNameLabel?.toLowerCase()}.`);
+      return;
+    }
+    if (mode === "sign-up" && !policyAccepted) {
+      setError(
+        "Debes leer y aceptar la Política de Tratamiento de Datos Personales para crear la cuenta.",
+      );
       return;
     }
 
@@ -162,14 +178,15 @@ function PortalForm({ variant }: { variant: PortalVariant }) {
           return;
         }
 
-        // Organización duplicada: se valida ANTES de crear la cuenta (la
-        // garantía real es el índice único en BD + handle_new_user).
-        if (isOrg) {
-          const available = await orgNameAvailable(supabase, cfg.role as OrgProfileKind, orgName);
+        // Nombre de organización/empresa duplicado: se valida ANTES de crear la
+        // cuenta (la garantía real es el índice único (kind, name_norm) en BD +
+        // handle_new_user).
+        if (hasOrgName) {
+          const available = await orgNameAvailable(supabase, cfg.role as OrgNameKind, orgName);
           if (!available) {
             setError(
-              `Esta ${cfg.role === "veterinaria" ? "veterinaria" : "fundación"} ya está registrada. ` +
-                "Si eres el responsable de esta organización, inicia sesión con la cuenta correspondiente.",
+              `Esta ${orgKindLabel} ya está registrada. ` +
+                "Si eres el responsable, inicia sesión con la cuenta correspondiente.",
             );
             return;
           }
@@ -186,16 +203,18 @@ function PortalForm({ variant }: { variant: PortalVariant }) {
               first_name: firstName,
               last_name: lastName,
               role: cfg.role,
-              ...(isOrg ? { org_name: orgName } : {}),
+              // Consentimiento OBLIGATORIO de la Politica de Tratamiento de Datos
+              // Personales. El servidor (handle_new_user) lo revalida y lo
+              // registra en user_policy_consents; sin esto el registro se rechaza.
+              policy_consent_version: DATA_POLICY_VERSION,
+              ...(hasOrgName ? { org_name: orgName } : {}),
             },
             emailRedirectTo: window.location.origin,
           },
         });
         if (signUpError) {
-          if (isOrg && /organization_profiles|name_norm|duplicate key/i.test(signUpError.message)) {
-            setError(
-              `Esta ${cfg.role === "veterinaria" ? "veterinaria" : "fundación"} ya está registrada.`,
-            );
+          if (hasOrgName && /organization_profiles|name_norm|duplicate key/i.test(signUpError.message)) {
+            setError(`Esta ${orgKindLabel} ya está registrada.`);
             return;
           }
           throw signUpError;
@@ -204,6 +223,7 @@ function PortalForm({ variant }: { variant: PortalVariant }) {
         form.reset();
         setShowPassword(false);
         setShowConfirmPassword(false);
+        setPolicyAccepted(false);
 
         if (data.session) {
           const check = await resolvePanelSession();
@@ -246,7 +266,7 @@ function PortalForm({ variant }: { variant: PortalVariant }) {
 
       <div className={styles.shell}>
         <aside className={styles.brandPanel}>
-          <Link className={styles.brandBack} href={isOrg ? "/auth/vet-fun" : "/"}>← Volver</Link>
+          <Link className={styles.brandBack} href={isVetFun ? "/auth/vet-fun" : "/"}>← Volver</Link>
           <div className={styles.brandMain}>
             <Image className={styles.brandLogo} src="/logo-emblem-hdv.png" alt="Huellas de Vuelta" width={2000} height={2000} priority />
             <p className={styles.brandName}>Huellas de Vuelta</p>
@@ -280,7 +300,7 @@ function PortalForm({ variant }: { variant: PortalVariant }) {
               </div>
             )}
 
-            {mode === "sign-up" && isOrg && (
+            {mode === "sign-up" && hasOrgName && (
               <label>
                 {cfg.orgNameLabel}
                 <input name="orgName" maxLength={120} placeholder={cfg.orgNamePlaceholder} required />
@@ -315,6 +335,41 @@ function PortalForm({ variant }: { variant: PortalVariant }) {
                   </button>
                 </div>
               </label>
+            )}
+
+            {mode === "sign-up" && (
+              <div className={styles.consent}>
+                <label className={styles.consentRow}>
+                  {/* Sin `required` nativo: la validación explícita (mensaje en
+                      español) la hace handleSubmit, y el servidor la revalida en
+                      handle_new_user. */}
+                  <input
+                    type="checkbox"
+                    name="policyConsent"
+                    checked={policyAccepted}
+                    onChange={(e) => setPolicyAccepted(e.target.checked)}
+                    aria-describedby="policy-consent-note"
+                  />
+                  <span>
+                    He leído y acepto la{" "}
+                    <Link
+                      className={styles.consentLink}
+                      href={DATA_POLICY_PATH}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Política de Tratamiento de Datos Personales
+                    </Link>{" "}
+                    de Huellas de Vuelta y autorizo el tratamiento de mis datos personales de acuerdo con
+                    las finalidades informadas.
+                  </span>
+                </label>
+                <p id="policy-consent-note" className={styles.consentNote}>
+                  El tratamiento de tus datos personales se realizará de acuerdo con nuestra Política de
+                  Tratamiento de Datos Personales. Puedes consultar, actualizar, rectificar o solicitar la
+                  supresión de tus datos cuando corresponda.
+                </p>
+              </div>
             )}
 
             {error && <p className={styles.error} role="alert">{error}</p>}

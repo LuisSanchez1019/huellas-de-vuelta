@@ -5,7 +5,7 @@ import PanelShell from "@/components/panel/PanelShell";
 import { usePanelGuard, toPanelUser } from "@/components/panel/usePanelGuard";
 import { useIsAdmin } from "@/components/panel/useIsAdmin";
 import { buildPanelNav } from "@/components/panel/nav";
-import { SettingsIcon, UserIcon } from "@/components/icons/Icon";
+import { LockIcon, UserIcon } from "@/components/icons/Icon";
 import styles from "./dashboard.module.css";
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
@@ -29,7 +29,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       notificationsHref="/dashboard/notificaciones"
       menuItems={[
         { label: "Mi perfil", href: "/dashboard/perfil", icon: <UserIcon size={17} /> },
-        { label: "Configuración", href: "/dashboard/configuracion/cuenta", icon: <SettingsIcon size={17} /> },
+        { label: "Privacidad", href: "/dashboard/configuracion/privacidad", icon: <LockIcon size={17} /> },
       ]}
       devBanner={
         guard.isDev

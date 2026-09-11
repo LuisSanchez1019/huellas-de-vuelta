@@ -77,12 +77,30 @@
 .badgeFound { color: var(--info-fg); background: var(--info-bg); }
 .badgeForAdoption { color: var(--warning-fg); background: var(--warning-bg); }
 
-.actions { display: flex; gap: .4rem; }
+.plateRow {
+  display: flex; align-items: center; gap: .5rem; flex-wrap: wrap;
+  margin: .35rem 0 .1rem; font-size: .82rem;
+}
+.plateLabel { color: var(--ink-600); font-weight: 700; }
+.plateCode {
+  font-weight: 800; color: var(--navy-900); letter-spacing: .04em;
+  padding: .12rem .4rem; border-radius: .4rem; background: var(--surface-100); border: 1px solid var(--border);
+}
+.plateHint { color: var(--ink-600); }
+.plateCopy {
+  font: inherit; font-size: .78rem; font-weight: 700; cursor: pointer;
+  border: 1px solid var(--surface-300); background: var(--card); color: var(--teal-600);
+  border-radius: .45rem; padding: .18rem .5rem;
+}
+.plateCopy:hover { background: rgba(11, 122, 114, .08); }
+
+.actions { display: flex; gap: .4rem; flex-wrap: wrap; }
 .actionEdit,
 .actionDelete {
   display: inline-flex; align-items: center; gap: .3rem;
   border-radius: .55rem; padding: .4rem .7rem; font: inherit; font-weight: 700;
   font-size: .82rem; cursor: pointer; border: 1px solid var(--surface-300); background: var(--card);
+  text-decoration: none;
 }
 .actionEdit { color: var(--teal-600); border-color: rgba(11, 122, 114, .35); }
 .actionEdit:hover { background: rgba(11, 122, 114, .08); }

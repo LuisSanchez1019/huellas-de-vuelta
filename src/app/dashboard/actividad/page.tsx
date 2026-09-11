@@ -1,16 +1,8 @@
-import ActivityBoard from "@/components/dashboard/ActivityBoard";
-import controls from "@/components/ui/controls.module.css";
+import { redirect } from "next/navigation";
 
+// "Mi actividad" se retiró: su contenido (avisos y estado de reportes) vive en
+// "Notificaciones" y "Mis reportes". Se conserva la ruta como redirección para
+// no dejar enlaces rotos.
 export default function Page() {
-  return (
-    <div>
-      <div className={controls.pageHead}>
-        <h1 className={controls.pageTitle}>Mi actividad</h1>
-        <p className={controls.pageSubtitle}>
-          Tus mascotas agrupadas por lo que está pasando con ellas ahora mismo.
-        </p>
-      </div>
-      <ActivityBoard />
-    </div>
-  );
+  redirect("/dashboard");
 }

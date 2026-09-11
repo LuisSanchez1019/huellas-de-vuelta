@@ -1,87 +1,172 @@
 :root {
-  /* ---- primitivas de marca (no cambian entre temas) ---- */
-  --navy-700: #24365c;
-  --teal-600: #0b7a72;
-  --teal-500: #14a89d;
-  --green-500: #2fbf7c;
-  --blue-600: #1f6fb2;
-  --blue-500: #2e86de;
-  --brand-navy: #17223f; /* acento oscuro fijo: gradientes, hovers de botón */
+  /* ============================================================
+     IDENTIDAD DE MARCA — Huellas de Vuelta
+     Azules (institucional / navegación / info / organizaciones / mapa)
+     + verdes (acción / botón principal / ayuda / adopción / reencuentro).
+     Derivados del logo (perro azul-pizarra + gato teal) y afinados a la
+     referencia de identidad. NO se remapean entre temas.
+     ============================================================ */
+  --color-brand-blue: #1e6fdb;        /* azul de marca — interactivo: enlaces, nav, filtros, mapa */
+  --color-brand-blue-dark: #0b3b6f;   /* azul profundo — títulos, footer, gradientes, sello institucional */
+  --color-brand-blue-light: #3a86d0;  /* azul claro — acentos y modo oscuro */
+  --brand-blue-fill: #1e6fdb;         /* azul para superficies rellenas con texto blanco (AA en ambos temas) */
+  --color-brand-green: #14a895;       /* verde de marca — identidad de acción / éxito / destacado */
+  --color-brand-green-dark: #0b8272;  /* verde accesible para botón/enlace sobre blanco (AA) */
+  --color-brand-green-light: #3ecf9e; /* verde suave — acentos y estados hover */
 
-  /* ---- capa semántica: TEMA CLARO ---- */
-  --bg: #f4f8fa;
-  --bg-glow: rgba(20, 168, 157, .16);
-  --surface-100: #f4f8fa;
-  --surface-300: #dde6ec;
-  --card: #ffffff;
+  /* primitivas heredadas (mismos nombres que ya usan ~35 módulos) */
+  --navy-700: #1e4a80;
+  --teal-600: #0b8272;
+  --teal-500: #14a895;
+  --green-500: #3ecf9e;
+  --blue-600: #1e6fdb;
+  --blue-500: #3a86d0;
+  --brand-navy: #0b3b6f;   /* "navy" de la app = azul profundo de marca */
+  --brand-teal: #14a895;   /* alias del verde de marca (acentos) */
+  --brand-blue: #1e6fdb;   /* alias del azul de marca */
+
+  /* ============================================================
+     CAPA SEMÁNTICA — TEMA CLARO
+     Escalera de superficies (de la más honda a la más elevada):
+       --bg  <  --surface-100  <  --card
+     con tintes muy suaves de blanco / azul / verde para dar profundidad
+     sin fondos fuertes y sin competir con las fotografías.
+     ============================================================ */
+  --bg: #f8fafc;                 /* blanco cálido — lienzo de la página */
+  --bg-alt: #eef5f6;             /* secciones alternas — blanco azul-verdoso muy suave */
+  --bg-glow: rgba(20, 168, 149, .1);
+
+  --surface: #eef5f6;            /* alias legible de --surface-100 */
+  --surface-100: #eef5f6;        /* rellenos sutiles, chips, secciones alternas */
+  --surface-300: #d9e6e9;        /* rellenos algo más marcados */
+  --surface-elevated: #eaf5f4;   /* zona destacada / relleno de icono / hover suave (verde muy suave) */
+  --surface-blue-soft: #eaf2ff;  /* azul muy suave — zonas de información */
+  --card: #ffffff;               /* tarjetas / superficies elevadas */
   --field-bg: #ffffff;
-  --navy-900: #17223f;   /* la mayoría de módulos lo usan como color de texto */
-  --ink-600: #48566a;
-  --border: #dde6ec;
-  --primary: #0b7a72;
-  --primary-hover: #17223f;
-  --primary-contrast: #ffffff;
-  --shadow-rgb: 23, 34, 63;
-  --overlay: rgba(23, 34, 63, .45);
-  --header-bg: rgba(244, 248, 250, .88);
 
-  --success-fg: #0f5132; --success-bg: #d9f2e3; --success-border: #b6e2c6;
+  --navy-900: #334155;           /* texto principal (slate) */
+  --text-primary: #334155;
+  --ink-600: #64748b;            /* texto secundario / descripciones */
+  --text-secondary: #64748b;
+  --border: #e2e8f0;             /* hairline / bordes */
+
+  --primary: #0b8272;            /* ACCIÓN — verde de marca accesible sobre blanco */
+  --primary-hover: #0a6f61;      /* hover: mismo verde, algo más oscuro */
+  --primary-contrast: #ffffff;
+  --primary-soft: #e6f9f5;       /* fondo verde muy suave para realces de acción */
+
+  --shadow-rgb: 15, 46, 84;      /* sombras con tinte azul profundo, discretas */
+  --overlay: rgba(11, 33, 61, .45);
+  --header-bg: rgba(248, 250, 252, .82);
+  --focus-ring: rgba(30, 111, 219, .45);   /* anillo de foco = azul interactivo */
+
+  --success-fg: #0f5b4c; --success-bg: #e6f9f5; --success-border: #bfe9e0;
   --danger-fg: #8b3023;  --danger-bg: #fbe4df;  --danger-border: #f0c6bc;
   --warning-fg: #7a4e12; --warning-bg: #fbeacc; --warning-border: #f0d9b5;
-  --info-fg: #1f6fb2;    --info-bg: #dcecfa;    --info-border: #bcd9f2;
+  --info-fg: #1e6fdb;    --info-bg: #eaf2ff;    --info-border: #cfe0fb;
 
   color-scheme: light;
 }
 
-/* ---- capa semántica: TEMA OSCURO (diseñado, conserva la identidad navy/teal) ---- */
+/* ============================================================
+   CAPA SEMÁNTICA — TEMA OSCURO
+   Misma identidad (azules/verdes de marca como acentos). Varios niveles de
+   superficie en azul muy oscuro — nunca negro puro, nunca fondos saturados.
+   ============================================================ */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #0e1524;
-    --bg-glow: rgba(20, 168, 157, .10);
-    --surface-100: #141d30;
-    --surface-300: #2a3750;
-    --card: #182234;
-    --field-bg: #131c2e;
-    --navy-900: #e9eef5;
-    --ink-600: #9fb0c6;
-    --border: #2a3750;
-    --primary: #19b3a6;
-    --primary-hover: #33c7bb;
-    --primary-contrast: #08131f;
-    --shadow-rgb: 0, 0, 0;
-    --overlay: rgba(4, 10, 20, .6);
-    --header-bg: rgba(14, 21, 36, .85);
+    --bg: #0a1526;
+    --bg-alt: #0f1d33;
+    --bg-glow: rgba(20, 168, 149, .08);
 
-    --success-fg: #7ee0ac; --success-bg: #12281f; --success-border: #235c42;
+    --surface: #0f1d33;
+    --surface-100: #0f1d33;
+    --surface-300: #27395a;
+    --surface-elevated: #1a3253;
+    --surface-blue-soft: #12233d;
+    --card: #14263f;
+    --field-bg: #0f1d33;
+
+    --navy-900: #e7edf6;
+    --text-primary: #e7edf6;
+    --ink-600: #9fb2c9;
+    --text-secondary: #9fb2c9;
+    --border: #284363;
+
+    --primary: #2ec4a6;
+    --primary-hover: #45d8ba;
+    --primary-contrast: #05201a;
+    --primary-soft: #0e2e2a;
+
+    --shadow-rgb: 0, 0, 0;
+    --overlay: rgba(3, 9, 18, .62);
+    --header-bg: rgba(10, 21, 38, .85);
+    --focus-ring: rgba(75, 147, 232, .5);
+
+    --color-brand-blue: #4b93e8;
+    --color-brand-green: #2ec4a6;
+    --color-brand-green-light: #4be0bf;
+    --brand-blue: #4b93e8;
+    --brand-blue-fill: #2f6fc4;
+    --brand-teal: #2ec4a6;
+    --teal-500: #2ec4a6;
+    --teal-600: #2ec4a6;
+    --blue-600: #4b93e8;
+    --green-500: #4be0bf;
+
+    --success-fg: #7ee0c4; --success-bg: #0e2b26; --success-border: #235c52;
     --danger-fg: #f0a99b;  --danger-bg: #33201c;  --danger-border: #5f342c;
     --warning-fg: #e8c98b; --warning-bg: #322818; --warning-border: #574728;
-    --info-fg: #9cc7ea;    --info-bg: #14283a;    --info-border: #2a4256;
+    --info-fg: #9cc7ea;    --info-bg: #12283f;    --info-border: #2a4a6e;
 
     color-scheme: dark;
   }
 }
 
 :root[data-theme="dark"] {
-  --bg: #0e1524;
-  --bg-glow: rgba(20, 168, 157, .10);
-  --surface-100: #141d30;
-  --surface-300: #2a3750;
-  --card: #182234;
-  --field-bg: #131c2e;
-  --navy-900: #e9eef5;
-  --ink-600: #9fb0c6;
-  --border: #2a3750;
-  --primary: #19b3a6;
-  --primary-hover: #33c7bb;
-  --primary-contrast: #08131f;
-  --shadow-rgb: 0, 0, 0;
-  --overlay: rgba(4, 10, 20, .6);
-  --header-bg: rgba(14, 21, 36, .85);
+  --bg: #0a1526;
+  --bg-alt: #0f1d33;
+  --bg-glow: rgba(20, 168, 149, .08);
 
-  --success-fg: #7ee0ac; --success-bg: #12281f; --success-border: #235c42;
+  --surface: #0f1d33;
+  --surface-100: #0f1d33;
+  --surface-300: #27395a;
+  --surface-elevated: #1a3253;
+  --surface-blue-soft: #12233d;
+  --card: #14263f;
+  --field-bg: #0f1d33;
+
+  --navy-900: #e7edf6;
+  --text-primary: #e7edf6;
+  --ink-600: #9fb2c9;
+  --text-secondary: #9fb2c9;
+  --border: #284363;
+
+  --primary: #2ec4a6;
+  --primary-hover: #45d8ba;
+  --primary-contrast: #05201a;
+  --primary-soft: #0e2e2a;
+
+  --shadow-rgb: 0, 0, 0;
+  --overlay: rgba(3, 9, 18, .62);
+  --header-bg: rgba(10, 21, 38, .85);
+  --focus-ring: rgba(75, 147, 232, .5);
+
+  --color-brand-blue: #4b93e8;
+  --color-brand-green: #2ec4a6;
+  --color-brand-green-light: #4be0bf;
+  --brand-blue: #4b93e8;
+    --brand-blue-fill: #2f6fc4;
+  --brand-teal: #2ec4a6;
+  --teal-500: #2ec4a6;
+  --teal-600: #2ec4a6;
+  --blue-600: #4b93e8;
+  --green-500: #4be0bf;
+
+  --success-fg: #7ee0c4; --success-bg: #0e2b26; --success-border: #235c52;
   --danger-fg: #f0a99b;  --danger-bg: #33201c;  --danger-border: #5f342c;
   --warning-fg: #e8c98b; --warning-bg: #322818; --warning-border: #574728;
-  --info-fg: #9cc7ea;    --info-bg: #14283a;    --info-border: #2a4256;
+  --info-fg: #9cc7ea;    --info-bg: #12283f;    --info-border: #2a4a6e;
 
   color-scheme: dark;
 }
@@ -103,7 +188,11 @@ body {
      salen de var()) están en una `transition`, Chromium no los repinta cuando
      el tema cambia en caliente por el atributo `data-theme` del <html>. */
   background-color: var(--bg);
-  background-image: radial-gradient(circle at 85% 10%, var(--bg-glow), transparent 24rem);
+  /* Halos de color muy tenues (verde arriba-derecha, azul abajo-izquierda) para
+     que el fondo no sea completamente plano. Estáticos, sin animación. */
+  background-image:
+    radial-gradient(1000px 600px at 92% -8%, var(--bg-glow), transparent 70%),
+    radial-gradient(880px 520px at -6% 55%, rgba(30, 111, 219, .06), transparent 70%);
   background-repeat: no-repeat;
   font-family: var(--font-body), "Segoe UI", Arial, Helvetica, sans-serif;
   -webkit-font-smoothing: antialiased;

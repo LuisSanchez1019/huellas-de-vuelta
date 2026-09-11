@@ -10,6 +10,22 @@ import {
 
 const TABLE = "pet_reports";
 
+/**
+ * Borra en lote los reportes CERRADOS del usuario autenticado (con sus avisos y
+ * notificaciones asociados, por cascada). El backend verifica ownership y estado
+ * (`owner_id = auth.uid()` y `status = 'closed'`); no se confía en el frontend.
+ * Devuelve cuántos se eliminaron.
+ */
+export async function deleteMyClosedReports(
+  supabase: SupabaseClient,
+  ids: string[],
+): Promise<number> {
+  if (ids.length === 0) return 0;
+  const { data, error } = await supabase.rpc("delete_my_closed_reports", { p_ids: ids });
+  if (error) throw error;
+  return Number(data ?? 0);
+}
+
 /** Reportes del usuario autenticado, con la mascota anidada, para el panel. */
 export async function fetchMyReports(
   supabase: SupabaseClient,

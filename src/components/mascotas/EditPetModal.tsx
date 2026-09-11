@@ -10,6 +10,7 @@ import { LOST_DETAILS_MAX } from "@/lib/pets/reports";
 import { CAT_COLORS, ageUnitOptions, sexOptions, speciesOptions } from "@/lib/pets/labels";
 import Modal from "@/components/ui/Modal";
 import PetPhotoInput, { type PreparedPhoto } from "./PetPhotoInput";
+import MedicalInfoSection from "./MedicalInfoSection";
 import controls from "@/components/ui/controls.module.css";
 import styles from "./editPet.module.css";
 
@@ -289,6 +290,8 @@ export default function EditPetModal({
           </button>
         </div>
       </form>
+
+      <MedicalInfoSection petKind="owner" petId={pet.id} />
     </Modal>
   );
 }

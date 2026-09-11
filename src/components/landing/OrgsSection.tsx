@@ -3,6 +3,7 @@ import type { OrgProfileKind } from "@/lib/supabase/orgProfiles";
 import SectionTitle from "./SectionTitle";
 import CardSlider from "./CardSlider";
 import OrgCard from "./OrgCard";
+import { SectionMapLink } from "./MapLinks";
 import styles from "./landing.module.css";
 
 interface Config {
@@ -52,15 +53,14 @@ export default async function OrgsSection({ kind }: { kind: OrgProfileKind }) {
           eyebrow={cfg.eyebrow}
           title={cfg.title}
           subtitle={cfg.subtitle}
-          viewAllHref="/#mapa"
-          viewAllLabel="Ver en el mapa"
+          action={orgs.length > 0 ? <SectionMapLink kind={kind} /> : undefined}
         />
         {orgs.length === 0 ? (
           <p className={styles.scrollerEmpty}>{cfg.empty}</p>
         ) : (
           <CardSlider ariaLabel={cfg.aria}>
             {orgs.map((org) => (
-              <OrgCard key={org.id} org={org} />
+              <OrgCard key={org.id} org={org} kind={kind} />
             ))}
           </CardSlider>
         )}

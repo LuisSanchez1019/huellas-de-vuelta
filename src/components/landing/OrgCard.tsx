@@ -1,10 +1,12 @@
-import { ChatIcon, ClockIcon, PawIcon, PhoneIcon, PinIcon, ServiceIcon } from "@/components/icons/Icon";
+import { ClockIcon, PawIcon, PhoneIcon, PinIcon, ServiceIcon, WhatsAppIcon } from "@/components/icons/Icon";
 import { orgCategoryLabels, type OrgCategory } from "@/lib/pets/reencuentro";
 import type { OrgServiceRef } from "@/lib/supabase/orgProfiles";
+import type { OrgProfileKind } from "@/lib/supabase/orgProfiles";
 import type { ServiceIconKey } from "@/lib/services/catalog";
 import { whatsappLink } from "@/lib/phone";
 import { buildDirectionsUrl } from "@/lib/map/directions";
 import { to12h } from "@/lib/time";
+import { CardMapLink } from "./MapLinks";
 import styles from "./landing.module.css";
 
 export interface OrgCardHours {
@@ -44,11 +46,22 @@ function monogram(name: string): string {
     .toUpperCase();
 }
 
-export default function OrgCard({ org, featured = false }: { org: OrgCardData; featured?: boolean }) {
+export default function OrgCard({
+  org,
+  featured = false,
+  kind,
+}: {
+  org: OrgCardData;
+  featured?: boolean;
+  kind?: OrgProfileKind;
+}) {
   const location = [org.city, org.neighborhood].filter(Boolean).join(" · ");
   const openHours = org.hours.filter((h) => !h.closed && h.day).slice(0, 2);
-  const whatsapp = whatsappLink(org.whatsapp);
+  const whatsapp = whatsappLink(org.whatsapp) ?? whatsappLink(org.phone);
   const directions = buildDirectionsUrl(org.mapUrl, org.lat, org.lng);
+  const hasCoords = org.lat != null && org.lng != null;
+  const mapKind: OrgProfileKind =
+    kind ?? (org.category === "veterinaria" ? "veterinaria" : "fundacion");
   const services = org.services.slice(0, MAX_VISIBLE_SERVICES);
   const extraServices = org.services.length - services.length;
 
@@ -112,16 +125,31 @@ export default function OrgCard({ org, featured = false }: { org: OrgCardData; f
         </div>
       )}
 
-      {(whatsapp || directions) && (
+      {(whatsapp || hasCoords || directions) && (
         <div className={styles.orgActions}>
           {whatsapp && (
-            <a href={whatsapp} target="_blank" rel="noopener noreferrer" className={styles.orgActionWhatsapp}>
-              <ChatIcon size={14} /> WhatsApp
+            <a
+              href={whatsapp}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.orgActionWhatsapp}
+              aria-label={`Escribir a ${org.name} por WhatsApp`}
+              title={`Escribir a ${org.name} por WhatsApp`}
+            >
+              <WhatsAppIcon size={14} /> WhatsApp
             </a>
           )}
+          {hasCoords && <CardMapLink orgId={org.id} kind={mapKind} />}
           {directions && (
-            <a href={directions} target="_blank" rel="noopener noreferrer" className={styles.orgActionMaps}>
-              <PinIcon size={14} /> Ver en Google Maps
+            <a
+              href={directions}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.orgActionMaps}
+              aria-label={`Abrir la ubicación de ${org.name} en Google Maps`}
+              title={`Abrir la ubicación de ${org.name} en Google Maps`}
+            >
+              <PinIcon size={14} /> Google Maps
             </a>
           )}
         </div>

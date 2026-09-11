@@ -79,6 +79,22 @@
 .previewCaptionOrg { font-size: .76rem; opacity: .9; }
 .previewActions { display: flex; gap: .5rem; flex-wrap: wrap; }
 
+/* ---- Recortador 3:1 ---- */
+.cropWrap { display: grid; gap: .6rem; }
+.cropFrame {
+  position: relative; width: 100%; aspect-ratio: 3 / 1; overflow: hidden;
+  border-radius: clamp(.9rem, 2.5vw, 1.25rem);
+  border: 1px solid var(--border); background: var(--surface-100);
+  touch-action: none; cursor: grab; user-select: none;
+}
+.cropFrame:active { cursor: grabbing; }
+.cropImg {
+  position: absolute; top: 0; left: 0; max-width: none;
+  will-change: transform; pointer-events: none;
+}
+.cropZoomRow { display: flex; align-items: center; gap: .75rem; font-size: .82rem; font-weight: 700; color: var(--ink-600); }
+.cropZoomRow input[type="range"] { flex: 1; accent-color: var(--primary); }
+
 /* ---- Modal de apoyo ---- */
 .overlay {
   position: fixed; inset: 0; z-index: 200; display: grid; place-items: center;

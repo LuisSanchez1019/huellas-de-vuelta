@@ -1,10 +1,9 @@
 import {
-  ActivityIcon,
   BellIcon,
   HomeIcon,
+  LockIcon,
   PawIcon,
   ReportIcon,
-  SettingsIcon,
   ShieldIcon,
   UserIcon,
 } from "@/components/icons/Icon";
@@ -20,7 +19,8 @@ const BASE_NAV: NavEntry[] = [
     items: [
       { label: "Registrar mascota", href: "/dashboard/mascotas/nueva" },
       { label: "Mis mascotas", href: "/dashboard/mascotas" },
-      { label: "QR / Placa", href: "/dashboard/mascotas/qr" },
+      { label: "Solicitar placa", href: "/dashboard/mascotas/solicitar-placa" },
+      { label: "Mis pedidos", href: "/dashboard/pedidos" },
     ],
   },
   {
@@ -33,20 +33,9 @@ const BASE_NAV: NavEntry[] = [
     ],
   },
   { type: "link", label: "Notificaciones", href: "/dashboard/notificaciones", icon: <BellIcon size={20} /> },
-  { type: "link", label: "Mi actividad", href: "/dashboard/actividad", icon: <ActivityIcon size={20} /> },
   { type: "link", label: "Mi perfil", href: "/dashboard/perfil", icon: <UserIcon size={20} /> },
-  {
-    type: "group",
-    label: "Configuración",
-    icon: <SettingsIcon size={20} />,
-    items: [
-      { label: "Cuenta", href: "/dashboard/configuracion/cuenta" },
-      { label: "Apariencia", href: "/dashboard/configuracion/apariencia" },
-      { label: "Seguridad", href: "/dashboard/configuracion/seguridad" },
-      { label: "Notificaciones", href: "/dashboard/configuracion/notificaciones" },
-      { label: "Privacidad", href: "/dashboard/configuracion/privacidad" },
-    ],
-  },
+  { type: "link", label: "Seguridad", href: "/dashboard/configuracion/seguridad", icon: <ShieldIcon size={19} /> },
+  { type: "link", label: "Privacidad", href: "/dashboard/configuracion/privacidad", icon: <LockIcon size={19} /> },
 ];
 
 /** Sección extra que solo ve un administrador. Se añade al final del menú normal. */
@@ -57,8 +46,11 @@ const ADMIN_GROUP: NavEntry = {
   items: [
     { label: "Inicio administrativo", href: "/admin" },
     { label: "Organizaciones", href: "/admin/organizaciones" },
-    { label: "Posters", href: "/admin/posters" },
     { label: "Usuarios", href: "/admin/usuarios" },
+    { label: "Pedidos", href: "/admin/pedidos" },
+    { label: "Envíos", href: "/admin/envios" },
+    { label: "Posters", href: "/admin/posters" },
+    { label: "QR / Placas", href: "/admin/qr" },
   ],
 };
 

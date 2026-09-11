@@ -1,7 +1,7 @@
 "use client";
 
 import { type FormEvent, useEffect, useMemo, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { createPet, setPetPhotoPath, uploadPetPhoto } from "@/lib/supabase/pets";
 import type { PetAgeUnit, PetInput, PetSex, PetSpecies } from "@/lib/supabase/types";
@@ -34,8 +34,15 @@ const EMPTY = {
   description: "",
 };
 
+const RETURN_TO_PATHS: Record<string, string> = {
+  "solicitar-placa": "/dashboard/mascotas/solicitar-placa",
+};
+
 export default function RegisterPetForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const returnToKey = searchParams.get("returnTo");
+  const returnToPath = returnToKey ? RETURN_TO_PATHS[returnToKey] ?? null : null;
 
   const [ownerStatus, setOwnerStatus] = useState<OwnerStatus>("checking");
   const [ownerId, setOwnerId] = useState<string | null>(null);
@@ -200,6 +207,11 @@ export default function RegisterPetForm() {
         }
       }
 
+      if (returnToPath) {
+        const params = new URLSearchParams({ pet: pet.id, created: pet.name });
+        router.push(`${returnToPath}?${params.toString()}`);
+        return;
+      }
       const params = new URLSearchParams({ created: pet.name });
       if (photoFailed) params.set("photo", "failed");
       router.push(`/dashboard/mascotas?${params.toString()}`);

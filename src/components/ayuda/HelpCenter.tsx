@@ -57,7 +57,7 @@ const GROUPS: FaqGroup[] = [
       {
         q: "¿Qué pasa cuando alguien encuentra mi mascota?",
         a: [
-          "Recibes una notificación dentro de la plataforma cuando alguien reporta que vio o encontró a tu mascota. En Mi actividad puedes seguir el estado de cada aviso.",
+          "Recibes una notificación dentro de la plataforma cuando alguien reporta que vio o encontró a tu mascota. En «Notificaciones» y en «Mis reportes» puedes seguir el estado de cada aviso.",
           "Si quien la encontró la llevó a una veterinaria o fundación aliada, el aviso queda como pendiente de entrega hasta que la organización confirme la recepción.",
         ],
       },

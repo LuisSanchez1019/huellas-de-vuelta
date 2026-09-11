@@ -264,3 +264,19 @@
 @media (max-width: 26rem) {
   .nameRow { grid-template-columns: 1fr; }
 }
+
+/* ---------- consentimiento obligatorio de la politica de datos ---------- */
+.consent { display: grid; gap: .5rem; margin-top: -.25rem; }
+.consentRow {
+  display: flex !important; align-items: flex-start; gap: .6rem;
+  font-weight: 500 !important; font-size: .84rem !important; line-height: 1.5; color: var(--ink-600) !important;
+}
+.consentRow input[type="checkbox"] {
+  margin-top: .15rem; flex-shrink: 0; width: 1.05rem; height: 1.05rem; accent-color: var(--primary); cursor: pointer;
+}
+.consentLink { color: var(--blue-600); font-weight: 700; text-decoration: underline; }
+.consentLink:hover { color: var(--navy-900); }
+.consentNote {
+  font-size: .78rem; line-height: 1.5; color: var(--ink-600);
+  padding: .6rem .7rem; border-radius: .5rem; background: var(--surface-100); border: 1px solid var(--border);
+}

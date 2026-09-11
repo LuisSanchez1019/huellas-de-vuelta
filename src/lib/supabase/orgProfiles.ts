@@ -4,6 +4,8 @@ import type { Database } from "@/lib/supabase/database.types";
 
 export type OrgProfileRow = Database["public"]["Tables"]["organization_profiles"]["Row"];
 export type OrgProfileKind = "fundacion" | "veterinaria";
+/** Tipos que pueden tener un "nombre de organización/empresa" (incluye aliado). */
+export type OrgNameKind = OrgProfileKind | "aliado";
 export type OrgCategory = "veterinaria" | "fundacion" | "refugio" | "otro_aliado";
 
 /** Bucket público con los logos de las organizaciones (visibles en el Landing). */
@@ -72,7 +74,7 @@ export function normalizeOrgName(value: string): string {
  */
 export async function orgNameAvailable(
   supabase: SupabaseClient,
-  kind: OrgProfileKind,
+  kind: OrgNameKind,
   name: string,
 ): Promise<boolean> {
   const { data, error } = await supabase.rpc("org_name_available", { p_kind: kind, p_name: name });

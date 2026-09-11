@@ -6,11 +6,20 @@ interface SectionTitleProps {
   eyebrow: string;
   title: string;
   subtitle?: ReactNode;
+  /** Acción a la derecha del título (p. ej. "Ver en el mapa"). Tiene prioridad sobre `viewAllHref`. */
+  action?: ReactNode;
   viewAllHref?: string;
   viewAllLabel?: string;
 }
 
-export default function SectionTitle({ eyebrow, title, subtitle, viewAllHref, viewAllLabel }: SectionTitleProps) {
+export default function SectionTitle({
+  eyebrow,
+  title,
+  subtitle,
+  action,
+  viewAllHref,
+  viewAllLabel,
+}: SectionTitleProps) {
   return (
     <div className={styles.sectionHeader}>
       <div>
@@ -18,9 +27,13 @@ export default function SectionTitle({ eyebrow, title, subtitle, viewAllHref, vi
         <h2 className={styles.sectionTitleText}>{title}</h2>
         {subtitle && <p className={styles.sectionSubtitle}>{subtitle}</p>}
       </div>
-      {viewAllHref && viewAllLabel && (
-        <Link className={styles.viewAllLink} href={viewAllHref}>{viewAllLabel} →</Link>
-      )}
+      {action
+        ? action
+        : viewAllHref && viewAllLabel && (
+            <Link className={styles.viewAllLink} href={viewAllHref}>
+              {viewAllLabel} →
+            </Link>
+          )}
     </div>
   );
 }

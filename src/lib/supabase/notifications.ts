@@ -10,7 +10,25 @@ export type NotificationType =
   | "event_org_declined"
   | "org_approved"
   | "poster_approved"
-  | "poster_rejected";
+  | "poster_rejected"
+  | "admin_new_org"
+  | "admin_new_plate_order";
+
+/** Ruta a la que enlaza cada tipo de notificación (o `null` si no aplica). */
+export function notificationLink(type: NotificationType): string | null {
+  switch (type) {
+    case "admin_new_org":
+      return "/admin/organizaciones";
+    case "admin_new_plate_order":
+      return "/admin/pedidos";
+    case "poster_approved":
+    case "poster_rejected":
+    case "org_approved":
+      return null;
+    default:
+      return "/dashboard/reportes/activos";
+  }
+}
 
 export interface AppNotification {
   id: string;
@@ -62,5 +80,17 @@ export async function markAllNotificationsRead(supabase: SupabaseClient): Promis
     .from(TABLE)
     .update({ read_at: new Date().toISOString() })
     .is("read_at", null);
+  if (error) throw error;
+}
+
+export async function deleteNotification(supabase: SupabaseClient, id: string): Promise<void> {
+  const { error } = await supabase.from(TABLE).delete().eq("id", id);
+  if (error) throw error;
+}
+
+/** Borra varias notificaciones del usuario en una sola llamada. */
+export async function deleteNotifications(supabase: SupabaseClient, ids: string[]): Promise<void> {
+  if (ids.length === 0) return;
+  const { error } = await supabase.from(TABLE).delete().in("id", ids);
   if (error) throw error;
 }

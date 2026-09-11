@@ -5,10 +5,10 @@ export default function AdminStatCard({ icon, label, value }: { icon: ReactNode;
   return (
     <div className={styles.card}>
       <span className={styles.icon} aria-hidden="true">{icon}</span>
-      <div>
-        <p className={styles.value}>{value}</p>
-        <p className={styles.label}>{label}</p>
-      </div>
+      <span className={styles.text}>
+        <span className={styles.value}>{value}</span>
+        <span className={styles.label}>{label}</span>
+      </span>
     </div>
   );
 }

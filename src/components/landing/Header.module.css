@@ -6,7 +6,7 @@
 .brandTagline { font-size:.72rem; font-weight:600; color: var(--ink-600); }
 .nav { display:flex; align-items:center; gap:1.35rem; flex-wrap:wrap; }
 .navLink { color: var(--ink-600); font-weight:600; font-size:.9rem; transition: color .15s ease; }
-.navLink:hover { color: var(--navy-900); }
+.navLink:hover { color: var(--brand-blue); }
 .actions { display:flex; align-items:center; gap:.6rem; }
 
 .menuToggle { display:none; border:0; background:transparent; cursor:pointer; padding:.4rem; color: var(--navy-900); }

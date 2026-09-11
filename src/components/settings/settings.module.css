@@ -66,3 +66,42 @@
 
 .error { margin-top: .5rem; color: var(--danger-fg); font-weight: 700; font-size: .85rem; }
 .success { margin-top: .5rem; color: var(--green-500); font-weight: 700; font-size: .85rem; }
+
+/* ---- Preferencias de privacidad (interruptores) ---- */
+.toggleRow {
+  display: flex; gap: .8rem; align-items: flex-start;
+  padding: .9rem 1rem; border: 1px solid var(--surface-300); border-radius: .8rem; background: var(--surface-100);
+  cursor: pointer;
+}
+.toggleRow input { margin-top: .2rem; flex-shrink: 0; accent-color: var(--primary); width: 1.05rem; height: 1.05rem; }
+.toggleBody { display: grid; gap: .2rem; min-width: 0; }
+.toggleTitle { font-weight: 800; color: var(--navy-900); font-size: .9rem; }
+.toggleText { color: var(--ink-600); font-size: .84rem; line-height: 1.55; }
+
+.plainList { margin: 0; padding-left: 1.1rem; display: grid; gap: .5rem; }
+.plainList li { color: var(--ink-600); font-size: .86rem; line-height: 1.55; }
+.inlineLink { color: var(--teal-600); font-weight: 700; }
+.inlineLink:hover { color: var(--navy-900); }
+
+/* ---- Eliminar cuenta ---- */
+.dangerCard { border-color: var(--danger-border); }
+.dangerButton {
+  display: inline-flex; align-items: center; gap: .4rem;
+  padding: .65rem 1.1rem; border-radius: .6rem;
+  background: var(--danger-bg); color: var(--danger-fg); border: 1px solid var(--danger-border);
+  font-weight: 800; font-size: .88rem; cursor: pointer; font-family: inherit;
+}
+.dangerButton:hover:not(:disabled) { background: var(--danger-border); }
+.dangerButton:disabled { opacity: .55; cursor: not-allowed; }
+
+.overlay {
+  position: fixed; inset: 0; z-index: 200; display: grid; place-items: center;
+  padding: 1.25rem; background: var(--overlay); backdrop-filter: blur(3px);
+}
+.modal {
+  width: min(30rem, 100%); max-height: calc(100vh - 2.5rem); overflow-y: auto;
+  padding: 1.5rem; border-radius: 1.1rem; border: 1px solid var(--border);
+  background: var(--card); box-shadow: 0 1.5rem 3rem rgba(var(--shadow-rgb), .28);
+}
+.modalTitle { font-size: 1.1rem; font-weight: 800; color: var(--navy-900); margin-bottom: .75rem; }
+.actionRow { margin-top: 1rem; display: flex; gap: .6rem; flex-wrap: wrap; align-items: center; }

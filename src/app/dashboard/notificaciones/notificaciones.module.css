@@ -1,9 +1,28 @@
+.toolbar {
+  display: flex; align-items: center; justify-content: space-between; gap: .75rem;
+  flex-wrap: wrap; margin-top: .75rem;
+}
+.selectAll {
+  display: inline-flex; align-items: center; gap: .5rem;
+  font: inherit; font-size: .84rem; font-weight: 700; color: var(--ink-600); cursor: pointer;
+}
+.selectAll input { accent-color: var(--primary); }
+.toolbarActions { display: flex; gap: .5rem; flex-wrap: wrap; }
+
 .readAll {
-  margin-top: .5rem; border: 1px solid var(--surface-300); border-radius: .55rem;
+  border: 1px solid var(--surface-300); border-radius: .55rem;
   padding: .5rem .9rem; background: var(--card); color: var(--teal-600);
   font: inherit; font-weight: 700; font-size: .85rem; cursor: pointer;
 }
 .readAll:hover { background: rgba(11, 122, 114, .08); }
+
+.deleteSelected {
+  border: 1px solid var(--danger-border); border-radius: .55rem;
+  padding: .5rem .9rem; background: var(--danger-bg); color: var(--danger-fg);
+  font: inherit; font-weight: 700; font-size: .85rem; cursor: pointer;
+}
+.deleteSelected:hover:not(:disabled) { background: var(--danger-border); }
+.deleteSelected:disabled { opacity: .6; cursor: not-allowed; }
 
 .list { list-style: none; margin: 1rem 0 0; display: grid; gap: .75rem; }
 .item {
@@ -11,7 +30,8 @@
   padding: 1rem; border: 1px solid var(--surface-300); border-radius: .9rem; background: var(--card);
 }
 .itemUnread { border-color: rgba(11, 122, 114, .4); background: rgba(11, 122, 114, .04); }
-.itemBody { min-width: 0; }
+.itemCheck { margin-top: .25rem; flex-shrink: 0; accent-color: var(--primary); }
+.itemBody { min-width: 0; flex: 1; }
 .itemTitle { font-weight: 800; color: var(--navy-900); font-size: .92rem; }
 .itemText { margin-top: .25rem; color: var(--ink-600); font-size: .85rem; line-height: 1.45; }
 .itemDate { margin-top: .35rem; color: var(--ink-600); font-size: .76rem; }
@@ -23,6 +43,12 @@
   cursor: pointer; padding: 0;
 }
 .itemSeen:hover { color: var(--navy-900); }
+.itemDelete {
+  border: 0; background: transparent; color: var(--danger-fg); font: inherit; font-size: .78rem;
+  cursor: pointer; padding: 0;
+}
+.itemDelete:hover:not(:disabled) { text-decoration: underline; }
+.itemDelete:disabled { opacity: .6; cursor: not-allowed; }
 
 @media (max-width: 34rem) {
   .item { flex-wrap: wrap; }

@@ -1,0 +1,68 @@
+.overlay {
+  position: fixed; inset: 0; z-index: 200;
+  display: flex; align-items: center; justify-content: center;
+  padding: 1.25rem;
+  background: var(--overlay, rgba(15, 23, 42, .55));
+  backdrop-filter: blur(2px);
+}
+
+.modal {
+  width: 100%; max-width: 32rem;
+  background: var(--card); border: 1px solid var(--border); border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, .28);
+}
+
+.eyebrow {
+  margin: 0; font-size: .72rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--teal-600);
+}
+
+.title {
+  margin: .4rem 0 0; font-size: 1.15rem; font-weight: 800; line-height: 1.35; color: var(--navy-900);
+}
+
+.text {
+  margin: .75rem 0 0; font-size: .9rem; line-height: 1.6; color: var(--ink-600);
+}
+
+.consentRow {
+  display: flex; align-items: flex-start; gap: .6rem;
+  margin-top: 1rem;
+  font-size: .86rem; line-height: 1.55; color: var(--ink-600);
+}
+
+.consentRow input[type="checkbox"] {
+  margin-top: .15rem; flex-shrink: 0; width: 1.05rem; height: 1.05rem;
+  accent-color: var(--primary); cursor: pointer;
+}
+
+.link { color: var(--blue-600); font-weight: 700; text-decoration: underline; }
+.link:hover { color: var(--navy-900); }
+
+.error {
+  margin: .75rem 0 0; font-size: .82rem; font-weight: 600;
+  color: var(--danger-fg); background: var(--danger-bg);
+  border: 1px solid var(--danger-border); border-radius: .5rem; padding: .5rem .65rem;
+}
+
+.actions {
+  display: flex; flex-wrap: wrap; gap: .6rem; margin-top: 1.25rem;
+}
+
+.primary {
+  flex: 1 1 auto; min-width: 12rem;
+  border: 0; border-radius: .6rem; padding: .7rem 1rem;
+  background: var(--primary); color: var(--primary-contrast);
+  font-weight: 700; font-size: .9rem; cursor: pointer;
+}
+.primary:hover { background: var(--primary-hover); }
+.primary:disabled { opacity: .6; cursor: default; }
+
+.secondary {
+  border: 1px solid var(--border); border-radius: .6rem; padding: .7rem 1rem;
+  background: transparent; color: var(--navy-900);
+  font-weight: 700; font-size: .9rem; cursor: pointer;
+}
+.secondary:hover { background: var(--surface-100); }
+.secondary:disabled { opacity: .6; cursor: default; }
