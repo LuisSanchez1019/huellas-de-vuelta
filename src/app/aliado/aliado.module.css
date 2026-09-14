@@ -17,6 +17,8 @@
 .list { list-style: none; margin: 1rem 0 0; padding: 0; display: grid; gap: .5rem; }
 .list li { display: flex; align-items: flex-start; gap: .5rem; color: var(--navy-900); font-size: .9rem; line-height: 1.45; }
 .list svg { flex-shrink: 0; margin-top: .15rem; color: var(--teal-600); }
+.shortcutLink { color: var(--navy-900); font-weight: 700; text-decoration: underline; text-underline-offset: .15rem; }
+.shortcutLink:hover { color: var(--teal-600); }
 
 .note {
   margin-top: 1.25rem;

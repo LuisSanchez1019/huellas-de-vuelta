@@ -1,23 +1,28 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { POSTER_SUPPORT } from "@/lib/posters/support";
 import { CloseIcon } from "@/components/icons/Icon";
 import controls from "@/components/ui/controls.module.css";
 import styles from "./postersPanel.module.css";
 
 /**
- * Mensaje de APOYO VOLUNTARIO que se muestra una vez antes de crear el primer
- * poster (§26). "Continuar sin donar" siempre funciona: nada de la creación,
- * revisión, aprobación o publicación depende de haber donado, y no se registra
- * quién donó. La llave real todavía no existe: se muestra un marcador.
+ * Aviso de APOYO VOLUNTARIO. Se muestra cada vez que la organización entra a
+ * Posters (§ ver `PostersPanel`). Se puede cerrar con la X, con "Entendido" o
+ * con Escape, y se cierra solo a los `POSTER_SUPPORT.autoCloseSeconds`
+ * segundos si nadie interactúa. Nada de la creación, revisión, aprobación o
+ * publicación de posters depende de este aviso ni de haber aportado.
  */
 export default function SupportModal({ onClose }: { onClose: () => void }) {
   const [thanks, setThanks] = useState(false);
+  const onCloseRef = useRef(onClose);
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  });
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onClose();
+      if (event.key === "Escape") onCloseRef.current();
     };
     document.addEventListener("keydown", onKey);
     const prev = document.body.style.overflow;
@@ -26,7 +31,13 @@ export default function SupportModal({ onClose }: { onClose: () => void }) {
       document.removeEventListener("keydown", onKey);
       document.body.style.overflow = prev;
     };
-  }, [onClose]);
+  }, []);
+
+  // Se cierra solo si nadie interactúa, una sola vez al montar.
+  useEffect(() => {
+    const timer = window.setTimeout(() => onCloseRef.current(), POSTER_SUPPORT.autoCloseSeconds * 1000);
+    return () => window.clearTimeout(timer);
+  }, []);
 
   return (
     <div className={styles.overlay} onClick={onClose}>

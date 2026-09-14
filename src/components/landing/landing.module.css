@@ -336,6 +336,24 @@
 .sponsorsEmptyCta:hover { background: var(--primary-hover); }
 
 /* ==========================================================================
+   SPONSORS (empresas que apoyan la causa) — con aliados vigentes
+   ========================================================================== */
+.alliesGrid {
+  margin-top: .5rem; display: grid; grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
+  gap: 1rem; list-style: none; padding: 0;
+}
+.allyCard {
+  display: flex; flex-direction: column; align-items: center; gap: .6rem; text-align: center;
+  padding: 1.25rem 1rem; border: 1px solid var(--border); border-radius: 1rem; background: var(--card);
+}
+.allyLogo { width: 4.5rem; height: 4.5rem; border-radius: 50%; object-fit: cover; }
+.allyLogoPlaceholder {
+  width: 4.5rem; height: 4.5rem; border-radius: 50%; display: grid; place-items: center;
+  background: var(--surface-blue-soft); color: var(--brand-blue);
+}
+.allyName { font-weight: 700; color: var(--navy-900); font-size: .88rem; }
+
+/* ==========================================================================
    REENCUENTROS (solo la ilustración `hero-reencuentros.svg`, centrada)
 
    El SVG trae mucho margen transparente arriba/abajo del banner visible (el
@@ -391,9 +409,6 @@
 .footerLinks { display: grid; gap: .55rem; }
 .footerLink { font-size: .85rem; transition: color .15s ease; }
 .footerLink:hover { color: #fff; }
-.footerSocial { display: flex; gap: .7rem; margin-top: 1.25rem; }
-.footerSocialIcon { display: grid; place-items: center; width: 2.1rem; height: 2.1rem; border-radius: 50%; background: rgba(255, 255, 255, .1); color: #fff; transition: background-color .15s ease, transform .15s ease; }
-.footerSocialIcon:hover { background: rgba(255, 255, 255, .2); transform: translateY(-.15rem); }
 .footerBottom { margin-top: 2.5rem; padding-top: 1.5rem; border-top: 1px solid rgba(255, 255, 255, .12); font-size: .8rem; display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
 .footerBottomNote { font-family: var(--font-script), "Segoe Script", cursive; font-size: 1.05rem; color: rgba(255, 255, 255, .7); }
 

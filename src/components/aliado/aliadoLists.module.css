@@ -1,0 +1,52 @@
+.grid {
+  margin-top: 1.5rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+  gap: 1rem;
+}
+
+.card {
+  display: flex; flex-direction: column;
+  border: 1px solid var(--border); border-radius: 1rem;
+  background: var(--card); overflow: hidden;
+}
+
+.photo { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; display: block; }
+.photoPlaceholder {
+  width: 100%; aspect-ratio: 4 / 3; display: grid; place-items: center;
+  background: var(--surface-100); color: var(--ink-600);
+}
+
+.body { padding: 1rem; display: grid; gap: .4rem; }
+.name { font-weight: 800; color: var(--navy-900); font-size: 1rem; }
+.meta { color: var(--ink-600); font-size: .85rem; line-height: 1.5; }
+
+.badge {
+  display: inline-flex; align-items: center; gap: .3rem; align-self: flex-start;
+  padding: .2rem .6rem; border-radius: 999px; font-size: .72rem; font-weight: 800;
+  background: var(--warning-bg); color: var(--warning-fg); border: 1px solid var(--warning-border);
+}
+
+.orgRow {
+  margin-top: .3rem; display: flex; align-items: center; gap: .5rem;
+  padding-top: .6rem; border-top: 1px solid var(--border);
+}
+.orgLogo { width: 1.75rem; height: 1.75rem; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
+.orgLogoPlaceholder {
+  width: 1.75rem; height: 1.75rem; border-radius: 50%; flex-shrink: 0;
+  background: var(--surface-100); display: grid; place-items: center; color: var(--ink-600);
+}
+.orgName { font-weight: 700; color: var(--navy-900); font-size: .85rem; }
+.orgCity { color: var(--ink-600); font-size: .78rem; }
+
+.contact {
+  margin-top: .6rem; display: inline-flex; align-items: center; justify-content: center;
+  gap: .4rem; padding: .55rem .9rem; border-radius: .55rem;
+  background: var(--teal-600); color: var(--primary-contrast);
+  font-weight: 700; font-size: .85rem; text-decoration: none;
+}
+.contact:hover { background: var(--primary-hover); }
+.contactDisabled {
+  margin-top: .6rem; padding: .55rem .9rem; border-radius: .55rem; text-align: center;
+  background: var(--surface-100); color: var(--ink-600); font-size: .85rem;
+}

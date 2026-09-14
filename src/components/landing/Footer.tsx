@@ -1,6 +1,5 @@
 import Image from "next/image";
 import Link from "next/link";
-import { FacebookIcon, InstagramIcon, WhatsAppIcon } from "@/components/icons/Icon";
 import styles from "./landing.module.css";
 
 const columns = [
@@ -26,9 +25,7 @@ const columns = [
     title: "Ayuda",
     links: [
       { href: "/ayuda", label: "Centro de ayuda" },
-      { href: "/ayuda", label: "Privacidad" },
-      { href: "/ayuda", label: "Términos de uso" },
-      { href: "/ayuda", label: "Contacto" },
+      { href: "/legal/tratamiento-de-datos", label: "Tratamiento de datos personales" },
     ],
   },
 ];
@@ -50,11 +47,6 @@ export default function Footer() {
               Plataforma sin ánimo de lucro para reencontrar mascotas perdidas, gestionar mascotas
               encontradas y facilitar adopciones responsables en Colombia.
             </p>
-            <div className={styles.footerSocial}>
-              <a className={styles.footerSocialIcon} href="#" aria-label="Facebook"><FacebookIcon size={16} /></a>
-              <a className={styles.footerSocialIcon} href="#" aria-label="Instagram"><InstagramIcon size={16} /></a>
-              <a className={styles.footerSocialIcon} href="#" aria-label="WhatsApp"><WhatsAppIcon size={16} /></a>
-            </div>
           </div>
 
           {columns.map((column) => (

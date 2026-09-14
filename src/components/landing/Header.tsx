@@ -36,6 +36,7 @@ export default function Header() {
       </nav>
 
       <div className={styles.actions}>
+        <Link href="/auth" className={styles.loginLink}>Iniciar sesión</Link>
         <ThemeToggle />
         <button
           className={styles.menuToggle}
@@ -55,6 +56,7 @@ export default function Header() {
           {navItems.map((item) => (
             <Link key={item.label} className={styles.navLink} href={item.href} onClick={() => setMenuOpen(false)}>{item.label}</Link>
           ))}
+          <Link className={styles.mobileLogin} href="/auth" onClick={() => setMenuOpen(false)}>Iniciar sesión</Link>
         </div>
       )}
     </header>

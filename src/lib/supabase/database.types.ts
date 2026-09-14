@@ -14,6 +14,117 @@ export type Database = {
   }
   public: {
     Tables: {
+      aliado_visibility_orders: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          created_at: string
+          daily_rate_applied: number
+          days: number
+          end_date: string | null
+          id: string
+          org_id: string
+          owner_id: string
+          payment_reference: string | null
+          payment_status: string
+          requested_at: string
+          start_date: string | null
+          total_amount: number
+          updated_at: string
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          daily_rate_applied: number
+          days: number
+          end_date?: string | null
+          id?: string
+          org_id: string
+          owner_id: string
+          payment_reference?: string | null
+          payment_status?: string
+          requested_at?: string
+          start_date?: string | null
+          total_amount: number
+          updated_at?: string
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          daily_rate_applied?: number
+          days?: number
+          end_date?: string | null
+          id?: string
+          org_id?: string
+          owner_id?: string
+          payment_reference?: string | null
+          payment_status?: string
+          requested_at?: string
+          start_date?: string | null
+          total_amount?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "aliado_visibility_orders_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "aliado_visibility_orders_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organization_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "aliado_visibility_orders_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      aliado_visibility_settings: {
+        Row: {
+          daily_rate: number
+          id: boolean
+          max_days: number
+          min_days: number
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          daily_rate: number
+          id?: boolean
+          max_days: number
+          min_days: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          daily_rate?: number
+          id?: boolean
+          max_days?: number
+          min_days?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "aliado_visibility_settings_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notifications: {
         Row: {
           body: string | null
@@ -277,6 +388,7 @@ export type Database = {
           approval_status: string
           category: string
           city: string | null
+          country: string | null
           cover_image_url: string | null
           created_at: string
           description: string | null
@@ -311,6 +423,7 @@ export type Database = {
           approval_status?: string
           category?: string
           city?: string | null
+          country?: string | null
           cover_image_url?: string | null
           created_at?: string
           description?: string | null
@@ -345,6 +458,7 @@ export type Database = {
           approval_status?: string
           category?: string
           city?: string | null
+          country?: string | null
           cover_image_url?: string | null
           created_at?: string
           description?: string | null
@@ -1630,6 +1744,24 @@ export type Database = {
           role: string
         }[]
       }
+      admin_list_aliado_visibility_orders: {
+        Args: never
+        Returns: {
+          computed_status: string
+          daily_rate_applied: number
+          days: number
+          end_date: string
+          id: string
+          org_id: string
+          org_name: string
+          owner_email: string
+          payment_reference: string
+          payment_status: string
+          requested_at: string
+          start_date: string
+          total_amount: number
+        }[]
+      }
       admin_list_organizations: {
         Args: never
         Returns: {
@@ -1672,6 +1804,34 @@ export type Database = {
           pets_count: number
           phone: string
           role: string
+        }[]
+      }
+      admin_set_aliado_visibility_payment: {
+        Args: { p_order_id: string; p_reference?: string; p_status: string }
+        Returns: undefined
+      }
+      admin_set_aliado_visibility_settings: {
+        Args: { p_daily_rate: number; p_max_days: number; p_min_days: number }
+        Returns: undefined
+      }
+      aliado_visibility_quote: {
+        Args: { p_days: number }
+        Returns: {
+          daily_rate: number
+          days: number
+          total_amount: number
+        }[]
+      }
+      aliado_visibility_request_create: {
+        Args: { p_days: number }
+        Returns: string
+      }
+      aliado_visibility_settings_current: {
+        Args: never
+        Returns: {
+          daily_rate: number
+          max_days: number
+          min_days: number
         }[]
       }
       can_read_report_evidence: {
@@ -1776,6 +1936,18 @@ export type Database = {
           type: string
         }[]
       }
+      list_public_active_allies: {
+        Args: never
+        Returns: {
+          city: string
+          country: string
+          end_date: string
+          id: string
+          logo_path: string
+          logo_url: string
+          name: string
+        }[]
+      }
       list_public_adoption_pets: {
         Args: never
         Returns: {
@@ -1865,6 +2037,21 @@ export type Database = {
           report_id: string
           species: string
           species_other: string
+        }[]
+      }
+      my_aliado_visibility_orders: {
+        Args: never
+        Returns: {
+          computed_status: string
+          daily_rate_applied: number
+          days: number
+          end_date: string
+          id: string
+          payment_reference: string
+          payment_status: string
+          requested_at: string
+          start_date: string
+          total_amount: number
         }[]
       }
       my_pending_policy_consent: {

@@ -24,6 +24,8 @@ import {
 import { petPublicUrl } from "@/lib/pets/publicPet";
 import { qrSvgString } from "@/lib/qr/svg";
 import { CloseIcon } from "@/components/icons/Icon";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
+import PromptDialog from "@/components/ui/PromptDialog";
 import Toast, { type ToastState } from "@/components/ui/Toast";
 import controls from "@/components/ui/controls.module.css";
 import styles from "@/app/admin/qr/qr.module.css";
@@ -47,6 +49,16 @@ const EVENT_LABEL: Record<string, string> = {
   resumed: "Reanudada",
   replaced: "Reemplazada",
   annulled: "Anulada",
+};
+
+const REASON_ACTION_LABEL: Record<"annul" | "suspend" | "unassign", { title: string; message?: string; confirmLabel: string }> = {
+  annul: {
+    title: "Anular placa",
+    message: "Esta placa no se podrá volver a usar.",
+    confirmLabel: "Anular",
+  },
+  suspend: { title: "Suspender placa", confirmLabel: "Suspender" },
+  unassign: { title: "Desasignar placa", confirmLabel: "Desasignar" },
 };
 
 function formatDateTime(iso: string | null): string {
@@ -258,6 +270,8 @@ function QrTagDetailModal({
   const [state, setState] = useState<"loading" | "ready" | "error">("loading");
   const [busy, setBusy] = useState(false);
   const [mode, setMode] = useState<"view" | "assign" | "replace">("view");
+  const [pendingReasonAction, setPendingReasonAction] = useState<"annul" | "suspend" | "unassign" | null>(null);
+  const [pendingReplaceTag, setPendingReplaceTag] = useState<QrTag | null>(null);
 
   const load = useCallback(() => {
     return Promise.resolve().then(async () => {
@@ -287,14 +301,15 @@ function QrTagDetailModal({
     }
   }, [detail]);
 
-  async function runState(action: QrStateAction, confirmText?: string) {
-    if (confirmText && !window.confirm(confirmText)) return;
-    let reason: string | undefined;
+  async function runState(action: QrStateAction) {
     if (action === "annul" || action === "suspend" || action === "unassign") {
-      const input = window.prompt("Motivo (opcional, queda en el historial):", "");
-      if (input === null) return;
-      reason = input.trim() || undefined;
+      setPendingReasonAction(action);
+      return;
     }
+    await execState(action);
+  }
+
+  async function execState(action: QrStateAction, reason?: string) {
     setBusy(true);
     try {
       await qrTagSetState(createSupabaseBrowserClient(), tagId, action, reason);
@@ -306,6 +321,13 @@ function QrTagDetailModal({
     } finally {
       setBusy(false);
     }
+  }
+
+  async function confirmReasonAction(reason: string) {
+    const action = pendingReasonAction;
+    if (!action) return;
+    setPendingReasonAction(null);
+    await execState(action, reason || undefined);
   }
 
   async function doAssign(pet: QrPetSearchResult, activate: boolean) {
@@ -328,10 +350,14 @@ function QrTagDetailModal({
     }
   }
 
-  async function doReplace(newTag: QrTag) {
-    if (!window.confirm(`Reemplazar ${detail?.shortCode} por ${newTag.shortCode}? La mascota conserva su perfil.`)) {
-      return;
-    }
+  function doReplace(newTag: QrTag) {
+    setPendingReplaceTag(newTag);
+  }
+
+  async function confirmReplace() {
+    const newTag = pendingReplaceTag;
+    if (!newTag) return;
+    setPendingReplaceTag(null);
     setBusy(true);
     try {
       await replaceQrTag(createSupabaseBrowserClient(), { oldTagId: tagId, newTagId: newTag.id });
@@ -439,7 +465,7 @@ function QrTagDetailModal({
                     type="button"
                     className={controls.buttonDanger}
                     disabled={busy}
-                    onClick={() => runState("annul", "¿Anular esta placa? No se podrá volver a usar.")}
+                    onClick={() => runState("annul")}
                   >
                     Anular
                   </button>
@@ -479,6 +505,28 @@ function QrTagDetailModal({
             </div>
           </>
         )}
+
+        <PromptDialog
+          open={pendingReasonAction !== null}
+          title={pendingReasonAction ? REASON_ACTION_LABEL[pendingReasonAction].title : ""}
+          message={pendingReasonAction ? REASON_ACTION_LABEL[pendingReasonAction].message : undefined}
+          label="Motivo (opcional, queda en el historial)"
+          confirmLabel={busy ? "Guardando…" : pendingReasonAction ? REASON_ACTION_LABEL[pendingReasonAction].confirmLabel : "Confirmar"}
+          cancelLabel="Cancelar"
+          tone={pendingReasonAction === "annul" ? "danger" : "default"}
+          onConfirm={confirmReasonAction}
+          onCancel={() => setPendingReasonAction(null)}
+        />
+
+        <ConfirmDialog
+          open={pendingReplaceTag !== null}
+          title="Reemplazar placa"
+          message={`¿Reemplazar ${detail?.shortCode ?? "esta placa"} por ${pendingReplaceTag?.shortCode ?? ""}? La mascota conserva su perfil.`}
+          confirmLabel={busy ? "Guardando…" : "Sí, reemplazar"}
+          cancelLabel="Cancelar"
+          onConfirm={confirmReplace}
+          onCancel={() => setPendingReplaceTag(null)}
+        />
       </div>
     </div>
   );

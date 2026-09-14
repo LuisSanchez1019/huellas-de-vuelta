@@ -17,6 +17,7 @@ import {
   type MedicalPetKind,
   type MedicalSummary,
 } from "@/lib/supabase/petMedical";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import Toast, { type ToastState } from "@/components/ui/Toast";
 import controls from "@/components/ui/controls.module.css";
 import styles from "./medicalInfo.module.css";
@@ -253,6 +254,7 @@ function MedicalGroup({
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editLabel, setEditLabel] = useState("");
   const [editDetail, setEditDetail] = useState("");
+  const [pendingDelete, setPendingDelete] = useState<MedicalItem | null>(null);
 
   async function add() {
     if (!label.trim()) return;
@@ -295,11 +297,13 @@ function MedicalGroup({
     }
   }
 
-  async function remove(id: string) {
-    if (!window.confirm("¿Eliminar este registro médico?")) return;
+  async function confirmRemove() {
+    const item = pendingDelete;
+    if (!item) return;
+    setPendingDelete(null);
     setBusy(true);
     try {
-      await deleteMedicalItem(createSupabaseBrowserClient(), id);
+      await deleteMedicalItem(createSupabaseBrowserClient(), item.id);
       onChanged();
     } catch (error) {
       onToast({ variant: "error", message: medicalErrorMessage(error) });
@@ -386,7 +390,7 @@ function MedicalGroup({
                             type="button"
                             className={`${styles.itemBtn} ${styles.itemBtnDanger}`}
                             disabled={busy}
-                            onClick={() => remove(item.id)}
+                            onClick={() => setPendingDelete(item)}
                           >
                             Eliminar
                           </button>
@@ -439,6 +443,17 @@ function MedicalGroup({
           )}
         </>
       )}
+
+      <ConfirmDialog
+        open={pendingDelete !== null}
+        title="Eliminar registro médico"
+        message={`¿Eliminar «${pendingDelete?.label ?? ""}»? Esta acción no se puede deshacer.`}
+        confirmLabel={busy ? "Eliminando…" : "Sí, eliminar"}
+        cancelLabel="Cancelar"
+        tone="danger"
+        onConfirm={confirmRemove}
+        onCancel={() => setPendingDelete(null)}
+      />
     </div>
   );
 }

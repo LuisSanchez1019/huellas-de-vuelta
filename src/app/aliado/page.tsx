@@ -1,12 +1,23 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { resolvePanelSession } from "@/lib/auth/session";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { fetchMyOrgName } from "@/lib/supabase/orgProfiles";
-import { CheckIcon } from "@/components/icons/Icon";
+import OrgStatusCard from "@/components/organizacion/OrgStatusCard";
+import { CheckIcon, HandIcon, HeartIcon, LockIcon, PawIcon, PinIcon, UserIcon } from "@/components/icons/Icon";
 import controls from "@/components/ui/controls.module.css";
 import styles from "./aliado.module.css";
+
+const SHORTCUTS = [
+  { href: "/aliado/perfil", icon: <UserIcon size={18} />, label: "Perfil de tu empresa" },
+  { href: "/aliado/mascotas", icon: <PawIcon size={18} />, label: "Mis mascotas" },
+  { href: "/aliado/apadrina", icon: <HandIcon size={18} />, label: "Apadrina una mascota" },
+  { href: "/aliado/mascotas-perdidas", icon: <PinIcon size={18} />, label: "Mascotas perdidas" },
+  { href: "/aliado/visibilidad", icon: <HeartIcon size={18} />, label: "Apoya a Huellas de Vuelta" },
+  { href: "/aliado/configuracion/seguridad", icon: <LockIcon size={18} />, label: "Seguridad y privacidad" },
+];
 
 export default function AliadoHomePage() {
   const [companyName, setCompanyName] = useState<string | null>(null);
@@ -26,9 +37,7 @@ export default function AliadoHomePage() {
     <div className={styles.wrap}>
       <div className={styles.head}>
         <h1 className={styles.title}>Tu cuenta de aliado está activa</h1>
-        <p className={styles.subtitle}>
-          Gracias por sumarte a Huellas de Vuelta. Estamos preparando el panel de aliados.
-        </p>
+        <p className={styles.subtitle}>Gracias por sumarte a Huellas de Vuelta.</p>
       </div>
 
       {companyName && (
@@ -38,19 +47,20 @@ export default function AliadoHomePage() {
         </div>
       )}
 
+      <OrgStatusCard role="aliado" />
+
       <div className={styles.card}>
-        <p>
-          Por ahora tu cuenta te permite iniciar sesión y recuperar tu contraseña. Pronto podrás
-          gestionar desde aquí:
-        </p>
+        <p>Desde tu cuenta ya puedes:</p>
         <ul className={styles.list}>
-          <li><CheckIcon size={16} /> Perfil de tu empresa y logo.</li>
-          <li><CheckIcon size={16} /> Información comercial y enlace externo.</li>
-          <li><CheckIcon size={16} /> Campañas y patrocinios.</li>
-          <li><CheckIcon size={16} /> Estadísticas de tu aparición en la plataforma.</li>
+          {SHORTCUTS.map((item) => (
+            <li key={item.href}>
+              <CheckIcon size={16} />
+              <Link href={item.href} className={styles.shortcutLink}>{item.label}</Link>
+            </li>
+          ))}
         </ul>
         <p className={styles.note}>
-          Te avisaremos cuando el panel de aliados esté disponible. No necesitas hacer nada más por ahora.
+          Las campañas propias de tu empresa estarán disponibles más adelante.
         </p>
       </div>
     </div>

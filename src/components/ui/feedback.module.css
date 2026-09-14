@@ -64,6 +64,16 @@
 .dialogConfirm:hover { background: var(--primary-hover); }
 .dialogConfirmDanger { background: #c0392b; }
 .dialogConfirmDanger:hover { background: #a03225; }
+.dialogConfirm:disabled, .dialogConfirmDanger:disabled { opacity: .55; cursor: not-allowed; }
+
+/* ---------- PromptDialog (ConfirmDialog + campo de texto) ---------- */
+.dialogField { display: grid; gap: .35rem; margin-top: 1rem; color: var(--navy-900); font-size: .85rem; font-weight: 700; }
+.dialogTextarea {
+  width: 100%; padding: .65rem .75rem; border: 1px solid var(--surface-300); border-radius: .55rem;
+  background: var(--field-bg, var(--card)); color: var(--navy-900); font: inherit; font-weight: 500;
+  resize: vertical;
+}
+.dialogTextarea:focus { outline: 3px solid rgba(47,191,124,.35); border-color: var(--green-500); }
 
 /* ---------- Modal genérico (contenido arbitrario) ---------- */
 .modalCard {

@@ -10,6 +10,7 @@ import {
   type AdminShipmentRow,
   type ShipmentStatus,
 } from "@/lib/supabase/plateOrders";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import Toast, { type ToastState } from "@/components/ui/Toast";
 import controls from "@/components/ui/controls.module.css";
 import styles from "../pedidos/pedidos.module.css";
@@ -56,6 +57,7 @@ export default function AdminEnviosPage() {
   const [rows, setRows] = useState<AdminShipmentRow[]>([]);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [toast, setToast] = useState<ToastState | null>(null);
+  const [pendingDeliver, setPendingDeliver] = useState<AdminShipmentRow | null>(null);
 
   const load = useCallback(() => {
     return Promise.resolve().then(async () => {
@@ -74,9 +76,14 @@ export default function AdminEnviosPage() {
   }, [load]);
 
   async function addEvent(shipment: AdminShipmentRow, status: string) {
-    if (status === "DELIVERED" && !window.confirm("¿Marcar como entregado? La placa quedará activa y pública.")) {
+    if (status === "DELIVERED") {
+      setPendingDeliver(shipment);
       return;
     }
+    await runAddEvent(shipment, status);
+  }
+
+  async function runAddEvent(shipment: AdminShipmentRow, status: string) {
     setBusyId(shipment.id);
     try {
       await adminAddShipmentEvent(createSupabaseBrowserClient(), shipment.id, status);
@@ -87,6 +94,13 @@ export default function AdminEnviosPage() {
     } finally {
       setBusyId(null);
     }
+  }
+
+  async function confirmDeliver() {
+    const shipment = pendingDeliver;
+    if (!shipment) return;
+    setPendingDeliver(null);
+    await runAddEvent(shipment, "DELIVERED");
   }
 
   return (
@@ -165,6 +179,16 @@ export default function AdminEnviosPage() {
           </table>
         </div>
       )}
+
+      <ConfirmDialog
+        open={pendingDeliver !== null}
+        title="Marcar como entregado"
+        message="¿Marcar como entregado? La placa quedará activa y pública."
+        confirmLabel={busyId === pendingDeliver?.id ? "Guardando…" : "Sí, marcar como entregado"}
+        cancelLabel="Cancelar"
+        onConfirm={confirmDeliver}
+        onCancel={() => setPendingDeliver(null)}
+      />
 
       {toast && <Toast variant={toast.variant} message={toast.message} onClose={() => setToast(null)} />}
     </div>

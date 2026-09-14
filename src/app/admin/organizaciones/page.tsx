@@ -9,6 +9,7 @@ import {
   type AdminOrganization,
 } from "@/lib/supabase/orgAdmin";
 import { orgApprovalLabels, orgCategoryLabels, type OrgApprovalStatus } from "@/lib/pets/reencuentro";
+import PromptDialog from "@/components/ui/PromptDialog";
 import Toast, { type ToastState } from "@/components/ui/Toast";
 import controls from "@/components/ui/controls.module.css";
 import styles from "./organizaciones.module.css";
@@ -27,6 +28,7 @@ export default function AdminOrganizacionesPage() {
   const [tab, setTab] = useState<Tab>("pending");
   const [busyId, setBusyId] = useState<string | null>(null);
   const [toast, setToast] = useState<ToastState | null>(null);
+  const [pendingReject, setPendingReject] = useState<AdminOrganization | null>(null);
 
   const load = useCallback(() => {
     return Promise.resolve().then(async () => {
@@ -56,12 +58,14 @@ export default function AdminOrganizacionesPage() {
   const visible = orgs.filter((o) => o.approvalStatus === tab);
 
   async function decide(org: AdminOrganization, status: OrgApprovalStatus) {
-    let reason: string | undefined;
     if (status === "rejected") {
-      const input = window.prompt(`Motivo del rechazo de «${org.name}» (lo verá la organización):`, "");
-      if (input === null) return;
-      reason = input.trim() || undefined;
+      setPendingReject(org);
+      return;
     }
+    await runDecide(org, status);
+  }
+
+  async function runDecide(org: AdminOrganization, status: OrgApprovalStatus, reason?: string) {
     setBusyId(org.id);
     try {
       const supabase = createSupabaseBrowserClient();
@@ -79,6 +83,13 @@ export default function AdminOrganizacionesPage() {
     } finally {
       setBusyId(null);
     }
+  }
+
+  async function confirmReject(reason: string) {
+    const org = pendingReject;
+    if (!org) return;
+    setPendingReject(null);
+    await runDecide(org, "rejected", reason || undefined);
   }
 
   async function toggleActive(org: AdminOrganization) {
@@ -106,8 +117,9 @@ export default function AdminOrganizacionesPage() {
       <div className={controls.pageHead}>
         <h1 className={controls.pageTitle}>Organizaciones</h1>
         <p className={controls.pageSubtitle}>
-          Veterinarias, fundaciones y refugios que solicitan aparecer en Huellas de Vuelta. Solo las
-          aprobadas y activas se muestran en el buscador de ayuda y en el directorio público.
+          Veterinarias, fundaciones y aliados que solicitan aparecer en Huellas de Vuelta. Solo las
+          aprobadas y activas se muestran en la página principal: veterinarias y fundaciones en su
+          directorio y en el mapa; aliados en la sección de empresas que apoyan la causa.
         </p>
       </div>
 
@@ -220,6 +232,19 @@ export default function AdminOrganizacionesPage() {
           ))}
         </ul>
       )}
+
+      <PromptDialog
+        open={pendingReject !== null}
+        title="Rechazar organización"
+        message={`El motivo lo verá «${pendingReject?.name ?? ""}» en su panel.`}
+        label="Motivo del rechazo (opcional)"
+        placeholder="Explica por qué no se aprueba, para que la organización pueda corregirlo."
+        confirmLabel={busyId === pendingReject?.id ? "Guardando…" : "Rechazar"}
+        cancelLabel="Cancelar"
+        tone="danger"
+        onConfirm={confirmReject}
+        onCancel={() => setPendingReject(null)}
+      />
 
       {toast && <Toast variant={toast.variant} message={toast.message} onClose={() => setToast(null)} />}
     </div>

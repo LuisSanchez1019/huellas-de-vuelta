@@ -49,6 +49,7 @@ const ADMIN_GROUP: NavEntry = {
     { label: "Envíos", href: "/admin/envios" },
     { label: "Posters", href: "/admin/posters" },
     { label: "QR / Placas", href: "/admin/qr" },
+    { label: "Aliados", href: "/admin/aliados" },
   ],
 };
 

@@ -1,0 +1,48 @@
+.card {
+  padding: 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  background: var(--card);
+}
+.card + .card { margin-top: 1rem; }
+
+.title { font-weight: 800; color: var(--navy-900); font-size: 1.05rem; }
+.subtitle { margin-top: .35rem; color: var(--ink-600); font-size: .9rem; line-height: 1.5; }
+
+.hint { font-weight: 500; font-size: .8rem; color: var(--ink-600); }
+
+.summary {
+  margin-top: 1.1rem; padding: .9rem 1rem; border-radius: .7rem;
+  background: var(--surface-100); border: 1px solid var(--border);
+  display: grid; gap: .5rem;
+}
+.summaryRow {
+  display: flex; align-items: baseline; justify-content: space-between; gap: .75rem;
+  font-size: .9rem; color: var(--ink-600);
+}
+.summaryRow strong { color: var(--navy-900); font-size: 1rem; }
+.summaryTotal { padding-top: .5rem; border-top: 1px solid var(--border); }
+.summaryTotal strong { color: var(--teal-600); font-size: 1.2rem; font-weight: 800; }
+
+.note {
+  margin-top: 1rem; padding: .8rem .9rem; border-radius: .6rem;
+  background: var(--info-bg); color: var(--info-fg); border: 1px solid var(--info-border);
+  font-size: .82rem; line-height: 1.5;
+}
+
+.orderList { margin-top: .75rem; display: grid; gap: .6rem; }
+.orderRow {
+  display: flex; flex-wrap: wrap; align-items: center; gap: .5rem .9rem;
+  padding: .7rem .9rem; border: 1px solid var(--border); border-radius: .7rem; background: var(--surface-100);
+}
+.orderMeta { color: var(--ink-600); font-size: .85rem; }
+
+.badge {
+  display: inline-flex; align-items: center; padding: .2rem .6rem; border-radius: 999px;
+  font-size: .72rem; font-weight: 800;
+}
+.badge_pending { background: var(--warning-bg); color: var(--warning-fg); border: 1px solid var(--warning-border); }
+.badge_vigente { background: var(--success-bg); color: var(--success-fg); border: 1px solid var(--success-border); }
+.badge_vencido { background: var(--surface-300); color: var(--ink-600); border: 1px solid var(--border); }
+.badge_rejected { background: var(--danger-bg); color: var(--danger-fg); border: 1px solid var(--danger-border); }
+.badge_cancelled { background: var(--surface-300); color: var(--ink-600); border: 1px solid var(--border); }

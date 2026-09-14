@@ -83,7 +83,7 @@ export async function orgNameAvailable(
 }
 
 export class OrgDuplicateError extends Error {
-  constructor(public kind: OrgProfileKind) {
+  constructor(public kind: OrgNameKind) {
     super("DUPLICATE_ORG");
     this.name = "OrgDuplicateError";
   }
@@ -148,10 +148,12 @@ export interface OrgProfileWrite {
   lng: number | null;
   extraInfo: string;
   status: "draft" | "published";
+  /** Opcional: hoy solo lo expone el perfil de aliado. */
+  country?: string;
 }
 
 export async function fetchOrgProfileRow(
-  kind: OrgProfileKind,
+  kind: OrgNameKind,
   ownerId: string,
 ): Promise<OrgProfileRow | null> {
   const supabase = createSupabaseBrowserClient();
@@ -166,7 +168,7 @@ export async function fetchOrgProfileRow(
 }
 
 export async function upsertOrgProfileRow(
-  kind: OrgProfileKind,
+  kind: OrgNameKind,
   ownerId: string,
   fields: OrgProfileWrite,
 ): Promise<OrgProfileRow> {
@@ -194,6 +196,7 @@ export async function upsertOrgProfileRow(
     lng: fields.lng,
     extra_info: fields.extraInfo || null,
     status: fields.status,
+    country: fields.country || null,
   };
   const { data, error } = await supabase
     .from("organization_profiles")

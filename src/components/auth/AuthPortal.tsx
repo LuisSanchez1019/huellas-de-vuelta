@@ -79,7 +79,7 @@ const CONFIG: Record<PortalVariant, VariantConfig> = {
     orgNameLabel: "Nombre de la empresa",
     orgNamePlaceholder: "Empresa XYZ S.A.S.",
     note:
-      "El nombre de la empresa corresponde al nombre con el que tu empresa aparecerá asociada a esta cuenta; es un dato distinto de tu nombre personal. El panel de aliados (perfil de empresa, campañas y patrocinios) estará disponible más adelante.",
+      "El nombre de la empresa corresponde al nombre con el que tu empresa aparecerá asociada a esta cuenta; es un dato distinto de tu nombre personal. Podrás completar el resto del perfil (logo, país, ciudad, dirección) después de crear la cuenta.",
   },
 };
 

@@ -6,11 +6,12 @@ import { resolvePanelSession } from "@/lib/auth/session";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { foundationRepository } from "@/lib/foundations/repository";
 import { veterinaryRepository } from "@/lib/veterinaries/repository";
+import { aliadoRepository } from "@/lib/aliados/repository";
 import { fetchNotifications, markNotificationRead, type AppNotification } from "@/lib/supabase/notifications";
 import { AlertIcon, CheckIcon, CloseIcon, ShieldIcon } from "@/components/icons/Icon";
 import styles from "./orgStatusCard.module.css";
 
-type Role = "veterinaria" | "fundacion";
+type Role = "veterinaria" | "fundacion" | "aliado";
 
 interface OrgState {
   approvalStatus: "pending" | "approved" | "rejected";
@@ -22,11 +23,32 @@ interface OrgState {
 const CREATE_HREF: Record<Role, string> = {
   veterinaria: "/veterinaria/perfil/crear",
   fundacion: "/fundacion/perfil",
+  aliado: "/aliado/perfil",
 };
 
 const ORG_NOUN: Record<Role, string> = {
   veterinaria: "tu veterinaria",
   fundacion: "tu fundación",
+  aliado: "tu empresa",
+};
+
+const REPOSITORY_BY_ROLE = {
+  veterinaria: veterinaryRepository,
+  fundacion: foundationRepository,
+  aliado: aliadoRepository,
+} as const;
+
+// El directorio público de aliados todavía no existe (§ aparte); su texto de
+// aprobación no debe prometer visibilidad pública que hoy no ocurre.
+const ACTIVE_TEXT: Record<Role, string> = {
+  veterinaria: "Forma parte de nuestra red de ayuda para mascotas y aparece públicamente en el directorio del Landing.",
+  fundacion: "Forma parte de nuestra red de ayuda para mascotas y aparece públicamente en el directorio del Landing.",
+  aliado: "Tu perfil de empresa fue verificado por el equipo de Huellas de Vuelta.",
+};
+const PENDING_TEXT: Record<Role, string> = {
+  veterinaria: "El equipo de Huellas de Vuelta revisará tu perfil. Aparecerá públicamente en el Landing cuando sea aprobada.",
+  fundacion: "El equipo de Huellas de Vuelta revisará tu perfil. Aparecerá públicamente en el Landing cuando sea aprobada.",
+  aliado: "El equipo de Huellas de Vuelta revisará el perfil de tu empresa.",
 };
 
 export default function OrgStatusCard({ role }: { role: Role }) {
@@ -35,7 +57,7 @@ export default function OrgStatusCard({ role }: { role: Role }) {
 
   useEffect(() => {
     let active = true;
-    const repo = role === "veterinaria" ? veterinaryRepository : foundationRepository;
+    const repo = REPOSITORY_BY_ROLE[role];
     resolvePanelSession()
       .then(async (check) => {
         if (check.status === "unauthenticated") return null;
@@ -138,10 +160,7 @@ export default function OrgStatusCard({ role }: { role: Role }) {
           <span className={styles.icon} aria-hidden="true"><ShieldIcon size={22} /></span>
           <div className={styles.body}>
             <p className={styles.title}>Tu organización está activa</p>
-            <p className={styles.text}>
-              Forma parte de nuestra red de ayuda para mascotas y aparece públicamente en el
-              directorio del Landing.
-            </p>
+            <p className={styles.text}>{ACTIVE_TEXT[role]}</p>
           </div>
         </div>
       </>
@@ -192,10 +211,7 @@ export default function OrgStatusCard({ role }: { role: Role }) {
         <span className={styles.icon} aria-hidden="true"><AlertIcon size={22} /></span>
         <div className={styles.body}>
           <p className={styles.title}>Tu organización está en revisión</p>
-          <p className={styles.text}>
-            El equipo de Huellas de Vuelta revisará tu perfil. Aparecerá públicamente en el Landing
-            cuando sea aprobada.
-          </p>
+          <p className={styles.text}>{PENDING_TEXT[role]}</p>
         </div>
       </div>
     </>

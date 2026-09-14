@@ -1,13 +1,13 @@
 /**
- * Bloque de APOYO VOLUNTARIO que se muestra una vez antes de subir el primer
- * poster (§26). Es completamente opcional: "Continuar sin donar" siempre
- * funciona y nada de la creacion / revision / aprobacion / publicacion depende
- * de haber donado. No se registra quién donó.
+ * Aviso de APOYO VOLUNTARIO que se muestra cada vez que una organización
+ * entra a la pantalla de Posters. Es completamente opcional y meramente
+ * informativo: no depende de él ni lo condiciona ninguna acción de creación,
+ * revisión, aprobación o publicación de posters, y no se registra quién
+ * aporta ni si alguien lo hizo.
  *
- * §27 / §35: por ahora es solo texto estático con un marcador para la llave.
- * Está aislado aquí para que más adelante un administrador pueda configurar
- * texto, llave, QR o enlace (por ejemplo desde una tabla `app_settings`) sin
- * tocar los componentes.
+ * Aislado aquí para que más adelante un administrador pueda configurar el
+ * texto, la llave, un QR o un enlace (por ejemplo desde una tabla
+ * `app_settings`) sin tocar los componentes.
  */
 export interface PosterSupportConfig {
   title: string;
@@ -20,22 +20,21 @@ export interface PosterSupportConfig {
   supportCta: string;
   continueCta: string;
   thanksNote: string;
+  /** Segundos antes de cerrarse automáticamente si nadie interactúa. */
+  autoCloseSeconds: number;
 }
 
 export const POSTER_SUPPORT: PosterSupportConfig = {
-  title: "¿Quieres apoyar este proyecto?",
+  title: "Publicar tu poster no tiene ningún costo",
   paragraphs: [
-    "Publicar un poster en Huellas de Vuelta es completamente voluntario y no tiene ningún costo.",
-    "Si deseas hacerlo, una contribución voluntaria nos ayudaría a mantener, mejorar y hacer crecer este proyecto para seguir ayudando a mascotas y familias.",
+    "Publicar posters en Huellas de Vuelta es y será siempre gratuito para tu organización.",
+    "Para nosotros es muy importante seguir creciendo y ayudando a que más mascotas vuelvan a casa. Si deseas hacer un aporte voluntario, puedes enviarlo a este número:",
   ],
-  keyLabel: "LLAVE DE APOYO",
+  keyLabel: "Aporte voluntario",
   keyPlaceholder: "[ AQUÍ IRÁ LA LLAVE ]",
-  keyValue: null,
-  supportCta: "APOYAR EL PROYECTO",
-  continueCta: "CONTINUAR SIN DONAR",
-  thanksNote:
-    "Gracias por considerarlo. Cuando esté disponible la llave de apoyo aparecerá en este mismo lugar.",
+  keyValue: "3202849204",
+  supportCta: "Ya hice mi aporte",
+  continueCta: "Entendido",
+  thanksNote: "Muchas gracias por tu apoyo. Sigamos ayudando a que más mascotas vuelvan a casa.",
+  autoCloseSeconds: 20,
 };
-
-/** Marca en el navegador que ya se mostró el mensaje (para no repetirlo). No es un permiso. */
-export const POSTER_SUPPORT_SEEN_KEY = "hdv.posters.support-seen";

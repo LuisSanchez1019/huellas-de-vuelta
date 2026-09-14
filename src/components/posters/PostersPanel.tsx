@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { resolvePanelSession } from "@/lib/auth/session";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { fetchOrgProfileRow, type OrgProfileKind, type OrgProfileRow } from "@/lib/supabase/orgProfiles";
@@ -19,7 +19,7 @@ import {
   type PosterStatus,
 } from "@/lib/supabase/posters";
 import { PUBLIC_POSTERS_TAG, triggerPublicRevalidate } from "@/lib/cache/tags";
-import { POSTER_SUPPORT_SEEN_KEY } from "@/lib/posters/support";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import Toast, { type ToastState } from "@/components/ui/Toast";
 import controls from "@/components/ui/controls.module.css";
 import PosterEditor from "./PosterEditor";
@@ -73,6 +73,10 @@ export default function PostersPanel({ kind }: { kind: OrgProfileKind }) {
   const [showSupport, setShowSupport] = useState(false);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [toast, setToast] = useState<ToastState | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<MyPoster | null>(null);
+  // El aviso de apoyo voluntario se muestra una vez por visita a esta pantalla
+  // (no en cada recarga interna tras crear/editar un poster).
+  const supportShownRef = useRef(false);
 
   const load = useCallback(() => {
     return Promise.resolve().then(async () => {
@@ -105,6 +109,10 @@ export default function PostersPanel({ kind }: { kind: OrgProfileKind }) {
         setPosters(nextPosters);
         setUrls(await getPosterSignedUrls(supabase, nextPosters.map((poster) => poster.imagePath)));
         setPhase("ready");
+        if (!supportShownRef.current) {
+          supportShownRef.current = true;
+          setShowSupport(true);
+        }
       } catch {
         setPhase("error");
       }
@@ -117,28 +125,6 @@ export default function PostersPanel({ kind }: { kind: OrgProfileKind }) {
 
   function openEditor(poster: MyPoster | null) {
     setEditingPoster(poster);
-    if (poster === null) {
-      let seen = false;
-      try {
-        seen = window.localStorage.getItem(POSTER_SUPPORT_SEEN_KEY) === "1";
-      } catch {
-        /* almacenamiento no disponible */
-      }
-      if (!seen) {
-        setShowSupport(true);
-        return;
-      }
-    }
-    setEditorOpen(true);
-  }
-
-  function closeSupport() {
-    try {
-      window.localStorage.setItem(POSTER_SUPPORT_SEEN_KEY, "1");
-    } catch {
-      /* almacenamiento no disponible */
-    }
-    setShowSupport(false);
     setEditorOpen(true);
   }
 
@@ -163,8 +149,10 @@ export default function PostersPanel({ kind }: { kind: OrgProfileKind }) {
     }
   }
 
-  async function remove(poster: MyPoster) {
-    if (!window.confirm("¿Eliminar este poster? Esta acción no se puede deshacer.")) return;
+  async function confirmRemove() {
+    const poster = pendingDelete;
+    if (!poster) return;
+    setPendingDelete(null);
     setBusyId(poster.id);
     try {
       const supabase = createSupabaseBrowserClient();
@@ -339,7 +327,7 @@ export default function PostersPanel({ kind }: { kind: OrgProfileKind }) {
                       type="button"
                       className={controls.buttonDanger}
                       disabled={busyId === poster.id}
-                      onClick={() => remove(poster)}
+                      onClick={() => setPendingDelete(poster)}
                     >
                       Eliminar
                     </button>
@@ -351,7 +339,19 @@ export default function PostersPanel({ kind }: { kind: OrgProfileKind }) {
         </div>
       )}
 
-      {showSupport && <SupportModal onClose={closeSupport} />}
+      {showSupport && <SupportModal onClose={() => setShowSupport(false)} />}
+
+      <ConfirmDialog
+        open={pendingDelete !== null}
+        title="Eliminar poster"
+        message="¿Eliminar este poster? Esta acción no se puede deshacer."
+        confirmLabel={busyId === pendingDelete?.id ? "Eliminando…" : "Sí, eliminar"}
+        cancelLabel="Cancelar"
+        tone="danger"
+        onConfirm={confirmRemove}
+        onCancel={() => setPendingDelete(null)}
+      />
+
       {toast && <Toast variant={toast.variant} message={toast.message} onClose={() => setToast(null)} />}
     </div>
   );

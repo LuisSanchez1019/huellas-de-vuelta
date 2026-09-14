@@ -13,6 +13,7 @@ import type { PetAgeUnit, PetSex, PetSpecies } from "./types";
 import { PET_PHOTO_BUCKET } from "./pets";
 import {
   PUBLIC_ADOPTIONS_TAG,
+  PUBLIC_ALLIES_TAG,
   PUBLIC_LOST_PETS_TAG,
   PUBLIC_ORGS_TAG,
   PUBLIC_POSTERS_TAG,
@@ -28,6 +29,7 @@ export {
   PUBLIC_ADOPTIONS_TAG,
   PUBLIC_STATS_TAG,
   PUBLIC_POSTERS_TAG,
+  PUBLIC_ALLIES_TAG,
 };
 
 /**
@@ -349,4 +351,36 @@ export const getCachedOrgPets = unstable_cache(
   },
   ["public-org-pets"],
   { revalidate: REVALIDATE_SECONDS, tags: [PUBLIC_ADOPTIONS_TAG, PUBLIC_ORGS_TAG] },
+);
+
+export interface PublicActiveAlly {
+  id: string;
+  name: string;
+  logoUrl: string | null;
+}
+
+/**
+ * Aliados cuya empresa está vigente ahora mismo (RPC `list_public_active_allies`:
+ * organización aprobada+activa+publicada Y con una solicitud de visibilidad con
+ * pago confirmado y dentro de fecha). Se recalcula solo (sin cron) porque la
+ * condición de fecha se evalúa en cada consulta a la RPC; la ventana de caché
+ * corta evita que uno recién vencido siga apareciendo por caché.
+ */
+export const getCachedActiveAllies = unstable_cache(
+  async (): Promise<PublicActiveAlly[]> => {
+    const supabase = createSupabasePublicServerClient();
+    const { data, error } = await supabase.rpc("list_public_active_allies");
+    if (error) throw error;
+    const rows = (Array.isArray(data) ? data : []) as Record<string, unknown>[];
+    return rows.map((row) => {
+      const logoPath = (row.logo_path as string) ?? null;
+      return {
+        id: String(row.id),
+        name: String(row.name ?? ""),
+        logoUrl: logoPath ? getOrgLogoPublicUrl(supabase, logoPath) : ((row.logo_url as string) ?? null),
+      };
+    });
+  },
+  ["public-active-allies"],
+  { revalidate: POSTERS_REVALIDATE_SECONDS, tags: [PUBLIC_ALLIES_TAG] },
 );

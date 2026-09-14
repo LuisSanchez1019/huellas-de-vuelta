@@ -34,15 +34,14 @@ const EMPTY = {
   description: "",
 };
 
-const RETURN_TO_PATHS: Record<string, string> = {
-  "solicitar-placa": "/dashboard/mascotas/solicitar-placa",
-};
-
-export default function RegisterPetForm() {
+export default function RegisterPetForm({ basePath = "/dashboard" }: { basePath?: string }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const returnToKey = searchParams.get("returnTo");
-  const returnToPath = returnToKey ? RETURN_TO_PATHS[returnToKey] ?? null : null;
+  const returnToPaths: Record<string, string> = {
+    "solicitar-placa": `${basePath}/mascotas/solicitar-placa`,
+  };
+  const returnToPath = returnToKey ? returnToPaths[returnToKey] ?? null : null;
 
   const [ownerStatus, setOwnerStatus] = useState<OwnerStatus>("checking");
   const [ownerId, setOwnerId] = useState<string | null>(null);
@@ -214,7 +213,7 @@ export default function RegisterPetForm() {
       }
       const params = new URLSearchParams({ created: pet.name });
       if (photoFailed) params.set("photo", "failed");
-      router.push(`/dashboard/mascotas?${params.toString()}`);
+      router.push(`${basePath}/mascotas?${params.toString()}`);
     } catch (error) {
       setToast({
         variant: "error",

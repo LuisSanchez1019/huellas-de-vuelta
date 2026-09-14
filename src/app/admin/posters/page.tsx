@@ -11,6 +11,8 @@ import {
   type PosterStatus,
 } from "@/lib/supabase/posters";
 import { PUBLIC_POSTERS_TAG, triggerPublicRevalidate } from "@/lib/cache/tags";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
+import PromptDialog from "@/components/ui/PromptDialog";
 import Toast, { type ToastState } from "@/components/ui/Toast";
 import controls from "@/components/ui/controls.module.css";
 import styles from "./posters.module.css";
@@ -60,6 +62,8 @@ export default function AdminPostersPage() {
   const [tab, setTab] = useState<Tab>("pending");
   const [busyId, setBusyId] = useState<string | null>(null);
   const [toast, setToast] = useState<ToastState | null>(null);
+  const [pendingReject, setPendingReject] = useState<AdminPoster | null>(null);
+  const [pendingDeactivate, setPendingDeactivate] = useState<AdminPoster | null>(null);
 
   const load = useCallback(() => {
     return Promise.resolve().then(async () => {
@@ -88,18 +92,18 @@ export default function AdminPostersPage() {
   const visible = posters.filter((poster) => tabOf(poster) === tab);
 
   async function review(poster: AdminPoster, action: "approve" | "reject" | "deactivate") {
-    let reason: string | undefined;
     if (action === "reject") {
-      const input = window.prompt(
-        `Motivo del rechazo del poster de «${poster.orgName}» (lo verá la organización):`,
-        "",
-      );
-      if (input === null) return;
-      reason = input.trim() || undefined;
-    }
-    if (action === "deactivate" && !window.confirm("¿Desactivar este poster? Dejará de aparecer en la Landing.")) {
+      setPendingReject(poster);
       return;
     }
+    if (action === "deactivate") {
+      setPendingDeactivate(poster);
+      return;
+    }
+    await runReview(poster, action);
+  }
+
+  async function runReview(poster: AdminPoster, action: "approve" | "reject" | "deactivate", reason?: string) {
     setBusyId(poster.id);
     try {
       await adminReviewPoster(createSupabaseBrowserClient(), poster.id, action, reason);
@@ -119,6 +123,20 @@ export default function AdminPostersPage() {
     } finally {
       setBusyId(null);
     }
+  }
+
+  async function confirmReject(reason: string) {
+    const poster = pendingReject;
+    if (!poster) return;
+    setPendingReject(null);
+    await runReview(poster, "reject", reason || undefined);
+  }
+
+  async function confirmDeactivate() {
+    const poster = pendingDeactivate;
+    if (!poster) return;
+    setPendingDeactivate(null);
+    await runReview(poster, "deactivate");
   }
 
   return (
@@ -234,6 +252,30 @@ export default function AdminPostersPage() {
           })}
         </ul>
       )}
+
+      <PromptDialog
+        open={pendingReject !== null}
+        title="Rechazar poster"
+        message={`El motivo lo verá «${pendingReject?.orgName ?? ""}» en su panel.`}
+        label="Motivo del rechazo (opcional)"
+        placeholder="Explica por qué no se aprueba, para que la organización pueda corregirlo."
+        confirmLabel={busyId === pendingReject?.id ? "Guardando…" : "Rechazar"}
+        cancelLabel="Cancelar"
+        tone="danger"
+        onConfirm={confirmReject}
+        onCancel={() => setPendingReject(null)}
+      />
+
+      <ConfirmDialog
+        open={pendingDeactivate !== null}
+        title="Desactivar poster"
+        message={`¿Desactivar el poster de «${pendingDeactivate?.orgName ?? ""}»? Dejará de aparecer en la Landing.`}
+        confirmLabel={busyId === pendingDeactivate?.id ? "Guardando…" : "Sí, desactivar"}
+        cancelLabel="Cancelar"
+        tone="danger"
+        onConfirm={confirmDeactivate}
+        onCancel={() => setPendingDeactivate(null)}
+      />
 
       {toast && <Toast variant={toast.variant} message={toast.message} onClose={() => setToast(null)} />}
     </div>
