@@ -14,6 +14,7 @@ import {
 } from "@/lib/supabase/privacy";
 import { fetchMyPolicyConsents, type PolicyConsent } from "@/lib/supabase/policyConsent";
 import Toast, { type ToastState } from "@/components/ui/Toast";
+import { FormSkeletonBody } from "@/components/loading/SkeletonVariants";
 import controls from "@/components/ui/controls.module.css";
 import styles from "./settings.module.css";
 
@@ -239,7 +240,7 @@ export default function SecuritySettings() {
     }
   }
 
-  if (!ready) return <p className={controls.loading}>Cargando…</p>;
+  if (!ready) return <FormSkeletonBody />;
   if (!email) {
     return <p className={controls.empty}>Inicia sesión con una cuenta real para ver seguridad y privacidad.</p>;
   }
@@ -321,7 +322,7 @@ export default function SecuritySettings() {
         </p>
       </div>
 
-      {privacyState === "loading" && <p className={controls.loading}>Cargando privacidad…</p>}
+      {privacyState === "loading" && <FormSkeletonBody />}
       {privacyState === "error" && (
         <p className={controls.empty}>No fue posible cargar tus opciones de privacidad.</p>
       )}

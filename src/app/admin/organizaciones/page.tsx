@@ -11,6 +11,7 @@ import {
 import { orgApprovalLabels, orgCategoryLabels, type OrgApprovalStatus } from "@/lib/pets/reencuentro";
 import PromptDialog from "@/components/ui/PromptDialog";
 import Toast, { type ToastState } from "@/components/ui/Toast";
+import { TableSkeletonBody } from "@/components/loading/SkeletonVariants";
 import controls from "@/components/ui/controls.module.css";
 import styles from "./organizaciones.module.css";
 
@@ -136,7 +137,7 @@ export default function AdminOrganizacionesPage() {
         ))}
       </div>
 
-      {state === "loading" && <p className={controls.loading}>Cargando…</p>}
+      {state === "loading" && <TableSkeletonBody />}
       {state === "error" && <p className={controls.empty}>No fue posible cargar las organizaciones.</p>}
 
       {state === "ready" && visible.length === 0 && (

@@ -6,27 +6,45 @@ import { resolvePanelSession } from "@/lib/auth/session";
 import { veterinaryRepository } from "@/lib/veterinaries/repository";
 import type { VeterinaryProfile } from "@/lib/veterinaries/types";
 import { getServiceById } from "@/lib/services/catalog";
+import InlineRetry from "@/components/panel/InlineRetry";
+import { ProfileSkeletonBody } from "@/components/loading/SkeletonVariants";
 import controls from "@/components/ui/controls.module.css";
 
 export default function VeterinariaMiPerfilPage() {
-  const [state, setState] = useState<"loading" | "empty" | "ready">("loading");
+  const [state, setState] = useState<"loading" | "empty" | "ready" | "error">("loading");
   const [profile, setProfile] = useState<VeterinaryProfile | null>(null);
+  const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
-    resolvePanelSession().then(async (check) => {
-      if (check.status === "unauthenticated") {
-        setState("empty");
-        return;
+    let active = true;
+    (async () => {
+      try {
+        const check = await resolvePanelSession();
+        if (!active) return;
+        if (check.status === "error") {
+          setState("error");
+          return;
+        }
+        if (check.status === "unauthenticated") {
+          setState("empty");
+          return;
+        }
+        const mine = await veterinaryRepository.getMine(check.session.userId);
+        if (!active) return;
+        if (mine) {
+          setProfile(mine);
+          setState("ready");
+        } else {
+          setState("empty");
+        }
+      } catch {
+        if (active) setState("error");
       }
-      const mine = await veterinaryRepository.getMine(check.session.userId);
-      if (mine) {
-        setProfile(mine);
-        setState("ready");
-      } else {
-        setState("empty");
-      }
-    });
-  }, []);
+    })();
+    return () => {
+      active = false;
+    };
+  }, [attempt]);
 
   return (
     <div>
@@ -35,7 +53,15 @@ export default function VeterinariaMiPerfilPage() {
         <p className={controls.pageSubtitle}>Así se verá la información de tu veterinaria cuando se publique.</p>
       </div>
 
-      {state === "loading" && <p className={controls.loading}>Cargando…</p>}
+      {state === "loading" && <ProfileSkeletonBody />}
+      {state === "error" && (
+        <InlineRetry
+          onRetry={() => {
+            setState("loading");
+            setAttempt((n) => n + 1);
+          }}
+        />
+      )}
 
       {state === "empty" && (
         <p className={controls.empty}>

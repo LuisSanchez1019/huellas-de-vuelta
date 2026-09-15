@@ -14,6 +14,7 @@ import {
 import PetPhotoInput, { type PreparedPhoto } from "./PetPhotoInput";
 import Toast, { type ToastState } from "@/components/ui/Toast";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
+import { FormSkeletonBody } from "@/components/loading/SkeletonVariants";
 import styles from "./registerPet.module.css";
 
 const DESCRIPTION_MAX = 80;
@@ -225,7 +226,7 @@ export default function RegisterPetForm({ basePath = "/dashboard" }: { basePath?
   }
 
   if (ownerStatus === "checking") {
-    return <p className={styles.loading}>Cargando…</p>;
+    return <FormSkeletonBody />;
   }
 
   const disabled = isSubmitting || ownerStatus !== "ready";

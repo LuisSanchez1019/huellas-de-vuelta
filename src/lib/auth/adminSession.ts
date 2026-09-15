@@ -1,10 +1,14 @@
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
+import { withTimeout } from "@/lib/async/withTimeout";
 import { resolvePanelSession, type PanelSession } from "./session";
 
 export type AdminSessionCheck =
   | { status: "authorized"; session: PanelSession }
   | { status: "not-admin" }
-  | { status: "unauthenticated" };
+  | { status: "unauthenticated" }
+  | { status: "error" };
+
+const IS_ADMIN_TIMEOUT_MS = 8_000;
 
 /**
  * ¿La sesión actual puede entrar al área de administración?
@@ -18,6 +22,7 @@ export type AdminSessionCheck =
 export async function resolveAdminSession(): Promise<AdminSessionCheck> {
   const check = await resolvePanelSession();
 
+  if (check.status === "error") return { status: "error" };
   // Sin sesión real (incluye el bypass de desarrollo) → no es admin.
   if (check.status !== "authenticated") {
     return check.status === "unauthenticated"
@@ -27,12 +32,13 @@ export async function resolveAdminSession(): Promise<AdminSessionCheck> {
 
   const supabase = createSupabaseBrowserClient();
   try {
-    const { data, error } = await supabase.rpc("is_admin");
+    const { data, error } = await withTimeout(supabase.rpc("is_admin"), IS_ADMIN_TIMEOUT_MS);
     if (!error && data === true) {
       return { status: "authorized", session: check.session };
     }
+    if (error) return { status: "error" };
   } catch {
-    /* si falla la comprobación se trata como no-admin */
+    return { status: "error" };
   }
   return { status: "not-admin" };
 }

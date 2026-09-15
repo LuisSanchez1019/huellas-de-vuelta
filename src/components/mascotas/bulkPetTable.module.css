@@ -1,10 +1,15 @@
+.photoCell { display: flex; align-items: center; gap: .5rem; }
 .thumb {
   width: 2.6rem; height: 2.6rem; border-radius: .5rem; object-fit: cover;
   border: 1px solid var(--surface-300); background: var(--surface-100);
 }
 .thumbPlaceholder {
-  display: grid; place-items: center; width: 2.6rem; height: 2.6rem;
-  border-radius: .5rem; border: 1px solid var(--surface-300); background: var(--surface-100); color: var(--teal-600);
+  display: grid; place-items: center; width: 2.6rem; height: 2.6rem; flex-shrink: 0;
+  border-radius: .5rem; border: 1px dashed var(--warning-border); background: var(--warning-bg); color: var(--warning-fg);
+}
+.noPhotoLabel {
+  font-size: .7rem; font-weight: 800; text-transform: uppercase; letter-spacing: .03em; color: var(--warning-fg);
+  white-space: nowrap;
 }
 
 .badgeWrap { display: inline-flex; flex-wrap: wrap; gap: .35rem; }

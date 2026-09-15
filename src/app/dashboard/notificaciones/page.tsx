@@ -15,6 +15,7 @@ import {
 import { notifyNotificationsChanged } from "@/lib/notifications/events";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import Toast, { type ToastState } from "@/components/ui/Toast";
+import { TableSkeletonBody } from "@/components/loading/SkeletonVariants";
 import controls from "@/components/ui/controls.module.css";
 import styles from "./notificaciones.module.css";
 
@@ -146,7 +147,7 @@ export default function NotificacionesPage() {
         </p>
       </div>
 
-      {state === "loading" && <p className={controls.loading}>Cargando…</p>}
+      {state === "loading" && <TableSkeletonBody />}
       {state === "no-session" && (
         <p className={controls.empty}>Inicia sesión con una cuenta real para ver tus notificaciones.</p>
       )}

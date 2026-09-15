@@ -9,6 +9,7 @@ import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { fetchMyOrgName } from "@/lib/supabase/orgProfiles";
 import Toast, { type ToastState } from "@/components/ui/Toast";
 import { CheckIcon } from "@/components/icons/Icon";
+import { ProfileSkeletonBody } from "@/components/loading/SkeletonVariants";
 import controls from "@/components/ui/controls.module.css";
 import styles from "./profileForm.module.css";
 
@@ -102,7 +103,7 @@ export default function ProfileForm() {
     }
   }
 
-  if (state === "loading") return <p className={controls.loading}>Cargando…</p>;
+  if (state === "loading") return <ProfileSkeletonBody />;
   if (state === "no-session") {
     return <p className={controls.empty}>Inicia sesión con una cuenta real para ver tu perfil.</p>;
   }

@@ -15,6 +15,7 @@ import {
 } from "@/lib/supabase/plateOrders";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import Toast, { type ToastState } from "@/components/ui/Toast";
+import RouteLoading from "@/components/loading/RouteLoading";
 import controls from "@/components/ui/controls.module.css";
 import styles from "./placas.module.css";
 
@@ -81,7 +82,7 @@ export default function OrderDetailView({ orderId, justCreated }: { orderId: str
     }
   }
 
-  if (state === "loading") return <p className={controls.loading}>Cargando…</p>;
+  if (state === "loading") return <RouteLoading variant="form" />;
   if (state === "error" || !order) {
     return (
       <p className={styles.emptyText}>

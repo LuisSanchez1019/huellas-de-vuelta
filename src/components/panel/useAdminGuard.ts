@@ -7,7 +7,8 @@ import type { PanelSession } from "@/lib/auth/session";
 
 export type AdminGuardState =
   | { status: "checking" }
-  | { status: "ready"; session: PanelSession };
+  | { status: "ready"; session: PanelSession }
+  | { status: "error"; retry: () => void };
 
 /**
  * Guard del área /admin. Se ejecuta en el cliente para redirigir, pero NO es la
@@ -17,15 +18,28 @@ export type AdminGuardState =
  * - sin sesión               → /auth
  * - sesión sin is_admin=true  → /dashboard  (aunque escriba la URL a mano)
  * - admin real                → ready
+ * - red caída / Supabase sin responder → "error" con `retry()` (nunca se queda
+ *   mostrando "Verificando…" para siempre: `resolveAdminSession` tiene timeout).
  */
 export function useAdminGuard(): AdminGuardState {
   const router = useRouter();
   const [state, setState] = useState<AdminGuardState>({ status: "checking" });
+  const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
     let active = true;
     resolveAdminSession().then((check) => {
       if (!active) return;
+      if (check.status === "error") {
+        setState({
+          status: "error",
+          retry: () => {
+            setState({ status: "checking" });
+            setAttempt((n) => n + 1);
+          },
+        });
+        return;
+      }
       if (check.status === "unauthenticated") {
         router.replace("/auth");
         return;
@@ -39,7 +53,7 @@ export function useAdminGuard(): AdminGuardState {
     return () => {
       active = false;
     };
-  }, [router]);
+  }, [router, attempt]);
 
   return state;
 }

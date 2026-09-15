@@ -6,6 +6,7 @@ import { fetchPublicOrgPets, type PublicOrgPetRow } from "@/lib/supabase/orgPets
 import { speciesLabels } from "@/lib/pets/labels";
 import { whatsappLink } from "@/lib/phone";
 import { PawIcon, HandIcon } from "@/components/icons/Icon";
+import { ListSkeletonBody } from "@/components/loading/SkeletonVariants";
 import controls from "@/components/ui/controls.module.css";
 import styles from "@/components/aliado/aliadoLists.module.css";
 
@@ -50,7 +51,7 @@ export default function AliadoApadrinaPage() {
         </p>
       </div>
 
-      {state === "loading" && <p className={controls.loading}>Cargando…</p>}
+      {state === "loading" && <ListSkeletonBody />}
       {state === "error" && <p className={controls.empty}>No fue posible cargar las mascotas.</p>}
       {state === "ready" && pets.length === 0 && (
         <p className={controls.empty}>

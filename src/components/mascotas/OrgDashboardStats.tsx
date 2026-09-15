@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import AdminStatCard from "@/components/admin/AdminStatCard";
+import StatCard from "@/components/ui/StatCard";
 import { PawIcon, ActivityIcon, UserIcon } from "@/components/icons/Icon";
 import { bulkPetRepository } from "@/lib/pets/bulkPetRepository";
 import type { BulkPet, OrgKind, OrgScope } from "@/lib/pets/bulkPets";
+import { DashboardSkeletonBody } from "@/components/loading/SkeletonVariants";
 import controls from "@/components/ui/controls.module.css";
 
 export default function OrgDashboardStats({ scope, role }: { scope: OrgScope; role: OrgKind }) {
@@ -20,7 +21,7 @@ export default function OrgDashboardStats({ scope, role }: { scope: OrgScope; ro
     };
   }, [scope]);
 
-  if (!pets) return <p className={controls.loading}>Cargando resumen…</p>;
+  if (!pets) return <DashboardSkeletonBody />;
 
   const total = pets.length;
   const available = pets.filter((pet) => pet.status === "available").length;
@@ -29,15 +30,15 @@ export default function OrgDashboardStats({ scope, role }: { scope: OrgScope; ro
 
   return (
     <div className={controls.statGrid}>
-      <AdminStatCard icon={<PawIcon size={22} />} label="Mascotas registradas" value={total} />
-      <AdminStatCard icon={<ActivityIcon size={22} />} label="Disponibles" value={available} />
+      <StatCard icon={<PawIcon size={22} />} label="Mascotas registradas" value={total} />
+      <StatCard icon={<ActivityIcon size={22} />} label="Disponibles" value={available} />
       {role === "fundacion" ? (
         <>
-          <AdminStatCard icon={<UserIcon size={22} />} label="Buscando hogar" value={needsHome} />
-          <AdminStatCard icon={<UserIcon size={22} />} label="Buscando padrino" value={needsSponsor} />
+          <StatCard icon={<UserIcon size={22} />} label="Buscando hogar" value={needsHome} />
+          <StatCard icon={<UserIcon size={22} />} label="Buscando padrino" value={needsSponsor} />
         </>
       ) : (
-        <AdminStatCard
+        <StatCard
           icon={<ActivityIcon size={22} />}
           label="En tratamiento"
           value={pets.filter((pet) => pet.status === "in_treatment").length}

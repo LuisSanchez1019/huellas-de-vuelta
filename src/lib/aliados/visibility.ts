@@ -147,27 +147,3 @@ export async function adminSetAliadoVisibilitySettings(
   });
   if (error) throw error;
 }
-
-export interface PublicActiveAlly {
-  id: string;
-  name: string;
-  logoUrl: string | null;
-  logoPath: string | null;
-  city: string | null;
-  country: string | null;
-  endDate: string;
-}
-
-export async function fetchPublicActiveAllies(supabase: SupabaseClient): Promise<PublicActiveAlly[]> {
-  const { data, error } = await supabase.rpc("list_public_active_allies");
-  if (error) throw error;
-  return ((data ?? []) as Record<string, unknown>[]).map((row) => ({
-    id: String(row.id),
-    name: String(row.name ?? ""),
-    logoUrl: (row.logo_url as string) ?? null,
-    logoPath: (row.logo_path as string) ?? null,
-    city: (row.city as string) ?? null,
-    country: (row.country as string) ?? null,
-    endDate: String(row.end_date),
-  }));
-}

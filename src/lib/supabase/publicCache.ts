@@ -356,15 +356,30 @@ export const getCachedOrgPets = unstable_cache(
 export interface PublicActiveAlly {
   id: string;
   name: string;
+  description: string;
+  sectorName: string | null;
+  website: string | null;
+  country: string | null;
+  city: string | null;
+  address: string | null;
+  email: string | null;
+  phone: string | null;
+  mobilePhone: string | null;
+  whatsapp: string | null;
+  mapUrl: string | null;
   logoUrl: string | null;
+  logoAuthorized: boolean;
 }
 
 /**
  * Aliados cuya empresa está vigente ahora mismo (RPC `list_public_active_allies`:
- * organización aprobada+activa+publicada Y con una solicitud de visibilidad con
- * pago confirmado y dentro de fecha). Se recalcula solo (sin cron) porque la
- * condición de fecha se evalúa en cada consulta a la RPC; la ventana de caché
- * corta evita que uno recién vencido siga apareciendo por caché.
+ * organización aprobada+activa+publicada, con autorización de publicación
+ * vigente ("public_info") Y con una solicitud de visibilidad con pago
+ * confirmado y dentro de fecha). El logo (imagen) solo llega si además hay
+ * autorización específica de uso de logo ("logo_usage"); si no, `logoUrl` es
+ * `null` y la tarjeta usa un ícono genérico. Se recalcula solo (sin cron)
+ * porque la condición de fecha se evalúa en cada consulta a la RPC; la
+ * ventana de caché corta evita que uno recién vencido siga apareciendo.
  */
 export const getCachedActiveAllies = unstable_cache(
   async (): Promise<PublicActiveAlly[]> => {
@@ -374,10 +389,23 @@ export const getCachedActiveAllies = unstable_cache(
     const rows = (Array.isArray(data) ? data : []) as Record<string, unknown>[];
     return rows.map((row) => {
       const logoPath = (row.logo_path as string) ?? null;
+      const logoUrlColumn = (row.logo_url as string) ?? null;
       return {
         id: String(row.id),
         name: String(row.name ?? ""),
-        logoUrl: logoPath ? getOrgLogoPublicUrl(supabase, logoPath) : ((row.logo_url as string) ?? null),
+        description: (row.description as string) ?? "",
+        sectorName: (row.sector_name as string) ?? null,
+        website: (row.website as string) ?? null,
+        country: (row.country as string) ?? null,
+        city: (row.city as string) ?? null,
+        address: (row.address as string) ?? null,
+        email: (row.email as string) ?? null,
+        phone: (row.phone as string) ?? null,
+        mobilePhone: (row.mobile_phone as string) ?? null,
+        whatsapp: (row.whatsapp as string) ?? null,
+        mapUrl: (row.map_url as string) ?? null,
+        logoUrl: logoPath ? getOrgLogoPublicUrl(supabase, logoPath) : logoUrlColumn,
+        logoAuthorized: row.logo_authorized === true,
       };
     });
   },

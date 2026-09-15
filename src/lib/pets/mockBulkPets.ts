@@ -6,6 +6,7 @@ import type { BulkPet, OrgKind } from "./bulkPets";
 function seed(orgKind: OrgKind, orgId: string, orgName: string, rows: Array<Partial<BulkPet> & Pick<BulkPet, "name" | "species" | "sex" | "status" | "intakeDate">>): BulkPet[] {
   return rows.map((row, index) => ({
     id: `${orgKind}-seed-${index + 1}`,
+    publicId: `${orgKind}-seed-public-${index + 1}`,
     speciesOther: null,
     breed: null,
     age: null,

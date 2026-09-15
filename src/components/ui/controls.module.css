@@ -49,6 +49,9 @@
 }
 .sectionTitle { font-weight: 800; color: var(--navy-900); font-size: 1rem; }
 .sectionBody { display: grid; gap: 1rem; margin-top: 1rem; }
+.sectionHead { display: flex; align-items: center; justify-content: space-between; gap: .75rem; flex-wrap: wrap; }
+.sectionLink { color: var(--teal-600); font-weight: 700; font-size: .85rem; white-space: nowrap; }
+.sectionLink:hover { color: var(--primary-hover); }
 
 .statGrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); gap: 1rem; margin-top: 1.5rem; }
 

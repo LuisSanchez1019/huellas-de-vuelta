@@ -125,6 +125,30 @@ export type Database = {
           },
         ]
       }
+      business_sectors: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          slug: string
+          sort_order: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          slug: string
+          sort_order?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          slug?: string
+          sort_order?: number
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           body: string | null
@@ -179,6 +203,47 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      organization_authorizations: {
+        Row: {
+          actor_id: string | null
+          authorization_type: string
+          created_at: string
+          id: string
+          organization_id: string
+          policy_version: string
+          seq: number
+          status: string
+        }
+        Insert: {
+          actor_id?: string | null
+          authorization_type: string
+          created_at?: string
+          id?: string
+          organization_id: string
+          policy_version: string
+          seq?: never
+          status: string
+        }
+        Update: {
+          actor_id?: string | null
+          authorization_type?: string
+          created_at?: string
+          id?: string
+          organization_id?: string
+          policy_version?: string
+          seq?: never
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "organization_authorizations_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organization_profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -399,16 +464,19 @@ export type Database = {
           is_active: boolean
           kind: string
           lat: number | null
+          legal_name: string | null
           lng: number | null
           logo_path: string | null
           logo_url: string | null
           map_url: string | null
+          mobile_phone: string | null
           name: string
           name_norm: string | null
           neighborhood: string | null
           owner_id: string
           phone: string | null
           rejection_reason: string | null
+          sector_id: string | null
           services: string[]
           slug: string
           social: Json
@@ -434,16 +502,19 @@ export type Database = {
           is_active?: boolean
           kind: string
           lat?: number | null
+          legal_name?: string | null
           lng?: number | null
           logo_path?: string | null
           logo_url?: string | null
           map_url?: string | null
+          mobile_phone?: string | null
           name: string
           name_norm?: string | null
           neighborhood?: string | null
           owner_id: string
           phone?: string | null
           rejection_reason?: string | null
+          sector_id?: string | null
           services?: string[]
           slug: string
           social?: Json
@@ -469,16 +540,19 @@ export type Database = {
           is_active?: boolean
           kind?: string
           lat?: number | null
+          legal_name?: string | null
           lng?: number | null
           logo_path?: string | null
           logo_url?: string | null
           map_url?: string | null
+          mobile_phone?: string | null
           name?: string
           name_norm?: string | null
           neighborhood?: string | null
           owner_id?: string
           phone?: string | null
           rejection_reason?: string | null
+          sector_id?: string | null
           services?: string[]
           slug?: string
           social?: Json
@@ -494,6 +568,13 @@ export type Database = {
             columns: ["owner_id"]
             isOneToOne: true
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "organization_profiles_sector_id_fkey"
+            columns: ["sector_id"]
+            isOneToOne: false
+            referencedRelation: "business_sectors"
             referencedColumns: ["id"]
           },
           {
@@ -1687,12 +1768,17 @@ export type Database = {
     }
     Functions: {
       _account_deletion_prepare: { Args: { p_uid: string }; Returns: undefined }
+      _current_ally_brand_policy_version: { Args: never; Returns: string }
       _current_data_policy_version: { Args: never; Returns: string }
       _expire_stale_posters: { Args: { p_org_id?: string }; Returns: number }
       _gen_tracking_number: { Args: never; Returns: string }
       _notify_admins: {
         Args: { p_body: string; p_title: string; p_type: string }
         Returns: undefined
+      }
+      _org_authorization_status: {
+        Args: { p_org_id: string; p_type: string }
+        Returns: string
       }
       _pet_medical_ctx: {
         Args: { p_pet_id: string; p_pet_kind: string }
@@ -1939,13 +2025,23 @@ export type Database = {
       list_public_active_allies: {
         Args: never
         Returns: {
+          address: string
           city: string
           country: string
+          description: string
+          email: string
           end_date: string
           id: string
+          logo_authorized: boolean
           logo_path: string
           logo_url: string
+          map_url: string
+          mobile_phone: string
           name: string
+          phone: string
+          sector_name: string
+          website: string
+          whatsapp: string
         }[]
       }
       list_public_adoption_pets: {
@@ -2052,6 +2148,15 @@ export type Database = {
           requested_at: string
           start_date: string
           total_amount: number
+        }[]
+      }
+      my_organization_authorizations: {
+        Args: never
+        Returns: {
+          authorization_type: string
+          policy_version: string
+          status: string
+          updated_at: string
         }[]
       }
       my_pending_policy_consent: {
@@ -2467,6 +2572,10 @@ export type Database = {
       }
       set_org_approval: {
         Args: { p_org_id: string; p_reason?: string; p_status: string }
+        Returns: undefined
+      }
+      set_organization_authorization: {
+        Args: { p_granted: boolean; p_type: string }
         Returns: undefined
       }
       set_pet_status: {

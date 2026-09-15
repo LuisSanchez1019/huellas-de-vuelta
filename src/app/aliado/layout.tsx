@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import PanelShell from "@/components/panel/PanelShell";
 import { usePanelGuard, toPanelUser } from "@/components/panel/usePanelGuard";
+import PanelGuardError from "@/components/panel/PanelGuardError";
 import { HandIcon, HeartIcon, HomeIcon, IdCardIcon, PawIcon, PinIcon, ShieldIcon, UserIcon } from "@/components/icons/Icon";
 import type { NavEntry } from "@/components/panel/types";
 import styles from "./aliado.module.css";
@@ -28,6 +29,10 @@ const ALIADO_NAV: NavEntry[] = [
 
 export default function AliadoLayout({ children }: { children: ReactNode }) {
   const guard = usePanelGuard("aliado");
+
+  if (guard.status === "error") {
+    return <PanelGuardError onRetry={guard.retry} />;
+  }
 
   if (guard.status !== "ready") {
     return (

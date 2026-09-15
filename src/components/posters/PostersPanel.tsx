@@ -21,6 +21,8 @@ import {
 import { PUBLIC_POSTERS_TAG, triggerPublicRevalidate } from "@/lib/cache/tags";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import Toast, { type ToastState } from "@/components/ui/Toast";
+import RouteLoading from "@/components/loading/RouteLoading";
+import InlineRetry from "@/components/panel/InlineRetry";
 import controls from "@/components/ui/controls.module.css";
 import PosterEditor from "./PosterEditor";
 import SupportModal from "./SupportModal";
@@ -81,6 +83,10 @@ export default function PostersPanel({ kind }: { kind: OrgProfileKind }) {
   const load = useCallback(() => {
     return Promise.resolve().then(async () => {
       const check = await resolvePanelSession();
+      if (check.status === "error") {
+        setPhase("error");
+        return;
+      }
       if (check.status === "unauthenticated") {
         setPhase("no-session");
         return;
@@ -168,12 +174,12 @@ export default function PostersPanel({ kind }: { kind: OrgProfileKind }) {
     }
   }
 
-  if (phase === "loading") return <p className={controls.loading}>Cargando…</p>;
+  if (phase === "loading") return <RouteLoading variant="list" />;
   if (phase === "no-session") {
     return <p className={controls.empty}>Inicia sesión con tu cuenta de organización para gestionar los posters.</p>;
   }
   if (phase === "error") {
-    return <p className={controls.empty}>No fue posible cargar los posters. Vuelve a intentarlo.</p>;
+    return <InlineRetry message="No fue posible cargar los posters." onRetry={load} />;
   }
   if (phase === "no-org") {
     return (

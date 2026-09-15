@@ -19,6 +19,7 @@ import {
 } from "@/lib/supabase/petMedical";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import Toast, { type ToastState } from "@/components/ui/Toast";
+import { FormSkeletonBody } from "@/components/loading/SkeletonVariants";
 import controls from "@/components/ui/controls.module.css";
 import styles from "./medicalInfo.module.css";
 
@@ -103,7 +104,7 @@ export default function MedicalInfoSection({
   }, [load]);
 
   if (state === "loading") {
-    return <p className={controls.loading}>Cargando información médica…</p>;
+    return <FormSkeletonBody />;
   }
   if (state === "hidden" || !summary) {
     return null;

@@ -1,0 +1,22 @@
+.infoBlock {
+  padding: 1rem 1.1rem; border-radius: .8rem;
+  background: var(--surface-100); border: 1px solid var(--border);
+  display: grid; gap: .6rem;
+}
+.infoTitle { font-weight: 800; color: var(--navy-900); font-size: .95rem; }
+.infoText { color: var(--ink-600); font-size: .88rem; line-height: 1.6; margin: 0; }
+
+.consentRow {
+  display: flex; align-items: flex-start; gap: .6rem;
+  font-weight: 500; font-size: .88rem; line-height: 1.5; color: var(--ink-600);
+}
+.consentRow input[type="checkbox"] {
+  margin-top: .15rem; flex-shrink: 0; width: 1.05rem; height: 1.05rem;
+  accent-color: var(--primary); cursor: pointer;
+}
+
+.policyLink {
+  justify-self: start;
+  color: var(--teal-600); font-weight: 700; font-size: .88rem; text-decoration: underline;
+}
+.policyLink:hover { color: var(--primary-hover); }

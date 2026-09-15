@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import PanelShell from "@/components/panel/PanelShell";
 import { usePanelGuard, toPanelUser } from "@/components/panel/usePanelGuard";
+import PanelGuardError from "@/components/panel/PanelGuardError";
 import type { NavEntry } from "@/components/panel/types";
 import {
   ActivityIcon,
@@ -37,6 +38,10 @@ const FUNDACION_NAV: NavEntry[] = [
 
 export default function FundacionLayout({ children }: { children: ReactNode }) {
   const guard = usePanelGuard("fundacion");
+
+  if (guard.status === "error") {
+    return <PanelGuardError onRetry={guard.retry} />;
+  }
 
   if (guard.status !== "ready") {
     return (

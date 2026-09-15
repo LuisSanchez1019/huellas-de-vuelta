@@ -13,6 +13,7 @@ import {
 import { formatCOP } from "@/lib/supabase/plateOrders";
 import PromptDialog from "@/components/ui/PromptDialog";
 import Toast, { type ToastState } from "@/components/ui/Toast";
+import { TableSkeletonBody } from "@/components/loading/SkeletonVariants";
 import controls from "@/components/ui/controls.module.css";
 import styles from "../organizaciones/organizaciones.module.css";
 
@@ -229,7 +230,7 @@ export default function AdminAliadosPage() {
         ))}
       </div>
 
-      {state === "loading" && <p className={controls.loading}>Cargando…</p>}
+      {state === "loading" && <TableSkeletonBody />}
       {state === "error" && <p className={styles.empty}>No fue posible cargar las solicitudes.</p>}
       {state === "ready" && visible.length === 0 && (
         <p className={styles.empty}>No hay solicitudes en esta categoría.</p>

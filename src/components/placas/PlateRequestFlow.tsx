@@ -16,6 +16,7 @@ import {
 import { speciesLabels } from "@/lib/pets/labels";
 import type { PetSpecies } from "@/lib/supabase/types";
 import Toast, { type ToastState } from "@/components/ui/Toast";
+import { FormSkeletonBody } from "@/components/loading/SkeletonVariants";
 import controls from "@/components/ui/controls.module.css";
 import styles from "./placas.module.css";
 
@@ -156,7 +157,7 @@ export default function PlateRequestFlow() {
     }
   }
 
-  if (status === "loading") return <p className={controls.loading}>Cargando…</p>;
+  if (status === "loading") return <FormSkeletonBody />;
   if (status === "no-session") {
     return <p className={styles.emptyText}>Inicia sesión con una cuenta real para solicitar una placa.</p>;
   }

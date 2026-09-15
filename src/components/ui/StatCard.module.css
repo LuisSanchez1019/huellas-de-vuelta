@@ -7,7 +7,11 @@
   border-radius: 1rem;
   background: var(--card);
   box-shadow: 0 .5rem 1.4rem rgba(var(--shadow-rgb), .05);
+  text-decoration: none;
+  transition: border-color .15s ease, transform .1s ease;
 }
+a.card:hover { border-color: var(--teal-600); transform: translateY(-.15rem); }
+
 .icon {
   display: grid;
   place-items: center;
@@ -19,8 +23,8 @@
   color: var(--teal-600);
 }
 
-/* Bloque de texto: NÚMERO arriba, etiqueta debajo, como elementos separados
-   con su propia jerarquía (no dependen de un espacio de texto). */
+/* Bloque de texto: NÚMERO arriba, etiqueta debajo, como elementos de bloque
+   apilados — nunca en línea — para que nunca queden pegados ("0mascotas"). */
 .text {
   display: flex;
   flex-direction: column;
@@ -42,6 +46,10 @@
   line-height: 1.3;
   color: var(--ink-600);
 }
+
+.cardHighlight { border-color: var(--warning-border); background: var(--warning-bg); }
+.cardHighlight .icon { background: var(--card); color: var(--warning-fg); }
+.cardHighlight .label { color: var(--warning-fg); }
 
 @media (max-width: 30rem) {
   .value { font-size: 1.7rem; }

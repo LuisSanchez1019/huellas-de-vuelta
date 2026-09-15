@@ -339,19 +339,40 @@
    SPONSORS (empresas que apoyan la causa) — con aliados vigentes
    ========================================================================== */
 .alliesGrid {
-  margin-top: .5rem; display: grid; grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
+  margin-top: .5rem; display: grid; grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
   gap: 1rem; list-style: none; padding: 0;
 }
 .allyCard {
-  display: flex; flex-direction: column; align-items: center; gap: .6rem; text-align: center;
-  padding: 1.25rem 1rem; border: 1px solid var(--border); border-radius: 1rem; background: var(--card);
+  display: flex; flex-direction: column; align-items: center; gap: .45rem; text-align: center;
+  padding: 1.5rem 1.1rem; border: 1px solid var(--border); border-radius: 1rem; background: var(--card);
 }
 .allyLogo { width: 4.5rem; height: 4.5rem; border-radius: 50%; object-fit: cover; }
 .allyLogoPlaceholder {
   width: 4.5rem; height: 4.5rem; border-radius: 50%; display: grid; place-items: center;
   background: var(--surface-blue-soft); color: var(--brand-blue);
 }
-.allyName { font-weight: 700; color: var(--navy-900); font-size: .88rem; }
+.allyName { font-weight: 700; color: var(--navy-900); font-size: .92rem; }
+.allyTag {
+  font-weight: 700; font-size: .72rem; letter-spacing: .04em; text-transform: uppercase;
+  color: var(--teal-600);
+}
+.allyMeta { color: var(--ink-600); font-size: .82rem; }
+.allyInfoBtn {
+  margin-top: .3rem; border: 1px solid var(--border); background: transparent; cursor: pointer;
+  padding: .4rem .9rem; border-radius: .6rem; font-weight: 700; font-size: .82rem; color: var(--teal-600);
+  transition: background-color .15s ease, color .15s ease;
+}
+.allyInfoBtn:hover { background: var(--surface-100); color: var(--primary-hover); }
+
+.allyModal { display: grid; gap: .85rem; }
+.allyModalLogo { width: 4rem; height: 4rem; border-radius: 50%; object-fit: cover; }
+.allyModalRow { display: grid; gap: .1rem; }
+.allyModalLabel {
+  font-size: .72rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-600);
+}
+.allyModalValue { color: var(--navy-900); font-size: .92rem; line-height: 1.5; }
+.allyModalLink { color: var(--teal-600); font-weight: 700; }
+.allyModalLink:hover { color: var(--primary-hover); }
 
 /* ==========================================================================
    REENCUENTROS (solo la ilustración `hero-reencuentros.svg`, centrada)

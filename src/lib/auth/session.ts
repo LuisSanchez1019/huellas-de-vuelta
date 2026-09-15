@@ -1,4 +1,5 @@
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
+import { withTimeout } from "@/lib/async/withTimeout";
 import { type AccountRole, isAccountRole, roleLabels } from "./roles";
 
 export interface PanelSession {
@@ -11,7 +12,19 @@ export interface PanelSession {
 export type SessionCheck =
   | { status: "authenticated"; session: PanelSession; isDev: false }
   | { status: "dev"; session: PanelSession; isDev: true }
-  | { status: "unauthenticated" };
+  | { status: "unauthenticated" }
+  /** La sesión no pudo resolverse (ej. red caída o Supabase sin responder a
+   *  tiempo). Deliberadamente distinto de "unauthenticated": no se debe
+   *  redirigir a /auth ni tratar como sesión cerrada por un problema de red. */
+  | { status: "error" };
+
+/** Tiempo máximo para leer la sesión local/token. Si Supabase no responde en
+ *  este plazo, se trata como error de red — nunca se deja la promesa colgada. */
+const SESSION_TIMEOUT_MS = 10_000;
+/** La consulta de `profiles` es una mejora (rol/nombre reales); si tarda
+ *  demasiado, se sigue sin ella con el rol de menor privilegio ya previsto
+ *  por el catch existente, en vez de bloquear el panel completo. */
+const PROFILE_TIMEOUT_MS = 6_000;
 
 // Bypass de solo-desarrollo. `process.env.NODE_ENV` lo reemplaza Next.js en
 // tiempo de compilación: en cualquier build de producción esto es "production".
@@ -66,7 +79,12 @@ function displayNameFrom(metadataName: unknown, email: string | null): string {
  */
 export async function resolvePanelSession(): Promise<SessionCheck> {
   const supabase = createSupabaseBrowserClient();
-  const { data } = await supabase.auth.getSession();
+  let data: Awaited<ReturnType<typeof supabase.auth.getSession>>["data"];
+  try {
+    ({ data } = await withTimeout(supabase.auth.getSession(), SESSION_TIMEOUT_MS));
+  } catch {
+    return { status: "error" };
+  }
   const session = data.session;
 
   if (session) {
@@ -75,11 +93,10 @@ export async function resolvePanelSession(): Promise<SessionCheck> {
     let displayName = displayNameFrom(user.user_metadata?.display_name, user.email ?? null);
 
     try {
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("role, display_name")
-        .eq("id", user.id)
-        .maybeSingle();
+      const { data: profile } = await withTimeout(
+        supabase.from("profiles").select("role, display_name").eq("id", user.id).maybeSingle(),
+        PROFILE_TIMEOUT_MS,
+      );
       if (profile) {
         if (isAccountRole(profile.role)) role = profile.role;
         if (typeof profile.display_name === "string" && profile.display_name.trim()) {
@@ -87,7 +104,7 @@ export async function resolvePanelSession(): Promise<SessionCheck> {
         }
       }
     } catch {
-      /* si falla la lectura del perfil se mantiene el rol de menor privilegio */
+      /* si falla o tarda demasiado la lectura del perfil, se mantiene el rol de menor privilegio */
     }
 
     return {

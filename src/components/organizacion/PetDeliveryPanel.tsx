@@ -16,6 +16,8 @@ import { speciesLabels } from "@/lib/pets/labels";
 import { AlertIcon, CheckIcon, ClockIcon, CrossIcon, PawIcon, PinIcon } from "@/components/icons/Icon";
 import Toast, { type ToastState } from "@/components/ui/Toast";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
+import { ListSkeletonBody } from "@/components/loading/SkeletonVariants";
+import InlineRetry from "@/components/panel/InlineRetry";
 import controls from "@/components/ui/controls.module.css";
 import styles from "./petDeliveryPanel.module.css";
 
@@ -61,7 +63,7 @@ export default function PetDeliveryPanel({ kind }: { kind: OrgProfileKind }) {
       setState("loading");
       try {
         const check = await resolvePanelSession();
-        if (check.status === "unauthenticated") {
+        if (check.status === "unauthenticated" || check.status === "error") {
           setState("no-org");
           return;
         }
@@ -129,11 +131,13 @@ export default function PetDeliveryPanel({ kind }: { kind: OrgProfileKind }) {
     }
   }
 
-  if (state === "loading") return <p className={controls.loading}>Cargando avisos…</p>;
+  if (state === "loading") return <ListSkeletonBody />;
   if (state === "no-org") {
     return <p className={controls.empty}>Crea el perfil de tu organización para ver avisos aquí.</p>;
   }
-  if (state === "error") return <p className={controls.empty}>No fue posible cargar los avisos.</p>;
+  if (state === "error") {
+    return <InlineRetry message="No fue posible cargar los avisos." onRetry={load} />;
+  }
   if (events.length === 0) {
     return (
       <p className={controls.empty}>

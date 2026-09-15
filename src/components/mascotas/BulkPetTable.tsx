@@ -13,6 +13,7 @@ import { bulkStatusLabels, type BulkPet, type BulkPetInput, type OrgKind, type O
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { getPetPhotoSignedUrl } from "@/lib/supabase/pets";
 import { getSupabaseUserId } from "@/lib/auth/session";
+import { TableSkeletonBody } from "@/components/loading/SkeletonVariants";
 import controls from "@/components/ui/controls.module.css";
 import styles from "./bulkPetTable.module.css";
 
@@ -132,11 +133,18 @@ export default function BulkPetTable({ scope, role }: { scope: OrgScope; role: O
         header: "Foto",
         render: (pet) => {
           const url = photoUrls[pet.id] ?? pet.photoUrl;
-          return url ? (
-            // eslint-disable-next-line @next/next/no-img-element -- URL firmada de Storage o URL de la organización
-            <img src={url} alt={pet.name} className={styles.thumb} />
-          ) : (
-            <span className={styles.thumbPlaceholder} aria-hidden="true"><PawIcon size={18} /></span>
+          return (
+            <div className={styles.photoCell}>
+              {url ? (
+                // eslint-disable-next-line @next/next/no-img-element -- URL firmada de Storage o URL de la organización
+                <img src={url} alt={pet.name} className={styles.thumb} />
+              ) : (
+                <>
+                  <span className={styles.thumbPlaceholder} aria-hidden="true"><PawIcon size={18} /></span>
+                  <span className={styles.noPhotoLabel}>Sin foto</span>
+                </>
+              )}
+            </div>
           );
         },
       },
@@ -171,6 +179,13 @@ export default function BulkPetTable({ scope, role }: { scope: OrgScope; role: O
       render: (pet) => (
         <div className={styles.actions}>
           <button type="button" className={styles.action} onClick={() => setViewPet(pet)}>Ver</button>
+          <button
+            type="button"
+            className={photoUrls[pet.id] ?? pet.photoUrl ? styles.action : styles.actionOn}
+            onClick={() => setEditPet(pet)}
+          >
+            {photoUrls[pet.id] ?? pet.photoUrl ? "Cambiar foto" : "Agregar foto"}
+          </button>
           <button type="button" className={styles.action} onClick={() => setEditPet(pet)}>Editar</button>
           <button type="button" className={styles.actionDanger} onClick={() => setDeletePet(pet)}>Eliminar</button>
           {role === "fundacion" && (
@@ -217,7 +232,7 @@ export default function BulkPetTable({ scope, role }: { scope: OrgScope; role: O
       </div>
 
       {isLoading ? (
-        <p className={controls.loading}>Cargando mascotas…</p>
+        <TableSkeletonBody />
       ) : pets.length === 0 ? (
         <p className={controls.empty}>
           Todavía no hay mascotas. Usa “Agregar mascota” para registrarlas una por una, o “Cargar

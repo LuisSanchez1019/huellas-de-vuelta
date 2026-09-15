@@ -20,6 +20,7 @@ import {
 import { listQrTags, type QrTag } from "@/lib/supabase/qr";
 import { CloseIcon } from "@/components/icons/Icon";
 import Toast, { type ToastState } from "@/components/ui/Toast";
+import { TableSkeletonBody } from "@/components/loading/SkeletonVariants";
 import controls from "@/components/ui/controls.module.css";
 import styles from "./pedidos.module.css";
 
@@ -132,7 +133,7 @@ export default function AdminPedidosPage() {
         </label>
       </div>
 
-      {state === "loading" && <p className={controls.loading}>Cargando…</p>}
+      {state === "loading" && <TableSkeletonBody />}
       {state === "error" && <p className={styles.empty}>No fue posible cargar los pedidos.</p>}
       {state === "ready" && rows.length === 0 && <p className={styles.empty}>No hay pedidos con esos criterios.</p>}
 
@@ -257,7 +258,7 @@ function AdminOrderModal({
           </button>
         </div>
 
-        {state === "loading" && <p className={controls.loading}>Cargando…</p>}
+        {state === "loading" && <TableSkeletonBody rows={2} />}
         {state === "error" && <p className={styles.empty}>No fue posible cargar el pedido.</p>}
 
         {state === "ready" && detail && (

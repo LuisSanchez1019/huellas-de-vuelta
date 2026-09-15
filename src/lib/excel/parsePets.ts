@@ -8,15 +8,34 @@ export interface RowError {
   message: string;
 }
 
+export interface RowDuplicate {
+  row: number;
+  name: string;
+  reason: "archivo" | "existente";
+}
+
 export interface ParsePetsResult {
   /** Error que impide continuar (archivo/columnas). Si es null, se puede previsualizar. */
   fatal: string | null;
   valid: BulkPetInput[];
   errors: RowError[];
-  /** Filas de datos leídas (válidas + inválidas). */
+  /**
+   * Filas que por lo demás son válidas pero parecen duplicadas (mismo nombre +
+   * especie + fecha de ingreso) de otra fila del mismo archivo. Se excluyen de
+   * `valid` por defecto — no se crean solas por parecer iguales, para que una
+   * carga repetida del mismo archivo no duplique mascotas.
+   */
+  duplicates: RowDuplicate[];
+  /** Filas de datos leídas (válidas + inválidas + duplicadas). */
   total: number;
 }
 
+/**
+ * La foto NO se importa por Excel a propósito: se agrega mascota por mascota
+ * desde el listado, una vez creados los registros (ver Fase 4). Mantener esto
+ * fuera de la importación evita mezclar "cargar datos" con "subir fotos" y
+ * evita URLs externas sin control de formato/tamaño en Storage.
+ */
 export const EXPECTED_COLUMNS: { header: string; required: boolean; hint: string }[] = [
   { header: "Nombre", required: true, hint: "texto" },
   { header: "Especie", required: true, hint: "Perro | Gato | Otro" },
@@ -24,7 +43,6 @@ export const EXPECTED_COLUMNS: { header: string; required: boolean; hint: string
   { header: "Edad", required: false, hint: 'texto, ej. "3 años"' },
   { header: "Sexo", required: true, hint: "Macho | Hembra | No especificado" },
   { header: "Estado", required: false, hint: "Disponible | En tratamiento | Reservada | Con hogar" },
-  { header: "Foto", required: false, hint: "URL de la imagen" },
   { header: "Fecha de ingreso", required: false, hint: "fecha (AAAA-MM-DD)" },
 ];
 
@@ -35,9 +53,13 @@ export const EXAMPLE_ROW: Record<string, string> = {
   Edad: "3 años",
   Sexo: "Hembra",
   Estado: "Disponible",
-  Foto: "",
   "Fecha de ingreso": "2026-08-01",
 };
+
+/** Clave de "misma mascota" para detectar duplicados: nombre + especie + fecha. */
+function dedupeKey(input: Pick<BulkPetInput, "name" | "species" | "intakeDate">): string {
+  return `${input.name.trim().toLowerCase()}|${input.species}|${input.intakeDate ?? ""}`;
+}
 
 const SPECIES_MAP: Record<string, PetSpecies> = { perro: "dog", gato: "cat", otro: "other" };
 const SEX_MAP: Record<string, PetSex> = {
@@ -64,6 +86,7 @@ export async function parsePetsWorkbook(file: File): Promise<ParsePetsResult> {
       fatal: "El archivo debe estar en formato .xlsx (Excel). Exporta o guarda tu hoja como .xlsx.",
       valid: [],
       errors: [],
+      duplicates: [],
       total: 0,
     };
   }
@@ -76,12 +99,13 @@ export async function parsePetsWorkbook(file: File): Promise<ParsePetsResult> {
       fatal: "No se pudo leer el archivo. Verifica que sea un .xlsx válido y que no esté dañado.",
       valid: [],
       errors: [],
+      duplicates: [],
       total: 0,
     };
   }
 
   if (rows.length === 0) {
-    return { fatal: "El archivo está vacío.", valid: [], errors: [], total: 0 };
+    return { fatal: "El archivo está vacío.", valid: [], errors: [], duplicates: [], total: 0 };
   }
 
   const headers = rows[0].map((header) => cell(header));
@@ -93,6 +117,7 @@ export async function parsePetsWorkbook(file: File): Promise<ParsePetsResult> {
       fatal: `Faltan columnas obligatorias: ${missing.join(", ")}. Se esperan estas columnas: ${EXPECTED_COLUMNS.map((column) => column.header).join(", ")}.`,
       valid: [],
       errors: [],
+      duplicates: [],
       total: 0,
     };
   }
@@ -104,12 +129,14 @@ export async function parsePetsWorkbook(file: File): Promise<ParsePetsResult> {
       fatal: "El archivo no tiene registros de mascotas (solo encabezados).",
       valid: [],
       errors: [],
+      duplicates: [],
       total: 0,
     };
   }
 
   const valid: BulkPetInput[] = [];
   const errors: RowError[] = [];
+  const validRowNumbers: number[] = [];
 
   dataRows.forEach((row, position) => {
     const rowNumber = position + 2; // +1 encabezado, +1 base 1
@@ -169,10 +196,49 @@ export async function parsePetsWorkbook(file: File): Promise<ParsePetsResult> {
       age: read("Edad"),
       sex,
       status,
-      photoUrl: read("Foto"),
       intakeDate: read("Fecha de ingreso"),
     });
+    validRowNumbers.push(rowNumber);
   });
 
-  return { fatal: null, valid, errors, total: dataRows.length };
+  // Duplicados DENTRO del mismo archivo (mismo nombre+especie+fecha repetido):
+  // se conserva la primera aparición y las siguientes se excluyen y se reportan.
+  const seen = new Map<string, number>();
+  const duplicates: RowDuplicate[] = [];
+  const deduped: BulkPetInput[] = [];
+  valid.forEach((input, i) => {
+    const key = dedupeKey(input);
+    if (seen.has(key)) {
+      duplicates.push({ row: validRowNumbers[i], name: input.name, reason: "archivo" });
+      return;
+    }
+    seen.set(key, validRowNumbers[i]);
+    deduped.push(input);
+  });
+
+  return { fatal: null, valid: deduped, errors, duplicates, total: dataRows.length };
+}
+
+/**
+ * Marca como duplicadas (y las excluye) las filas ya válidas que coinciden
+ * con una mascota que la organización ya tiene registrada (mismo nombre +
+ * especie + fecha de ingreso). Se aplica DESPUÉS de leer el archivo, porque
+ * requiere conocer las mascotas ya existentes — así una carga repetida del
+ * mismo archivo no crea duplicados.
+ */
+export function excludeExistingDuplicates(
+  result: ParsePetsResult,
+  existing: Pick<BulkPetInput, "name" | "species" | "intakeDate">[],
+): ParsePetsResult {
+  const existingKeys = new Set(existing.map(dedupeKey));
+  const valid: BulkPetInput[] = [];
+  const duplicates = [...result.duplicates];
+  result.valid.forEach((input) => {
+    if (existingKeys.has(dedupeKey(input))) {
+      duplicates.push({ row: 0, name: input.name, reason: "existente" });
+      return;
+    }
+    valid.push(input);
+  });
+  return { ...result, valid, duplicates };
 }

@@ -5,6 +5,7 @@ import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { getPetPhotoSignedUrl } from "@/lib/supabase/pets";
 import { deleteMyClosedReports, fetchMyReports, setPetStatus } from "@/lib/supabase/reports";
 import { notifyNotificationsChanged } from "@/lib/notifications/events";
+import { ListSkeletonBody } from "@/components/loading/SkeletonVariants";
 import {
   acknowledgeReportEvent,
   fetchEventsForMyReports,
@@ -171,7 +172,7 @@ export default function ReportsList({ status }: { status: PetReportStatus }) {
     }
   }
 
-  if (state === "loading") return <p className={controls.loading}>Cargando reportes…</p>;
+  if (state === "loading") return <ListSkeletonBody />;
   if (state === "no-session") {
     return <p className={controls.empty}>Inicia sesión con una cuenta real para ver tus reportes.</p>;
   }

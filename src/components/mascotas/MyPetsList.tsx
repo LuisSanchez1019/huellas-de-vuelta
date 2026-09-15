@@ -23,6 +23,7 @@ import {
 import Toast, { type ToastState } from "@/components/ui/Toast";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import EditPetModal from "@/components/mascotas/EditPetModal";
+import { ListSkeletonBody } from "@/components/loading/SkeletonVariants";
 import styles from "@/components/mascotas/petsList.module.css";
 import headStyles from "@/components/mascotas/registerPet.module.css";
 
@@ -276,7 +277,7 @@ function MyPetsListContent({ basePath, showPlateOrdering }: { basePath: string; 
         )
       )}
 
-      {session && isLoading && <p className={styles.loading}>Cargando mascotas…</p>}
+      {session && isLoading && <ListSkeletonBody />}
 
       {editingPet && (
         <EditPetModal

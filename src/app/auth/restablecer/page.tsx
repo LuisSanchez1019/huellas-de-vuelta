@@ -68,7 +68,10 @@ export default function RestablecerPage() {
       form.reset();
       setMessage("Tu contraseña se actualizó correctamente. Redirigiendo…");
       const check = await resolvePanelSession();
-      const target = check.status === "unauthenticated" ? "/auth?mode=sign-in" : roleHome[check.session.role];
+      const target =
+        check.status === "authenticated" || check.status === "dev"
+          ? roleHome[check.session.role]
+          : "/auth?mode=sign-in";
       setTimeout(() => router.push(target), 1500);
     } catch (caughtError) {
       setError(translateAuthError(caughtError));

@@ -9,6 +9,9 @@ import { fetchMyReports } from "@/lib/supabase/reports";
 import { countUnreadNotifications } from "@/lib/supabase/notifications";
 import { fetchReceivedPetEvents } from "@/lib/supabase/reportEvents";
 import { AlertIcon, BellIcon, HandIcon, HeartIcon, PawIcon, ReportIcon } from "@/components/icons/Icon";
+import RouteLoading from "@/components/loading/RouteLoading";
+import InlineRetry from "@/components/panel/InlineRetry";
+import StatCard from "@/components/ui/StatCard";
 import controls from "@/components/ui/controls.module.css";
 import styles from "./dashboardHome.module.css";
 
@@ -39,13 +42,19 @@ export default function DashboardHome() {
   const [state, setState] = useState<"loading" | "ready" | "no-session" | "error">("loading");
   const [name, setName] = useState("");
   const [summary, setSummary] = useState<Summary>(EMPTY);
+  const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
     let active = true;
     (async () => {
       const check = await resolvePanelSession();
+      if (!active) return;
+      if (check.status === "error") {
+        setState("error");
+        return;
+      }
       if (check.status === "unauthenticated") {
-        if (active) setState("no-session");
+        setState("no-session");
         return;
       }
       setName(check.session.displayName.split(" ")[0] || "");
@@ -80,13 +89,23 @@ export default function DashboardHome() {
     return () => {
       active = false;
     };
-  }, []);
+  }, [attempt]);
 
-  if (state === "loading") return <p className={controls.loading}>Cargando tu panel…</p>;
+  if (state === "loading") return <RouteLoading variant="dashboard" />;
   if (state === "no-session") {
     return <p className={controls.empty}>Inicia sesión con una cuenta real para ver tu panel.</p>;
   }
-  if (state === "error") return <p className={controls.empty}>No fue posible cargar tu panel.</p>;
+  if (state === "error") {
+    return (
+      <InlineRetry
+        message="No fue posible cargar tu panel."
+        onRetry={() => {
+          setState("loading");
+          setAttempt((n) => n + 1);
+        }}
+      />
+    );
+  }
 
   return (
     <div>
@@ -98,59 +117,24 @@ export default function DashboardHome() {
       </div>
 
       <div className={styles.grid}>
-        <Link href="/dashboard/mascotas" className={styles.card}>
-          <span className={styles.iconWrap}><PawIcon size={22} /></span>
-          <span className={styles.cardBody}>
-            <span className={styles.value}>{summary.petsTotal}</span>
-            <span className={styles.label}>Mis mascotas</span>
-          </span>
-        </Link>
-
-        <Link
+        <StatCard href="/dashboard/mascotas" icon={<PawIcon size={22} />} label="Mis mascotas" value={summary.petsTotal} />
+        <StatCard
           href="/dashboard/reportes/activos"
-          className={`${styles.card} ${summary.petsLost > 0 ? styles.cardHighlight : ""}`}
-        >
-          <span className={styles.iconWrap}><AlertIcon size={22} /></span>
-          <span className={styles.cardBody}>
-            <span className={styles.value}>{summary.petsLost}</span>
-            <span className={styles.label}>Mascotas perdidas</span>
-          </span>
-        </Link>
-
-        <Link href="/dashboard/mascotas" className={styles.card}>
-          <span className={styles.iconWrap}><HeartIcon size={22} /></span>
-          <span className={styles.cardBody}>
-            <span className={styles.value}>{summary.petsAdoption}</span>
-            <span className={styles.label}>En adopción</span>
-          </span>
-        </Link>
-
-        <Link href="/dashboard/reportes/activos" className={styles.card}>
-          <span className={styles.iconWrap}><ReportIcon size={22} /></span>
-          <span className={styles.cardBody}>
-            <span className={styles.value}>{summary.activeReports}</span>
-            <span className={styles.label}>Reportes activos</span>
-          </span>
-        </Link>
-
-        <Link
+          icon={<AlertIcon size={22} />}
+          label="Mascotas perdidas"
+          value={summary.petsLost}
+          highlight={summary.petsLost > 0}
+        />
+        <StatCard href="/dashboard/mascotas" icon={<HeartIcon size={22} />} label="En adopción" value={summary.petsAdoption} />
+        <StatCard href="/dashboard/reportes/activos" icon={<ReportIcon size={22} />} label="Reportes activos" value={summary.activeReports} />
+        <StatCard
           href="/dashboard/notificaciones"
-          className={`${styles.card} ${summary.unreadNotifications > 0 ? styles.cardHighlight : ""}`}
-        >
-          <span className={styles.iconWrap}><BellIcon size={22} /></span>
-          <span className={styles.cardBody}>
-            <span className={styles.value}>{summary.unreadNotifications}</span>
-            <span className={styles.label}>Avisos sin leer</span>
-          </span>
-        </Link>
-
-        <Link href="/dashboard/mascotas" className={styles.card}>
-          <span className={styles.iconWrap}><HandIcon size={22} /></span>
-          <span className={styles.cardBody}>
-            <span className={styles.value}>{summary.petsInOrg}</span>
-            <span className={styles.label}>En veterinaria / fundación</span>
-          </span>
-        </Link>
+          icon={<BellIcon size={22} />}
+          label="Avisos sin leer"
+          value={summary.unreadNotifications}
+          highlight={summary.unreadNotifications > 0}
+        />
+        <StatCard href="/dashboard/mascotas" icon={<HandIcon size={22} />} label="En veterinaria / fundación" value={summary.petsInOrg} />
       </div>
 
       <div className={styles.actions}>

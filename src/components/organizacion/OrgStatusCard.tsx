@@ -60,7 +60,7 @@ export default function OrgStatusCard({ role }: { role: Role }) {
     const repo = REPOSITORY_BY_ROLE[role];
     resolvePanelSession()
       .then(async (check) => {
-        if (check.status === "unauthenticated") return null;
+        if (check.status === "unauthenticated" || check.status === "error") return null;
         return repo.getMine(check.session.userId);
       })
       .then((profile) => {

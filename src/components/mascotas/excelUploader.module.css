@@ -41,3 +41,17 @@
 .errorList { margin-top: .5rem; display: grid; gap: .3rem; padding-left: 1.1rem; color: var(--danger-fg); font-size: .84rem; line-height: 1.45; list-style: disc; }
 
 .doneTitle { font-weight: 800; color: var(--success-fg); font-size: 1.05rem; }
+
+.dupBox { margin-top: 1rem; padding: 1rem; border: 1px solid var(--warning-border); border-radius: .8rem; background: var(--warning-bg); }
+.dupTitle { font-weight: 800; color: var(--warning-fg); font-size: .9rem; }
+.dupHint { margin-top: .3rem; color: var(--warning-fg); font-size: .82rem; line-height: 1.5; }
+.dupList { margin-top: .5rem; display: grid; gap: .3rem; padding-left: 1.1rem; color: var(--warning-fg); font-size: .84rem; line-height: 1.45; list-style: disc; }
+.countDup { color: var(--warning-fg); background: var(--warning-bg); }
+
+.progressWrap { margin-top: 1.5rem; display: grid; gap: .6rem; }
+.progressText { color: var(--ink-600); font-size: .88rem; text-align: center; }
+.progressTrack { height: .5rem; border-radius: 999px; background: var(--surface-300); overflow: hidden; }
+.progressFill { height: 100%; background: var(--teal-600); transition: width .2s ease; }
+
+.resultRow { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: .75rem; }
+.failList { margin-top: .5rem; display: grid; gap: .3rem; padding-left: 1.1rem; color: var(--danger-fg); font-size: .84rem; line-height: 1.45; list-style: disc; }

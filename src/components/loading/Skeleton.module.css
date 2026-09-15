@@ -1,0 +1,27 @@
+.block {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  background: var(--surface-300);
+}
+
+/* Barrido sutil: un degradado que se desliza con `transform` (composable,
+   sin repintado de layout). Usa solo tokens ya existentes (--card) como
+   "brillo" — nunca una paleta nueva. */
+.block::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, var(--card) 50%, transparent);
+  opacity: .55;
+  animation: hdvShimmer 1.7s ease-in-out infinite;
+}
+
+@keyframes hdvShimmer {
+  to { transform: translateX(100%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .block::after { animation: none; opacity: 0; }
+}

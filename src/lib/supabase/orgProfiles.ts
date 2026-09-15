@@ -150,6 +150,10 @@ export interface OrgProfileWrite {
   status: "draft" | "published";
   /** Opcional: hoy solo lo expone el perfil de aliado. */
   country?: string;
+  /** Opcionales: hoy solo los expone el perfil empresarial de aliado. */
+  legalName?: string;
+  mobilePhone?: string;
+  sectorId?: string | null;
 }
 
 export async function fetchOrgProfileRow(
@@ -197,6 +201,9 @@ export async function upsertOrgProfileRow(
     extra_info: fields.extraInfo || null,
     status: fields.status,
     country: fields.country || null,
+    legal_name: fields.legalName || null,
+    mobile_phone: fields.mobilePhone || null,
+    sector_id: fields.sectorId || null,
   };
   const { data, error } = await supabase
     .from("organization_profiles")

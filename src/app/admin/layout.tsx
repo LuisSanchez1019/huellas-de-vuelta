@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import { useAdminGuard } from "@/components/panel/useAdminGuard";
 import PanelShell from "@/components/panel/PanelShell";
+import PanelGuardError from "@/components/panel/PanelGuardError";
 import { buildPanelNav } from "@/components/panel/nav";
 import { ShieldIcon, UserIcon } from "@/components/icons/Icon";
 import styles from "./admin.module.css";
@@ -16,6 +17,10 @@ import styles from "./admin.module.css";
  */
 export default function AdminLayout({ children }: { children: ReactNode }) {
   const guard = useAdminGuard();
+
+  if (guard.status === "error") {
+    return <PanelGuardError onRetry={guard.retry} />;
+  }
 
   if (guard.status !== "ready") {
     return (

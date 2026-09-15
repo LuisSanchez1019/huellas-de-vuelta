@@ -84,6 +84,7 @@ function materialize(scope: OrgScope, input: BulkPetInput): BulkPet {
   const now = new Date();
   return {
     id: newId(),
+    publicId: `dev-${newId()}`,
     name: input.name,
     species: input.species,
     speciesOther: input.speciesOther ?? null,
@@ -172,6 +173,7 @@ class SupabaseBulkPetRepository implements BulkPetRepository {
   private rowToPet(row: OrgPetRow, orgName: string): BulkPet {
     return {
       id: row.id,
+      publicId: row.public_id,
       name: row.name,
       species: row.species as PetSpecies,
       speciesOther: row.species_other,

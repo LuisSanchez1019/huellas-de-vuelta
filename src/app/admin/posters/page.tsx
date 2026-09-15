@@ -14,6 +14,7 @@ import { PUBLIC_POSTERS_TAG, triggerPublicRevalidate } from "@/lib/cache/tags";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import PromptDialog from "@/components/ui/PromptDialog";
 import Toast, { type ToastState } from "@/components/ui/Toast";
+import { TableSkeletonBody } from "@/components/loading/SkeletonVariants";
 import controls from "@/components/ui/controls.module.css";
 import styles from "./posters.module.css";
 
@@ -163,7 +164,7 @@ export default function AdminPostersPage() {
         ))}
       </div>
 
-      {state === "loading" && <p className={controls.loading}>Cargando…</p>}
+      {state === "loading" && <TableSkeletonBody />}
       {state === "error" && <p className={styles.empty}>No fue posible cargar los posters.</p>}
 
       {state === "ready" && visible.length === 0 && (

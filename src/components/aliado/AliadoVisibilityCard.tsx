@@ -11,6 +11,9 @@ import {
 } from "@/lib/aliados/visibility";
 import { formatCOP } from "@/lib/supabase/plateOrders";
 import Toast, { type ToastState } from "@/components/ui/Toast";
+import Modal from "@/components/ui/Modal";
+import { ChevronDownIcon } from "@/components/icons/Icon";
+import { FormSkeletonBody } from "@/components/loading/SkeletonVariants";
 import controls from "@/components/ui/controls.module.css";
 import styles from "./aliadoVisibility.module.css";
 
@@ -49,6 +52,7 @@ export default function AliadoVisibilityCard() {
   const [days, setDays] = useState("30");
   const [submitting, setSubmitting] = useState(false);
   const [toast, setToast] = useState<ToastState | null>(null);
+  const [showDestination, setShowDestination] = useState(false);
 
   async function load() {
     const supabase = createSupabaseBrowserClient();
@@ -139,7 +143,7 @@ export default function AliadoVisibilityCard() {
     }
   }
 
-  if (state === "loading") return <p className={controls.loading}>Cargando…</p>;
+  if (state === "loading") return <FormSkeletonBody />;
   if (state === "no-session") {
     return <p className={controls.empty}>Inicia sesión con una cuenta real para ver esta sección.</p>;
   }
@@ -150,15 +154,25 @@ export default function AliadoVisibilityCard() {
   return (
     <div>
       <div className={styles.card}>
-        <p className={styles.title}>Apoya a Huellas de Vuelta</p>
-        <p className={styles.subtitle}>
-          Selecciona cuántos días deseas que tu empresa haga parte de nuestra red de aliados.
-        </p>
+        <div className={styles.transparencyBlock}>
+          <p className={styles.transparencyTitle}>¿Quieres saber en qué se invertirá este dinero?</p>
+          <button
+            type="button"
+            className={styles.transparencyLink}
+            onClick={() => setShowDestination(true)}
+            aria-haspopup="dialog"
+          >
+            Conoce el destino de los recursos
+            <ChevronDownIcon size={16} className={styles.transparencyIcon} />
+          </button>
+        </div>
+
+        <div className={styles.divider} />
 
         <label className={controls.field}>
-          ¿Cuántos días deseas ser aliado?
+          ¿Cuántos días deseas ser aliado de Huellas de Vuelta?
           <input
-            className={controls.input}
+            className={`${controls.input} ${styles.daysInput}`}
             type="number"
             inputMode="numeric"
             min={settings.minDays}
@@ -186,7 +200,7 @@ export default function AliadoVisibilityCard() {
           </div>
         </div>
 
-        <div className={controls.buttonRow}>
+        <div className={`${controls.buttonRow} ${styles.submitRow}`}>
           <button type="button" className={controls.button} disabled={!validDays || submitting} onClick={submit}>
             {submitting ? "Enviando…" : "Solicitar"}
           </button>
@@ -198,6 +212,31 @@ export default function AliadoVisibilityCard() {
           quede confirmado y mientras dure el período contratado.
         </p>
       </div>
+
+      <Modal
+        open={showDestination}
+        title="Conoce el destino de los recursos"
+        onClose={() => setShowDestination(false)}
+      >
+        <p className={styles.modalText}>
+          Los recursos obtenidos a través de los aportes de nuestros aliados serán destinados al
+          sostenimiento, desarrollo y crecimiento de Huellas de Vuelta, de acuerdo con las necesidades
+          y prioridades del proyecto.
+        </p>
+        <p className={styles.modalText}>Entre sus principales destinos se contemplan:</p>
+        <ul className={styles.modalList}>
+          <li>Mantenimiento y funcionamiento de la plataforma.</li>
+          <li>Capital humano cuando sea necesario para la operación y crecimiento del proyecto.</li>
+          <li>Donaciones y apoyo a fundaciones.</li>
+          <li>Jornadas de esterilización y cuidado de animales en sectores vulnerables.</li>
+          <li>Atención y cuidado de animales en situación de calle.</li>
+          <li>Banco de ayudas para animales que sufran accidentes y requieran atención para su cuidado.</li>
+        </ul>
+        <p className={styles.modalText}>
+          Nuestro propósito es que cada aporte contribuya a fortalecer la plataforma y ampliar nuestra
+          capacidad de ayudar a más animales.
+        </p>
+      </Modal>
 
       {orders.length > 0 && (
         <div className={styles.card}>

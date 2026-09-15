@@ -11,6 +11,7 @@ import {
 } from "@/lib/supabase/qr";
 import { openQrPrintSheet } from "@/lib/qr/printSheet";
 import Toast, { type ToastState } from "@/components/ui/Toast";
+import { TableSkeletonBody } from "@/components/loading/SkeletonVariants";
 import controls from "@/components/ui/controls.module.css";
 import styles from "@/app/admin/qr/qr.module.css";
 
@@ -159,7 +160,7 @@ export default function QrBatchPanel({ onBatchCreated }: { onBatchCreated: () =>
         </div>
       </form>
 
-      {state === "loading" && <p className={controls.loading}>Cargando lotes…</p>}
+      {state === "loading" && <TableSkeletonBody />}
       {state === "error" && <p className={styles.empty}>No fue posible cargar los lotes.</p>}
       {state === "ready" && batches.length === 0 && (
         <p className={styles.empty}>Todavía no hay lotes. Crea el primero arriba.</p>

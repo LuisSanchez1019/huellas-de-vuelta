@@ -7,6 +7,7 @@ import { adminListUsers, setUserAdmin, type AdminUser } from "@/lib/supabase/adm
 import { roleLabels } from "@/lib/auth/roles";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import Toast, { type ToastState } from "@/components/ui/Toast";
+import { TableSkeletonBody } from "@/components/loading/SkeletonVariants";
 import controls from "@/components/ui/controls.module.css";
 import tableStyles from "./usuarios.module.css";
 
@@ -87,7 +88,7 @@ export default function AdminUsersPage() {
         </p>
       </div>
 
-      {state === "loading" && <p className={controls.loading}>Cargando…</p>}
+      {state === "loading" && <TableSkeletonBody />}
       {state === "error" && <p className={controls.empty}>No fue posible cargar los usuarios.</p>}
 
       {state === "ready" && (

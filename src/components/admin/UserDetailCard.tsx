@@ -7,6 +7,7 @@ import { adminGetUser, adminListUsers, setUserAdmin, type AdminUserDetail } from
 import { roleLabels } from "@/lib/auth/roles";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import Toast, { type ToastState } from "@/components/ui/Toast";
+import { ProfileSkeletonBody } from "@/components/loading/SkeletonVariants";
 import controls from "@/components/ui/controls.module.css";
 import styles from "./UserDetailCard.module.css";
 
@@ -84,7 +85,7 @@ export default function UserDetailCard({ userId }: { userId: string }) {
     }
   }
 
-  if (state === "loading") return <p className={controls.loading}>Cargando usuario…</p>;
+  if (state === "loading") return <ProfileSkeletonBody />;
   if (state === "not-found") {
     return (
       <div>

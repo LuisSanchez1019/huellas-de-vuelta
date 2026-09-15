@@ -12,6 +12,7 @@ import {
 } from "@/lib/supabase/plateOrders";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import Toast, { type ToastState } from "@/components/ui/Toast";
+import { TableSkeletonBody } from "@/components/loading/SkeletonVariants";
 import controls from "@/components/ui/controls.module.css";
 import styles from "../pedidos/pedidos.module.css";
 
@@ -125,7 +126,7 @@ export default function AdminEnviosPage() {
         </label>
       </div>
 
-      {state === "loading" && <p className={controls.loading}>Cargando…</p>}
+      {state === "loading" && <TableSkeletonBody />}
       {state === "error" && <p className={styles.empty}>No fue posible cargar los envíos.</p>}
       {state === "ready" && rows.length === 0 && <p className={styles.empty}>No hay envíos en esta categoría.</p>}
 

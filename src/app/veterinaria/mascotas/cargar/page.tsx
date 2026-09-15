@@ -2,10 +2,12 @@
 
 import { useOrgScope } from "@/components/panel/useOrgScope";
 import ExcelPetUploader from "@/components/mascotas/ExcelPetUploader";
+import InlineRetry from "@/components/panel/InlineRetry";
+import { FormSkeletonBody } from "@/components/loading/SkeletonVariants";
 import controls from "@/components/ui/controls.module.css";
 
 export default function VeterinariaCargarPage() {
-  const scope = useOrgScope("veterinaria");
+  const scopeState = useOrgScope("veterinaria");
 
   return (
     <div>
@@ -16,11 +18,11 @@ export default function VeterinariaCargarPage() {
           tu lista.
         </p>
       </div>
-      {scope ? (
-        <ExcelPetUploader scope={scope} backHref="/veterinaria/mascotas" />
-      ) : (
-        <p className={controls.loading}>Cargando…</p>
+      {scopeState.status === "ready" && (
+        <ExcelPetUploader scope={scopeState.scope} backHref="/veterinaria/mascotas" />
       )}
+      {scopeState.status === "loading" && <FormSkeletonBody />}
+      {scopeState.status === "error" && <InlineRetry onRetry={scopeState.retry} />}
     </div>
   );
 }

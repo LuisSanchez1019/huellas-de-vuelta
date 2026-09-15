@@ -3,10 +3,12 @@
 import { useOrgScope } from "@/components/panel/useOrgScope";
 import OrgDashboardStats from "@/components/mascotas/OrgDashboardStats";
 import OrgStatusCard from "@/components/organizacion/OrgStatusCard";
+import InlineRetry from "@/components/panel/InlineRetry";
+import { DashboardSkeletonBody } from "@/components/loading/SkeletonVariants";
 import controls from "@/components/ui/controls.module.css";
 
 export default function VeterinariaHomePage() {
-  const scope = useOrgScope("veterinaria");
+  const scopeState = useOrgScope("veterinaria");
 
   return (
     <div>
@@ -18,7 +20,9 @@ export default function VeterinariaHomePage() {
         </p>
       </div>
       <OrgStatusCard role="veterinaria" />
-      {scope ? <OrgDashboardStats scope={scope} role="veterinaria" /> : <p className={controls.loading}>Cargando…</p>}
+      {scopeState.status === "ready" && <OrgDashboardStats scope={scopeState.scope} role="veterinaria" />}
+      {scopeState.status === "loading" && <DashboardSkeletonBody />}
+      {scopeState.status === "error" && <InlineRetry onRetry={scopeState.retry} />}
     </div>
   );
 }

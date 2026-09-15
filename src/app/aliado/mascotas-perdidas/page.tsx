@@ -8,6 +8,7 @@ import { getPetPhotoSignedUrl } from "@/lib/supabase/pets";
 import type { PublicLostPet } from "@/lib/pets/reports";
 import { ageUnitLabels, sexLabels, speciesLabels } from "@/lib/pets/labels";
 import { PawIcon, PinIcon } from "@/components/icons/Icon";
+import { ListSkeletonBody } from "@/components/loading/SkeletonVariants";
 import controls from "@/components/ui/controls.module.css";
 import styles from "@/components/aliado/aliadoLists.module.css";
 
@@ -69,7 +70,7 @@ export default function AliadoMascotasPerdidasPage() {
         </p>
       </div>
 
-      {state === "loading" && <p className={controls.loading}>Cargando…</p>}
+      {state === "loading" && <ListSkeletonBody />}
       {state === "error" && <p className={controls.empty}>No fue posible cargar los reportes.</p>}
       {state === "ready" && pets.length === 0 && (
         <p className={controls.empty}>Por ahora no hay mascotas reportadas como perdidas.</p>

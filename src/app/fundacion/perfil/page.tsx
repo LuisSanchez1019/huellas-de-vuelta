@@ -3,16 +3,29 @@
 import { useEffect, useState } from "react";
 import { resolvePanelSession } from "@/lib/auth/session";
 import FoundationProfileForm from "@/components/fundacion/FoundationProfileForm";
+import InlineRetry from "@/components/panel/InlineRetry";
+import { ProfileSkeletonBody } from "@/components/loading/SkeletonVariants";
 import controls from "@/components/ui/controls.module.css";
 
 export default function FundacionPerfilPage() {
   const [ownerId, setOwnerId] = useState<string | null>(null);
+  const [hasError, setHasError] = useState(false);
+  const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
+    let active = true;
     resolvePanelSession().then((check) => {
+      if (!active) return;
+      if (check.status === "error") {
+        setHasError(true);
+        return;
+      }
       if (check.status !== "unauthenticated") setOwnerId(check.session.userId);
     });
-  }, []);
+    return () => {
+      active = false;
+    };
+  }, [attempt]);
 
   return (
     <div>
@@ -23,7 +36,18 @@ export default function FundacionPerfilPage() {
           el mapa de la página principal.
         </p>
       </div>
-      {ownerId ? <FoundationProfileForm ownerId={ownerId} /> : <p className={controls.loading}>Cargando…</p>}
+      {hasError ? (
+        <InlineRetry
+          onRetry={() => {
+            setHasError(false);
+            setAttempt((n) => n + 1);
+          }}
+        />
+      ) : ownerId ? (
+        <FoundationProfileForm ownerId={ownerId} />
+      ) : (
+        <ProfileSkeletonBody />
+      )}
     </div>
   );
 }

@@ -3,10 +3,12 @@
 import Link from "next/link";
 import { useOrgScope } from "@/components/panel/useOrgScope";
 import BulkPetTable from "@/components/mascotas/BulkPetTable";
+import InlineRetry from "@/components/panel/InlineRetry";
+import { TableSkeletonBody } from "@/components/loading/SkeletonVariants";
 import controls from "@/components/ui/controls.module.css";
 
 export default function FundacionMascotasPage() {
-  const scope = useOrgScope("fundacion");
+  const scopeState = useOrgScope("fundacion");
 
   return (
     <div>
@@ -19,12 +21,16 @@ export default function FundacionMascotasPage() {
         </p>
       </div>
       <Link href="/fundacion/mascotas/cargar" className={controls.buttonSecondary}>Cargar mascotas (Excel)</Link>
-      {scope ? (
+      {scopeState.status === "ready" && (
         <div style={{ marginTop: "1.25rem" }}>
-          <BulkPetTable scope={scope} role="fundacion" />
+          <BulkPetTable scope={scopeState.scope} role="fundacion" />
         </div>
-      ) : (
-        <p className={controls.loading} style={{ marginTop: "1.25rem" }}>Cargando…</p>
+      )}
+      {scopeState.status === "loading" && (
+        <div style={{ marginTop: "1.25rem" }}><TableSkeletonBody /></div>
+      )}
+      {scopeState.status === "error" && (
+        <div style={{ marginTop: "1.25rem" }}><InlineRetry onRetry={scopeState.retry} /></div>
       )}
     </div>
   );

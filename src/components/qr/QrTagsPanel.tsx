@@ -27,6 +27,7 @@ import { CloseIcon } from "@/components/icons/Icon";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import PromptDialog from "@/components/ui/PromptDialog";
 import Toast, { type ToastState } from "@/components/ui/Toast";
+import { TableSkeletonBody } from "@/components/loading/SkeletonVariants";
 import controls from "@/components/ui/controls.module.css";
 import styles from "@/app/admin/qr/qr.module.css";
 
@@ -169,7 +170,7 @@ export default function QrTagsPanel({ reloadSignal }: { reloadSignal: number }) 
         </label>
       </div>
 
-      {state === "loading" && <p className={controls.loading}>Cargando placas…</p>}
+      {state === "loading" && <TableSkeletonBody />}
       {state === "error" && <p className={styles.empty}>No fue posible cargar las placas.</p>}
       {state === "ready" && rows.length === 0 && (
         <p className={styles.empty}>No hay placas con esos criterios.</p>
@@ -382,7 +383,7 @@ function QrTagDetailModal({
           </button>
         </div>
 
-        {state === "loading" && <p className={controls.loading}>Cargando…</p>}
+        {state === "loading" && <TableSkeletonBody rows={2} />}
         {state === "error" && <p className={styles.empty}>No fue posible cargar la placa.</p>}
 
         {state === "ready" && detail && (

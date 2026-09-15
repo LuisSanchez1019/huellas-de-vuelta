@@ -24,7 +24,7 @@ export default function AliadoHomePage() {
 
   useEffect(() => {
     resolvePanelSession().then(async (check) => {
-      if (check.status === "unauthenticated" || check.status === "dev") return;
+      if (check.status === "unauthenticated" || check.status === "dev" || check.status === "error") return;
       try {
         setCompanyName(await fetchMyOrgName(createSupabaseBrowserClient(), check.session.userId));
       } catch {

@@ -26,6 +26,9 @@ export const bulkStatusOptions = Object.entries(bulkStatusLabels) as [BulkPetSta
  */
 export interface BulkPet {
   id: string;
+  /** Identificador público (columna `public_id`, ya existente): permite enlazar
+   *  a la ficha pública `/m/<publicId>` sin exponer el `id` interno. */
+  publicId: string;
   name: string;
   species: PetSpecies;
   speciesOther: string | null;

@@ -22,6 +22,7 @@ import OrgLocationPicker from "@/components/organizacion/OrgLocationPicker";
 import ServiceCatalogPicker from "@/components/organizacion/ServiceCatalogPicker";
 import { isValidLatLng } from "@/lib/map/config";
 import { isValidPhone } from "@/lib/phone";
+import { ProfileSkeletonBody } from "@/components/loading/SkeletonVariants";
 import controls from "@/components/ui/controls.module.css";
 import styles from "./vetProfileForm.module.css";
 
@@ -173,7 +174,7 @@ export default function VeterinaryProfileForm({ ownerId }: { ownerId: string }) 
     }
   }
 
-  if (isLoading) return <p className={controls.loading}>Cargando…</p>;
+  if (isLoading) return <ProfileSkeletonBody />;
 
   return (
     <form onSubmit={handleSubmit}>

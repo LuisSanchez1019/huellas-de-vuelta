@@ -1,0 +1,44 @@
+.scene { display: block; overflow: visible; }
+
+.dogGroup {
+  fill: var(--navy-900);
+  animation: hdvDogSway 1s ease-in-out infinite;
+}
+
+.tail {
+  fill: none;
+  stroke: var(--navy-900);
+  stroke-width: 3.2;
+  stroke-linecap: round;
+  transform-box: fill-box;
+  transform-origin: 100% 100%;
+  animation: hdvTailWag .9s ease-in-out infinite;
+}
+
+.legFront,
+.legBack {
+  transform-box: fill-box;
+  transform-origin: 50% 0%;
+  animation: hdvLegSwing .9s ease-in-out infinite;
+}
+.legBack { animation-delay: -.45s; }
+
+@keyframes hdvDogSway {
+  0%, 100% { transform: translate(0, 0); }
+  25% { transform: translate(1.1px, -.6px); }
+  75% { transform: translate(-1.1px, -.6px); }
+}
+
+@keyframes hdvLegSwing {
+  0%, 100% { transform: rotate(-9deg); }
+  50% { transform: rotate(9deg); }
+}
+
+@keyframes hdvTailWag {
+  0%, 100% { transform: rotate(-8deg); }
+  50% { transform: rotate(10deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dogGroup, .tail, .legFront, .legBack { animation: none; }
+}

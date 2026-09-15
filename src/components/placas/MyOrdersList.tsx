@@ -11,6 +11,7 @@ import {
   SHIPMENT_STATUS_LABEL,
   type MyOrderRow,
 } from "@/lib/supabase/plateOrders";
+import { TableSkeletonBody } from "@/components/loading/SkeletonVariants";
 import controls from "@/components/ui/controls.module.css";
 import styles from "./placas.module.css";
 
@@ -47,7 +48,7 @@ export default function MyOrdersList() {
     });
   }, []);
 
-  if (state === "loading") return <p className={controls.loading}>Cargando…</p>;
+  if (state === "loading") return <TableSkeletonBody />;
   if (state === "no-session") {
     return <p className={styles.emptyText}>Inicia sesión con una cuenta real para ver tus pedidos.</p>;
   }

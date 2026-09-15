@@ -5,12 +5,17 @@ import PanelShell from "@/components/panel/PanelShell";
 import { usePanelGuard, toPanelUser } from "@/components/panel/usePanelGuard";
 import { useIsAdmin } from "@/components/panel/useIsAdmin";
 import { buildPanelNav } from "@/components/panel/nav";
+import PanelGuardError from "@/components/panel/PanelGuardError";
 import { ShieldIcon, UserIcon } from "@/components/icons/Icon";
 import styles from "./dashboard.module.css";
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const guard = usePanelGuard("usuario");
   const isAdmin = useIsAdmin();
+
+  if (guard.status === "error") {
+    return <PanelGuardError onRetry={guard.retry} />;
+  }
 
   if (guard.status !== "ready") {
     return (

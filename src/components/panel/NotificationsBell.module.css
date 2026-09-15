@@ -1,8 +1,31 @@
-.wrap { position: relative; display: inline-grid; place-items: center; }
+.wrap { position: relative; display: inline-grid; place-items: center; transform-origin: 50% 0; }
 .badge {
   position: absolute; top: -.4rem; right: -.5rem;
   min-width: 1.05rem; height: 1.05rem; padding: 0 .25rem;
   display: grid; place-items: center;
   border-radius: 999px; background: #c0392b; color: var(--primary-contrast);
   font-size: .62rem; font-weight: 800; line-height: 1;
+  animation: hdvBadgePop .22s ease both;
+}
+
+/* Microanimación de balanceo: solo cuando llega una notificación nueva
+   (justArrived), nunca en loop — se retira sola al terminar (onAnimationEnd). */
+.ring { animation: hdvBellRing .6s ease; }
+
+@keyframes hdvBellRing {
+  0%, 100% { transform: rotate(0deg); }
+  15% { transform: rotate(-11deg); }
+  35% { transform: rotate(9deg); }
+  55% { transform: rotate(-6deg); }
+  75% { transform: rotate(3deg); }
+}
+
+@keyframes hdvBadgePop {
+  from { transform: scale(.5); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ring { animation: none; }
+  .badge { animation: none; }
 }
