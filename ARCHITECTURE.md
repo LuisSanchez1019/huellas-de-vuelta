@@ -33,6 +33,14 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
 
 Estados: `at_home`, `lost`, `found`, `for_adoption`. Ambas tablas tendrán UUID, marcas de tiempo y Row Level Security. Cada persona solo gestionará sus propios datos; el contenido público se diseñará después con campos explícitos.
 
+## Actividad y verificación diaria de Supabase
+
+Vercel Cron llama una vez al día (`0 0 * * *`, es decir 00:00 UTC / 19:00 en Colombia) a `GET /api/cron/health` (definido en `vercel.json`). El endpoint exige `Authorization: Bearer <CRON_SECRET>` (nunca por query ni body), ejecuta la RPC `health_check()` con el cliente público del servidor (`serverPublic.ts`, rol `anon`) y responde `200` si Supabase contesta o `503` si falla (`401` si el secreto no coincide).
+
+`health_check()` solo devuelve la hora del servidor: no toca tablas de negocio, Auth ni Storage.
+
+Es un mecanismo de actividad y comprobación de disponibilidad; **no garantiza** que Supabase mantenga el proyecto activo indefinidamente (eso depende de las reglas y del plan vigentes de Supabase). Vercel Cron solo se ejecuta sobre el deployment de **producción**, y `CRON_SECRET` debe configurarse en Vercel.
+
 ## Secretos
 
 - `.env*` está ignorado por Git.
