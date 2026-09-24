@@ -17,6 +17,8 @@ export interface Pet {
   color_tertiary: string | null;
   age_value: number | null;
   age_unit: PetAgeUnit | null;
+  /** Fecha de nacimiento (YYYY-MM-DD). Si existe, la edad se calcula y age_value/age_unit quedan nulos. */
+  birth_date: string | null;
   sex: PetSex | null;
   description: string | null;
   status: PetStatus;
@@ -41,6 +43,7 @@ export interface PetInput {
   color_tertiary?: string | null;
   age_value?: number | null;
   age_unit?: PetAgeUnit | null;
+  birth_date?: string | null;
   sex?: PetSex | null;
   description?: string | null;
   photo_path?: string | null;

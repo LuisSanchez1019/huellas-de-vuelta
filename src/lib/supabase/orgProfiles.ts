@@ -4,9 +4,9 @@ import type { Database } from "@/lib/supabase/database.types";
 
 export type OrgProfileRow = Database["public"]["Tables"]["organization_profiles"]["Row"];
 export type OrgProfileKind = "fundacion" | "veterinaria";
-/** Tipos que pueden tener un "nombre de organización/empresa" (incluye aliado). */
-export type OrgNameKind = OrgProfileKind | "aliado";
-export type OrgCategory = "veterinaria" | "fundacion" | "refugio" | "otro_aliado";
+/** Tipos que pueden tener un "nombre de organización/empresa" (incluye aliado y proveedor). */
+export type OrgNameKind = OrgProfileKind | "aliado" | "proveedor";
+export type OrgCategory = "veterinaria" | "fundacion" | "refugio" | "otro_aliado" | "proveedor";
 
 /** Bucket público con los logos de las organizaciones (visibles en el Landing). */
 export const ORG_LOGO_BUCKET = "org-logos";

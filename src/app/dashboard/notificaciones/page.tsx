@@ -143,7 +143,7 @@ export default function NotificacionesPage() {
       <div className={controls.pageHead}>
         <h1 className={controls.pageTitle}>Notificaciones</h1>
         <p className={controls.pageSubtitle}>
-          Avisos sobre tus mascotas perdidas: avistamientos y personas que las encontraron.
+          Avisos de tu cuenta: avistamientos y hallazgos de tus mascotas, solicitudes de acceso a la ficha médica y otros.
         </p>
       </div>
 
@@ -202,7 +202,7 @@ export default function NotificacionesPage() {
                 <div className={styles.itemActions}>
                   {notificationLink(n.type) && (
                     <Link className={styles.itemLink} href={notificationLink(n.type) as string}>
-                      {n.type.startsWith("admin_") ? "Abrir" : "Ver reporte"}
+                      {n.type.startsWith("admin_") || n.type.startsWith("vet_") ? "Abrir" : "Ver reporte"}
                     </Link>
                   )}
                   {!n.read_at && (

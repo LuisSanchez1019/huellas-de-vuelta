@@ -51,13 +51,14 @@ export const petConditionLabels: Record<PetCondition, string> = {
 
 export const petConditionOptions = Object.entries(petConditionLabels) as [PetCondition, string][];
 
-export type OrgCategory = "veterinaria" | "fundacion" | "refugio" | "otro_aliado";
+export type OrgCategory = "veterinaria" | "fundacion" | "refugio" | "otro_aliado" | "proveedor";
 
 export const orgCategoryLabels: Record<OrgCategory, string> = {
   veterinaria: "Veterinaria",
   fundacion: "Fundación",
   refugio: "Refugio",
   otro_aliado: "Aliado",
+  proveedor: "Proveedor",
 };
 
 export type OrgApprovalStatus = "pending" | "approved" | "rejected";

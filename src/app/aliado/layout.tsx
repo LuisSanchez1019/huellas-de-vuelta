@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import PanelShell from "@/components/panel/PanelShell";
 import { usePanelGuard, toPanelUser } from "@/components/panel/usePanelGuard";
 import PanelGuardError from "@/components/panel/PanelGuardError";
+import BirthdayGreeting from "@/components/mascotas/BirthdayGreeting";
 import { HandIcon, HeartIcon, HomeIcon, IdCardIcon, PawIcon, PinIcon, ShieldIcon, UserIcon } from "@/components/icons/Icon";
 import type { NavEntry } from "@/components/panel/types";
 import styles from "./aliado.module.css";
@@ -60,6 +61,7 @@ export default function AliadoLayout({ children }: { children: ReactNode }) {
       }
     >
       {children}
+      <BirthdayGreeting />
     </PanelShell>
   );
 }

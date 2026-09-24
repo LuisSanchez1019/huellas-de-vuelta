@@ -19,9 +19,18 @@ function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString("es-CO", { day: "2-digit", month: "short", year: "numeric" });
 }
 
+type OriginFilter = "all" | "proveedor" | "otro";
+
+function batchOriginLabel(batch: QrBatch): string {
+  if (batch.isSystem) return "Sistema";
+  if (batch.createdByRole === "proveedor") return `Proveedor · ${batch.createdByName ?? "sin nombre"}`;
+  return batch.createdByName ? `Admin · ${batch.createdByName}` : "Admin";
+}
+
 export default function QrBatchPanel({ onBatchCreated }: { onBatchCreated: () => void }) {
   const [state, setState] = useState<"loading" | "ready" | "error">("loading");
   const [batches, setBatches] = useState<QrBatch[]>([]);
+  const [originFilter, setOriginFilter] = useState<OriginFilter>("all");
   const [reference, setReference] = useState("");
   const [quantity, setQuantity] = useState("100");
   const [note, setNote] = useState("");
@@ -162,20 +171,48 @@ export default function QrBatchPanel({ onBatchCreated }: { onBatchCreated: () =>
 
       {state === "loading" && <TableSkeletonBody />}
       {state === "error" && <p className={styles.empty}>No fue posible cargar los lotes.</p>}
+
+      {state === "ready" && batches.length > 0 && (
+        <div className={styles.tabs} role="tablist" aria-label="Filtrar por origen">
+          <button type="button" className={originFilter === "all" ? styles.tabActive : styles.tab} onClick={() => setOriginFilter("all")}>
+            Todos ({batches.length})
+          </button>
+          <button
+            type="button"
+            className={originFilter === "proveedor" ? styles.tabActive : styles.tab}
+            onClick={() => setOriginFilter("proveedor")}
+          >
+            Proveedores ({batches.filter((b) => b.createdByRole === "proveedor").length})
+          </button>
+          <button
+            type="button"
+            className={originFilter === "otro" ? styles.tabActive : styles.tab}
+            onClick={() => setOriginFilter("otro")}
+          >
+            Sistema / admin ({batches.filter((b) => b.createdByRole !== "proveedor").length})
+          </button>
+        </div>
+      )}
+
       {state === "ready" && batches.length === 0 && (
         <p className={styles.empty}>Todavía no hay lotes. Crea el primero arriba.</p>
       )}
 
       {state === "ready" && batches.length > 0 && (
         <div className={styles.batchGrid}>
-          {batches.map((batch) => (
+          {batches
+            .filter((batch) => {
+              if (originFilter === "all") return true;
+              if (originFilter === "proveedor") return batch.createdByRole === "proveedor";
+              return batch.createdByRole !== "proveedor";
+            })
+            .map((batch) => (
             <div key={batch.id} className={styles.batchCard}>
               <div className={styles.batchHead}>
                 <div>
                   <p className={styles.batchName}>{batch.reference}</p>
                   <p className={styles.batchMeta}>
-                    {batch.total} placas · creado {formatDate(batch.createdAt)}
-                    {batch.isSystem ? " · lote del sistema" : ""}
+                    {batch.total} placas · creado {formatDate(batch.createdAt)} · origen: {batchOriginLabel(batch)}
                   </p>
                 </div>
               </div>

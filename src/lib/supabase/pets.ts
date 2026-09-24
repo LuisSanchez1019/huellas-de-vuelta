@@ -56,10 +56,31 @@ export async function updatePet(
   return data as Pet;
 }
 
-/** Borra la mascota. `pet_reports` se elimina en cascada, evitando reportes huerfanos. */
-export async function deletePet(supabase: SupabaseClient, id: string): Promise<void> {
+/**
+ * Elimina la mascota DEFINITIVAMENTE (un solo DELETE transaccional, protegido por
+ * RLS: solo el propietario). En cascada desaparecen reportes, información médica,
+ * consultas, medicamentos, aclaraciones, accesos veterinarios y su auditoría; sus
+ * placas QR vigentes se liberan (trigger). No se conserva ninguna copia.
+ * Después se borra la foto de Storage (mejor esfuerzo: si falla, la mascota ya no existe).
+ */
+export async function deletePet(supabase: SupabaseClient, id: string, photoPath?: string | null): Promise<void> {
   const { error } = await supabase.from(TABLE).delete().eq("id", id);
-  if (error) throw error;
+  if (error) {
+    // 23503 = foreign_key_violation: hoy solo puede ser un pedido de placa (registro comercial que se conserva).
+    if ((error as { code?: string }).code === "23503") {
+      throw new Error(
+        "Esta mascota tiene un pedido de placa registrado y no se puede eliminar por ahora. Contacta al soporte si necesitas eliminarla.",
+      );
+    }
+    throw error;
+  }
+  if (photoPath) {
+    try {
+      await supabase.storage.from(PET_PHOTO_BUCKET).remove([photoPath]);
+    } catch {
+      /* la foto queda huérfana; no revierte la eliminación */
+    }
+  }
   triggerPublicRevalidate([PUBLIC_STATS_TAG, PUBLIC_ADOPTIONS_TAG, PUBLIC_LOST_PETS_TAG]);
 }
 
@@ -108,6 +129,7 @@ export async function uploadPetPhoto(
 
 export type PublicPetTagState =
   | "active"
+  | "available"
   | "assigned"
   | "suspended"
   | "replaced"
@@ -154,11 +176,18 @@ export interface PublicPet {
 export interface PublicPetInactive {
   publicId: string;
   plateCode: string | null;
-  tagState: Exclude<PublicPetTagState, "active" | "legacy">;
+  tagState: Exclude<PublicPetTagState, "active" | "legacy" | "available">;
+}
+
+/** Placa que existe, no tiene mascota asignada todavía y puede reclamarse. */
+export interface PublicPetAvailable {
+  publicId: string;
+  plateCode: string | null;
 }
 
 export type PublicPetResult =
   | { kind: "pet"; pet: PublicPet }
+  | { kind: "available"; info: PublicPetAvailable }
   | { kind: "inactive"; info: PublicPetInactive }
   | { kind: "not-found" };
 
@@ -180,6 +209,15 @@ export async function fetchPublicPet(
   const tagState = (row.tag_state as PublicPetTagState | null) ?? null;
 
   if (!row.name) {
+    if (tagState === "available") {
+      return {
+        kind: "available",
+        info: {
+          publicId: String(row.public_id),
+          plateCode: (row.plate_code as string) ?? null,
+        },
+      };
+    }
     if (
       tagState === "assigned" ||
       tagState === "suspended" ||

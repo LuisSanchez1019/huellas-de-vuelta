@@ -6,6 +6,7 @@ import {
   adminListOrganizations,
   setOrgActive,
   setOrgApproval,
+  setProviderQrPrefix,
   type AdminOrganization,
 } from "@/lib/supabase/orgAdmin";
 import { orgApprovalLabels, orgCategoryLabels, type OrgApprovalStatus } from "@/lib/pets/reencuentro";
@@ -30,6 +31,8 @@ export default function AdminOrganizacionesPage() {
   const [busyId, setBusyId] = useState<string | null>(null);
   const [toast, setToast] = useState<ToastState | null>(null);
   const [pendingReject, setPendingReject] = useState<AdminOrganization | null>(null);
+  const [qrPrefixInputs, setQrPrefixInputs] = useState<Record<string, string>>({});
+  const [savingPrefixId, setSavingPrefixId] = useState<string | null>(null);
 
   const load = useCallback(() => {
     return Promise.resolve().then(async () => {
@@ -91,6 +94,28 @@ export default function AdminOrganizacionesPage() {
     if (!org) return;
     setPendingReject(null);
     await runDecide(org, "rejected", reason || undefined);
+  }
+
+  async function saveQrPrefix(org: AdminOrganization) {
+    const raw = (qrPrefixInputs[org.id] ?? org.qrPrefix ?? "").trim().toUpperCase();
+    if (!/^[A-Z]{3}$/.test(raw)) {
+      setToast({ variant: "error", message: "El prefijo debe ser exactamente 3 letras (A-Z)." });
+      return;
+    }
+    setSavingPrefixId(org.id);
+    try {
+      const supabase = createSupabaseBrowserClient();
+      await setProviderQrPrefix(supabase, org.id, raw);
+      setToast({ variant: "success", message: `Prefijo QR de «${org.name}» asignado: ${raw}.` });
+      await load();
+    } catch (error) {
+      setToast({
+        variant: "error",
+        message: error instanceof Error ? error.message : "No fue posible asignar el prefijo.",
+      });
+    } finally {
+      setSavingPrefixId(null);
+    }
   }
 
   async function toggleActive(org: AdminOrganization) {
@@ -187,7 +212,43 @@ export default function AdminOrganizacionesPage() {
                 <div><dt>Publicación</dt><dd>{org.status === "published" ? "Publicada por la organización" : "Borrador"}</dd></div>
                 {org.description && <div><dt>Descripción</dt><dd>{org.description}</dd></div>}
                 {org.rejectionReason && <div><dt>Motivo de rechazo</dt><dd>{org.rejectionReason}</dd></div>}
+                {org.kind === "proveedor" && (
+                  <div>
+                    <dt>Prefijo QR</dt>
+                    <dd>
+                      {org.qrPrefix ?? "Sin asignar"} · usado en los códigos que este proveedor genera
+                      (ej. {org.qrPrefix ?? "XXX"}-001)
+                    </dd>
+                  </div>
+                )}
               </dl>
+
+              {org.kind === "proveedor" && (
+                <div className={styles.actions} style={{ alignItems: "center" }}>
+                  <input
+                    className={controls.input}
+                    style={{ maxWidth: "8rem", textTransform: "uppercase" }}
+                    placeholder="Ej. PRV"
+                    maxLength={3}
+                    value={qrPrefixInputs[org.id] ?? org.qrPrefix ?? ""}
+                    onChange={(event) =>
+                      setQrPrefixInputs((prev) => ({ ...prev, [org.id]: event.target.value.toUpperCase() }))
+                    }
+                  />
+                  <button
+                    type="button"
+                    className={styles.reset}
+                    disabled={savingPrefixId === org.id}
+                    onClick={() => saveQrPrefix(org)}
+                  >
+                    {savingPrefixId === org.id
+                      ? "Guardando…"
+                      : org.qrPrefix
+                        ? "Cambiar prefijo QR"
+                        : "Asignar prefijo QR"}
+                  </button>
+                </div>
+              )}
 
               <div className={styles.actions}>
                 {org.approvalStatus !== "approved" && (

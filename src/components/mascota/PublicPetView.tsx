@@ -1,18 +1,20 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import {
   fetchPublicPet,
   PET_PHOTO_BUCKET,
   type PublicPet,
+  type PublicPetAvailable,
   type PublicPetInactive,
 } from "@/lib/supabase/pets";
 import { speciesLabels, statusLabels, sexLabels, ageUnitLabels, catColorLabels } from "@/lib/pets/labels";
 import { AlertIcon, LockIcon, PawIcon, PinIcon, StethoscopeIcon } from "@/components/icons/Icon";
 import ThemeToggle from "@/components/theme/ThemeToggle";
 import FoundPetWizard from "@/components/reencuentro/FoundPetWizard";
+import ClaimQrFlow from "./ClaimQrFlow";
 import styles from "./publicPet.module.css";
 
 const BADGE_CLASS: Record<PublicPet["status"], string> = {
@@ -47,18 +49,31 @@ const INACTIVE_MESSAGE: Record<PublicPetInactive["tagState"], string> = {
 };
 
 export default function PublicPetView({ publicId }: { publicId: string }) {
-  const [state, setState] = useState<"loading" | "found" | "inactive" | "not-found" | "error">("loading");
+  const [state, setState] = useState<"loading" | "found" | "available" | "inactive" | "not-found" | "error">(
+    "loading",
+  );
   const [pet, setPet] = useState<PublicPet | null>(null);
   const [inactive, setInactive] = useState<PublicPetInactive | null>(null);
+  const [available, setAvailable] = useState<PublicPetAvailable | null>(null);
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
+  // Un único cliente por montaje (evita multiplicar instancias de GoTrueClient
+  // sobre el mismo storage key entre esta vista y ClaimQrFlow).
+  const supabase = useMemo(() => createSupabaseBrowserClient(), []);
 
-  useEffect(() => {
+  // Sin reset síncrono al inicio a propósito: el valor inicial de `state` ya
+  // es "loading", así que el efecto de montaje no necesita reasignarlo antes
+  // del primer `await` (evita el patrón que dispara set-state-in-effect).
+  const fetchState = useCallback(() => {
     if (!publicId) return;
-    const supabase = createSupabaseBrowserClient();
     fetchPublicPet(supabase, publicId)
       .then(async (result) => {
         if (result.kind === "not-found") {
           setState("not-found");
+          return;
+        }
+        if (result.kind === "available") {
+          setAvailable(result.info);
+          setState("available");
           return;
         }
         if (result.kind === "inactive") {
@@ -76,7 +91,22 @@ export default function PublicPetView({ publicId }: { publicId: string }) {
         }
       })
       .catch(() => setState("error"));
-  }, [publicId]);
+  }, [publicId, supabase]);
+
+  useEffect(() => {
+    fetchState();
+  }, [fetchState]);
+
+  /** Recarga el perfil tras reclamar una placa. Solo se llama desde un
+   *  manejador de evento (dentro de ClaimQrFlow), nunca desde un efecto. */
+  function reload() {
+    setState("loading");
+    setAvailable(null);
+    setInactive(null);
+    setPet(null);
+    setPhotoUrl(null);
+    fetchState();
+  }
 
   const isLost = pet?.status === "lost" && Boolean(pet.reportId);
 
@@ -100,6 +130,9 @@ export default function PublicPetView({ publicId }: { publicId: string }) {
         )}
         {state === "error" && (
           <p className={styles.state}>No fue posible cargar la información. Intenta de nuevo más tarde.</p>
+        )}
+        {state === "available" && available && (
+          <ClaimQrFlow publicId={publicId} plateCode={available.plateCode} onClaimed={reload} />
         )}
 
         {state === "found" && pet && (

@@ -6,6 +6,7 @@ import { usePanelGuard, toPanelUser } from "@/components/panel/usePanelGuard";
 import { useIsAdmin } from "@/components/panel/useIsAdmin";
 import { buildPanelNav } from "@/components/panel/nav";
 import PanelGuardError from "@/components/panel/PanelGuardError";
+import BirthdayGreeting from "@/components/mascotas/BirthdayGreeting";
 import { ShieldIcon, UserIcon } from "@/components/icons/Icon";
 import styles from "./dashboard.module.css";
 
@@ -43,6 +44,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       }
     >
       {children}
+      <BirthdayGreeting />
     </PanelShell>
   );
 }

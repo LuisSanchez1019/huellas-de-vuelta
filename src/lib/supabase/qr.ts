@@ -31,6 +31,10 @@ export interface QrBatch {
   note: string | null;
   isSystem: boolean;
   createdAt: string;
+  /** Rol de quien creó el lote ("proveedor", "usuario"/admin, o null si no se pudo resolver). */
+  createdByRole: string | null;
+  /** Nombre a mostrar de quien lo creó: nombre de la empresa si es proveedor, si no su nombre de perfil. */
+  createdByName: string | null;
   total: number;
   available: number;
   assigned: number;
@@ -128,6 +132,8 @@ export async function listQrBatches(supabase: SupabaseClient): Promise<QrBatch[]
     note: (row.note as string) ?? null,
     isSystem: Boolean(row.is_system),
     createdAt: String(row.created_at),
+    createdByRole: (row.created_by_role as string) ?? null,
+    createdByName: (row.created_by_name as string) ?? null,
     total: Number(row.total),
     available: Number(row.available),
     assigned: Number(row.assigned),

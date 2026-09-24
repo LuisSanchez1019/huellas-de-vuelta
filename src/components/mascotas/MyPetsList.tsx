@@ -11,6 +11,7 @@ import { fetchMyPetsForPlate, ORDER_STATUS_LABEL, type PetForPlate } from "@/lib
 import type { Pet } from "@/lib/supabase/types";
 import type { PetReport } from "@/lib/pets/reports";
 import { ageUnitLabels, catColorLabels, sexLabels, speciesLabels, statusLabels } from "@/lib/pets/labels";
+import { HUMAN_AGE_NOTE, formatAge, formatBirthDate, todayLocal } from "@/lib/pets/age";
 import {
   ClockIcon,
   GenderIcon,
@@ -21,7 +22,9 @@ import {
   TagIcon,
 } from "@/components/icons/Icon";
 import Toast, { type ToastState } from "@/components/ui/Toast";
-import ConfirmDialog from "@/components/ui/ConfirmDialog";
+import DeletePetDialog, { type DeleteBusy } from "@/components/mascotas/DeletePetDialog";
+import { downloadPetInfoPdf } from "@/lib/pets/petInfoExport";
+import { vetErrorMessage } from "@/lib/vet/errors";
 import EditPetModal from "@/components/mascotas/EditPetModal";
 import { ListSkeletonBody } from "@/components/loading/SkeletonVariants";
 import styles from "@/components/mascotas/petsList.module.css";
@@ -68,7 +71,8 @@ function MyPetsListContent({ basePath, showPlateOrdering }: { basePath: string; 
   const [toast, setToast] = useState<ToastState | null>(null);
   const [editingPet, setEditingPet] = useState<Pet | null>(null);
   const [deletingPet, setDeletingPet] = useState<Pet | null>(null);
-  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteBusy, setDeleteBusy] = useState<DeleteBusy>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   useEffect(() => {
     const supabase = createSupabaseBrowserClient();
@@ -116,22 +120,46 @@ function MyPetsListContent({ basePath, showPlateOrdering }: { basePath: string; 
     loadPets();
   }, [checking, session, loadPets]);
 
-  async function confirmDelete() {
-    if (!deletingPet) return;
-    setIsDeleting(true);
+  function closeDelete() {
+    setDeletingPet(null);
+    setDeleteError(null);
+  }
+
+  /**
+   * Eliminación definitiva. Con `withPdf`, primero se genera y descarga el PDF; solo
+   * si eso salió bien se elimina. Si el PDF falla NO se elimina nada (el usuario
+   * puede reintentar o elegir "Eliminar sin descargar"). El PDF nunca se guarda.
+   */
+  async function runDelete(withPdf: boolean) {
+    if (!deletingPet || deleteBusy) return;
+    const pet = deletingPet;
+    const supabase = createSupabaseBrowserClient();
+    setDeleteError(null);
+    if (withPdf) {
+      setDeleteBusy("download");
+      try {
+        await downloadPetInfoPdf(supabase, pet.id);
+      } catch (caughtError) {
+        setDeleteError(
+          `No se pudo generar el PDF, así que la mascota NO se eliminó. ${vetErrorMessage(caughtError)} Puedes reintentar o elegir «Eliminar sin descargar».`,
+        );
+        setDeleteBusy(null);
+        return;
+      }
+    }
+    setDeleteBusy("delete");
     try {
-      const supabase = createSupabaseBrowserClient();
-      await deletePet(supabase, deletingPet.id);
-      setToast({ variant: "success", message: `«${deletingPet.name}» se eliminó.` });
-      setDeletingPet(null);
+      await deletePet(supabase, pet.id, pet.photo_path);
+      setToast({
+        variant: "success",
+        message: `«${pet.name}» se eliminó definitivamente.${withPdf ? " El PDF se descargó en tu dispositivo." : ""}`,
+      });
+      closeDelete();
       await loadPets();
     } catch (caughtError) {
-      setToast({
-        variant: "error",
-        message: caughtError instanceof Error ? caughtError.message : "No fue posible eliminar la mascota.",
-      });
+      setDeleteError(caughtError instanceof Error ? caughtError.message : "No fue posible eliminar la mascota.");
     } finally {
-      setIsDeleting(false);
+      setDeleteBusy(null);
     }
   }
 
@@ -188,11 +216,26 @@ function MyPetsListContent({ basePath, showPlateOrdering }: { basePath: string; 
                       <span className={styles.infoRow}>
                         <PawIcon size={14} /><span>{speciesText(pet)}</span>
                       </span>
-                      {pet.age_value != null && pet.age_unit && (
+                      {pet.birth_date && (
                         <span className={styles.infoRow}>
                           <ClockIcon size={15} />
-                          <span>{pet.age_value} {ageUnitLabels[pet.age_unit].toLowerCase()}</span>
+                          <span>Fecha de nacimiento: {formatBirthDate(pet.birth_date)}</span>
                         </span>
+                      )}
+                      {pet.birth_date && formatAge(pet.birth_date, todayLocal()) && (
+                        <span className={styles.infoRow}>
+                          <ClockIcon size={15} />
+                          <span>Edad: {formatAge(pet.birth_date, todayLocal())}</span>
+                        </span>
+                      )}
+                      {!pet.birth_date && pet.age_value != null && pet.age_unit && (
+                        <span className={styles.infoRow}>
+                          <ClockIcon size={15} />
+                          <span>Edad: {pet.age_value} {ageUnitLabels[pet.age_unit].toLowerCase()}</span>
+                        </span>
+                      )}
+                      {(pet.birth_date || (pet.age_value != null && pet.age_unit)) && (
+                        <p className={styles.ageNote}>{HUMAN_AGE_NOTE}</p>
                       )}
                       {pet.sex && (
                         <span className={styles.infoRow}>
@@ -292,20 +335,24 @@ function MyPetsListContent({ basePath, showPlateOrdering }: { basePath: string; 
         />
       )}
 
-      <ConfirmDialog
+      <DeletePetDialog
         open={Boolean(deletingPet)}
-        title="Eliminar mascota"
-        message={
+        petName={deletingPet?.name ?? ""}
+        notes={
           deletingPet
-            ? `Se eliminará «${deletingPet.name}» de forma permanente.` +
-              (reports[deletingPet.id] ? " También se eliminará su reporte de mascota perdida activo." : "")
-            : ""
+            ? [
+                ...(reports[deletingPet.id] ? ["También se eliminará su reporte de mascota perdida activo."] : []),
+                ...(plateInfo[deletingPet.id]?.plateCode
+                  ? [`Su placa ${plateInfo[deletingPet.id].plateCode} quedará libre para asignarse de nuevo.`]
+                  : []),
+              ]
+            : []
         }
-        confirmLabel={isDeleting ? "Eliminando…" : "Sí, eliminar"}
-        cancelLabel="Cancelar"
-        tone="danger"
-        onConfirm={confirmDelete}
-        onCancel={() => setDeletingPet(null)}
+        busy={deleteBusy}
+        error={deleteError}
+        onDownloadAndDelete={() => runDelete(true)}
+        onDeleteOnly={() => runDelete(false)}
+        onCancel={closeDelete}
       />
 
       {error ? (

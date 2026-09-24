@@ -11,6 +11,7 @@ import {
   sexOptions,
   speciesOptions,
 } from "@/lib/pets/labels";
+import { todayLocal, validateBirthDate } from "@/lib/pets/age";
 import PetPhotoInput, { type PreparedPhoto } from "./PetPhotoInput";
 import Toast, { type ToastState } from "@/components/ui/Toast";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
@@ -24,6 +25,7 @@ type OwnerStatus = "checking" | "ready" | "no-session";
 const EMPTY = {
   species: "" as "" | PetSpecies,
   name: "",
+  birthDate: "",
   ageValue: "",
   ageUnit: "years" as PetAgeUnit,
   sex: "" as "" | PetSex,
@@ -96,6 +98,7 @@ export default function RegisterPetForm({ basePath = "/dashboard" }: { basePath?
     return (
       form.species !== "" ||
       form.name !== "" ||
+      form.birthDate !== "" ||
       form.ageValue !== "" ||
       form.sex !== "" ||
       form.breed !== "" ||
@@ -133,10 +136,15 @@ export default function RegisterPetForm({ basePath = "/dashboard" }: { basePath?
     if (!form.species) return "Selecciona el tipo de mascota.";
     if (!form.name.trim()) return "Ingresa el nombre de la mascota.";
 
-    if (!form.ageValue.trim()) return "Ingresa la edad de la mascota.";
-    const age = Number(form.ageValue);
-    if (!Number.isInteger(age) || age < 1 || age > 1200) {
-      return "La edad debe ser un número entero válido.";
+    const birthProblem = validateBirthDate(form.birthDate, todayLocal());
+    if (birthProblem) return birthProblem;
+    if (!form.birthDate) {
+      // Sin fecha de nacimiento se pide la edad aproximada (comportamiento anterior).
+      if (!form.ageValue.trim()) return "Ingresa la fecha de nacimiento o la edad de la mascota.";
+      const age = Number(form.ageValue);
+      if (!Number.isInteger(age) || age < 1 || age > 1200) {
+        return "La edad debe ser un número entero válido.";
+      }
     }
 
     if (!form.sex) return "Selecciona el sexo de la mascota.";
@@ -186,8 +194,9 @@ export default function RegisterPetForm({ basePath = "/dashboard" }: { basePath?
       color_primary: species === "cat" ? form.colorPrimary : null,
       color_secondary: species === "cat" && form.colorSecondary ? form.colorSecondary : null,
       color_tertiary: species === "cat" && form.colorTertiary ? form.colorTertiary : null,
-      age_value: Number(form.ageValue),
-      age_unit: form.ageUnit,
+      birth_date: form.birthDate || null,
+      age_value: form.birthDate ? null : Number(form.ageValue),
+      age_unit: form.birthDate ? null : form.ageUnit,
       sex: form.sex as PetSex,
       description: form.description.trim() || null,
       photo_path: null,
@@ -274,9 +283,21 @@ export default function RegisterPetForm({ basePath = "/dashboard" }: { basePath?
             />
           </label>
 
+          <label>
+            Fecha de nacimiento (opcional)
+            <input
+              type="date"
+              value={form.birthDate}
+              min="1980-01-01"
+              max={todayLocal()}
+              onChange={(event) => update("birthDate", event.target.value)}
+              disabled={disabled}
+            />
+          </label>
+
           <div className={styles.row}>
             <label>
-              Edad
+              Edad aproximada
               <input
                 type="number"
                 inputMode="numeric"
@@ -284,7 +305,8 @@ export default function RegisterPetForm({ basePath = "/dashboard" }: { basePath?
                 max={1200}
                 value={form.ageValue}
                 onChange={(event) => update("ageValue", event.target.value)}
-                disabled={disabled}
+                disabled={disabled || form.birthDate !== ""}
+                placeholder={form.birthDate ? "Se calcula sola" : undefined}
               />
             </label>
             <label>
@@ -292,7 +314,7 @@ export default function RegisterPetForm({ basePath = "/dashboard" }: { basePath?
               <select
                 value={form.ageUnit}
                 onChange={(event) => update("ageUnit", event.target.value as PetAgeUnit)}
-                disabled={disabled}
+                disabled={disabled || form.birthDate !== ""}
               >
                 {ageUnitOptions.map(([value, label]) => (
                   <option key={value} value={value}>{label}</option>

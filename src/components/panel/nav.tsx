@@ -4,6 +4,7 @@ import {
   PawIcon,
   ReportIcon,
   ShieldIcon,
+  StethoscopeIcon,
   UserIcon,
 } from "@/components/icons/Icon";
 import type { NavEntry } from "./types";
@@ -31,6 +32,7 @@ const BASE_NAV: NavEntry[] = [
       { label: "Historial", href: "/dashboard/reportes/historial" },
     ],
   },
+  { type: "link", label: "Accesos veterinarios", href: "/dashboard/accesos-veterinarios", icon: <StethoscopeIcon size={20} /> },
   { type: "link", label: "Notificaciones", href: "/dashboard/notificaciones", icon: <BellIcon size={20} /> },
   { type: "link", label: "Mi perfil", href: "/dashboard/perfil", icon: <UserIcon size={20} /> },
   { type: "link", label: "Seguridad y privacidad", href: "/dashboard/configuracion/seguridad", icon: <ShieldIcon size={19} /> },

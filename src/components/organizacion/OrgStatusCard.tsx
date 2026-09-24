@@ -7,11 +7,12 @@ import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { foundationRepository } from "@/lib/foundations/repository";
 import { veterinaryRepository } from "@/lib/veterinaries/repository";
 import { aliadoRepository } from "@/lib/aliados/repository";
+import { proveedorRepository } from "@/lib/proveedores/repository";
 import { fetchNotifications, markNotificationRead, type AppNotification } from "@/lib/supabase/notifications";
 import { AlertIcon, CheckIcon, CloseIcon, ShieldIcon } from "@/components/icons/Icon";
 import styles from "./orgStatusCard.module.css";
 
-type Role = "veterinaria" | "fundacion" | "aliado";
+type Role = "veterinaria" | "fundacion" | "aliado" | "proveedor";
 
 interface OrgState {
   approvalStatus: "pending" | "approved" | "rejected";
@@ -24,31 +25,37 @@ const CREATE_HREF: Record<Role, string> = {
   veterinaria: "/veterinaria/perfil/crear",
   fundacion: "/fundacion/perfil",
   aliado: "/aliado/perfil",
+  proveedor: "/proveedor/perfil",
 };
 
 const ORG_NOUN: Record<Role, string> = {
   veterinaria: "tu veterinaria",
   fundacion: "tu fundación",
   aliado: "tu empresa",
+  proveedor: "tu empresa proveedora",
 };
 
 const REPOSITORY_BY_ROLE = {
   veterinaria: veterinaryRepository,
   fundacion: foundationRepository,
   aliado: aliadoRepository,
+  proveedor: proveedorRepository,
 } as const;
 
 // El directorio público de aliados todavía no existe (§ aparte); su texto de
-// aprobación no debe prometer visibilidad pública que hoy no ocurre.
+// aprobación no debe prometer visibilidad pública que hoy no ocurre. El
+// proveedor no tiene directorio público en absoluto (no es parte de este bloque).
 const ACTIVE_TEXT: Record<Role, string> = {
   veterinaria: "Forma parte de nuestra red de ayuda para mascotas y aparece públicamente en el directorio del Landing.",
   fundacion: "Forma parte de nuestra red de ayuda para mascotas y aparece públicamente en el directorio del Landing.",
   aliado: "Tu perfil de empresa fue verificado por el equipo de Huellas de Vuelta.",
+  proveedor: "Tu cuenta de proveedor fue verificada por el equipo de Huellas de Vuelta.",
 };
 const PENDING_TEXT: Record<Role, string> = {
   veterinaria: "El equipo de Huellas de Vuelta revisará tu perfil. Aparecerá públicamente en el Landing cuando sea aprobada.",
   fundacion: "El equipo de Huellas de Vuelta revisará tu perfil. Aparecerá públicamente en el Landing cuando sea aprobada.",
   aliado: "El equipo de Huellas de Vuelta revisará el perfil de tu empresa.",
+  proveedor: "El equipo de Huellas de Vuelta revisará el perfil de tu empresa proveedora.",
 };
 
 export default function OrgStatusCard({ role }: { role: Role }) {

@@ -14,14 +14,15 @@ import {
   roleMismatchLoginMessage,
 } from "@/lib/auth/accountRole";
 import { roleHome, type AccountRole } from "@/lib/auth/roles";
+import { isSafeInternalPath } from "@/lib/auth/redirect";
 import { orgNameAvailable, type OrgNameKind } from "@/lib/supabase/orgProfiles";
 import { DATA_POLICY_PATH, DATA_POLICY_VERSION } from "@/lib/legal/policy";
-import { CheckIcon, HeartIcon, StethoscopeIcon, UserIcon } from "@/components/icons/Icon";
+import { CheckIcon, HeartIcon, IdCardIcon, StethoscopeIcon, UserIcon } from "@/components/icons/Icon";
 import ThemeToggle from "@/components/theme/ThemeToggle";
 import styles from "@/app/auth/page.module.css";
 
 type Mode = "sign-in" | "sign-up";
-export type PortalVariant = "usuario" | "veterinaria" | "fundacion" | "aliado";
+export type PortalVariant = "usuario" | "veterinaria" | "fundacion" | "aliado" | "proveedor";
 
 interface VariantConfig {
   role: AccountRole;
@@ -81,6 +82,18 @@ const CONFIG: Record<PortalVariant, VariantConfig> = {
     note:
       "El nombre de la empresa corresponde al nombre con el que tu empresa aparecerá asociada a esta cuenta; es un dato distinto de tu nombre personal. Podrás completar el resto del perfil (logo, país, ciudad, dirección) después de crear la cuenta.",
   },
+  proveedor: {
+    role: "proveedor",
+    title: "Ingreso de proveedores",
+    eyebrow: "Empresas proveedoras",
+    hint: "Accede como proveedor autorizado de Huellas de Vuelta.",
+    description: "Accede como proveedor autorizado de Huellas de Vuelta.",
+    icon: <IdCardIcon size={18} />,
+    orgNameLabel: "Nombre del proveedor/empresa",
+    orgNamePlaceholder: "Proveedor XYZ S.A.S.",
+    note:
+      "El nombre del proveedor corresponde al nombre con el que tu empresa aparecerá asociada a esta cuenta. Las funciones de generación y gestión de QR estarán disponibles próximamente en tu panel.",
+  },
 };
 
 function EyeIcon({ hidden }: { hidden: boolean }) {
@@ -107,10 +120,20 @@ function PortalForm({ variant }: { variant: PortalVariant }) {
   const hasOrgName = variant !== "usuario";
   const isVetFun = variant === "veterinaria" || variant === "fundacion";
   const orgKindLabel =
-    variant === "veterinaria" ? "veterinaria" : variant === "fundacion" ? "fundación" : "empresa aliada";
+    variant === "veterinaria"
+      ? "veterinaria"
+      : variant === "fundacion"
+        ? "fundación"
+        : variant === "proveedor"
+          ? "empresa proveedora"
+          : "empresa aliada";
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialMode: Mode = searchParams.get("mode") === "sign-in" ? "sign-in" : "sign-up";
+  // Ruta a la que volver tras iniciar sesión (ej. "/m/<publicId>" al reclamar
+  // una placa QR). SOLO se acepta una ruta interna — ver isSafeInternalPath.
+  const nextParamRaw = searchParams.get("next");
+  const safeNext = isSafeInternalPath(nextParamRaw) ? nextParamRaw : null;
 
   const [mode, setMode] = useState<Mode>(initialMode);
   const [message, setMessage] = useState<string | null>(null);
@@ -228,7 +251,7 @@ function PortalForm({ variant }: { variant: PortalVariant }) {
         if (data.session) {
           const check = await resolvePanelSession();
           router.push(
-            check.status === "authenticated" ? roleHome[check.session.role] : roleHome[cfg.role],
+            safeNext ?? (check.status === "authenticated" ? roleHome[check.session.role] : roleHome[cfg.role]),
           );
         } else {
           setMessage("Revisa tu correo para confirmar la cuenta antes de iniciar sesión.");
@@ -249,7 +272,7 @@ function PortalForm({ variant }: { variant: PortalVariant }) {
 
         form.reset();
         setShowPassword(false);
-        router.push(roleHome[realRole]);
+        router.push(safeNext ?? roleHome[realRole]);
       }
     } catch (caughtError) {
       setError(translateAuthError(caughtError));

@@ -27,6 +27,8 @@ export interface AdminOrganization {
   verifiedAt: string | null;
   rejectionReason: string | null;
   createdAt: string;
+  /** Prefijo de 3 letras para los códigos QR del proveedor (kind='proveedor'). null = todavía no asignado. */
+  qrPrefix: string | null;
 }
 
 export async function adminListOrganizations(
@@ -59,6 +61,7 @@ export async function adminListOrganizations(
     verifiedAt: (row.verified_at as string) ?? null,
     rejectionReason: (row.rejection_reason as string) ?? null,
     createdAt: String(row.created_at ?? ""),
+    qrPrefix: (row.qr_prefix as string) ?? null,
   }));
 }
 
@@ -91,4 +94,17 @@ export async function setOrgActive(
   });
   if (error) throw error;
   triggerPublicRevalidate([PUBLIC_ORGS_TAG, PUBLIC_STATS_TAG]);
+}
+
+/** Asigna (o cambia) el prefijo de 3 letras que un proveedor usará en sus códigos QR (solo admin). */
+export async function setProviderQrPrefix(
+  supabase: SupabaseClient,
+  orgId: string,
+  prefix: string,
+): Promise<void> {
+  const { error } = await supabase.rpc("admin_set_provider_qr_prefix", {
+    p_org_id: orgId,
+    p_prefix: prefix,
+  });
+  if (error) throw error;
 }

@@ -5,11 +5,12 @@ import PanelShell from "@/components/panel/PanelShell";
 import { usePanelGuard, toPanelUser } from "@/components/panel/usePanelGuard";
 import PanelGuardError from "@/components/panel/PanelGuardError";
 import type { NavEntry } from "@/components/panel/types";
-import { HandIcon, HomeIcon, IdCardIcon, MegaphoneIcon, PawIcon, SettingsIcon, UserIcon } from "@/components/icons/Icon";
+import { HandIcon, HomeIcon, IdCardIcon, MegaphoneIcon, PawIcon, SearchIcon, SettingsIcon, UserIcon } from "@/components/icons/Icon";
 import styles from "./veterinaria.module.css";
 
 const VETERINARIA_NAV: NavEntry[] = [
   { type: "link", label: "Inicio", href: "/veterinaria", icon: <HomeIcon size={20} /> },
+  { type: "link", label: "Consultar mascota", href: "/veterinaria/consultar", icon: <SearchIcon size={20} /> },
   {
     type: "group",
     label: "Mascotas",
@@ -47,6 +48,7 @@ export default function VeterinariaLayout({ children }: { children: ReactNode })
       nav={VETERINARIA_NAV}
       brandHref="/veterinaria"
       brandLabel="Huellas de Vuelta"
+      notificationsHref="/veterinaria/notificaciones"
       badge="Veterinaria"
       menuItems={[
         { label: "Mi perfil", href: "/veterinaria/perfil", icon: <UserIcon size={17} /> },

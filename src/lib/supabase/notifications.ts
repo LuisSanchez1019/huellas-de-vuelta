@@ -12,7 +12,11 @@ export type NotificationType =
   | "poster_approved"
   | "poster_rejected"
   | "admin_new_org"
-  | "admin_new_plate_order";
+  | "admin_new_plate_order"
+  | "vet_access_requested"
+  | "vet_access_decided"
+  | "vet_access_revoked"
+  | "vet_emergency_access";
 
 /** Ruta a la que enlaza cada tipo de notificación (o `null` si no aplica). */
 export function notificationLink(type: NotificationType): string | null {
@@ -21,6 +25,12 @@ export function notificationLink(type: NotificationType): string | null {
       return "/admin/organizaciones";
     case "admin_new_plate_order":
       return "/admin/pedidos";
+    case "vet_access_requested":
+    case "vet_emergency_access":
+      return "/dashboard/accesos-veterinarios";
+    case "vet_access_decided":
+    case "vet_access_revoked":
+      return "/veterinaria/consultar";
     case "poster_approved":
     case "poster_rejected":
     case "org_approved":

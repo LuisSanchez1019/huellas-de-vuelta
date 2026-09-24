@@ -475,6 +475,7 @@ export type Database = {
           neighborhood: string | null
           owner_id: string
           phone: string | null
+          qr_prefix: string | null
           rejection_reason: string | null
           sector_id: string | null
           services: string[]
@@ -513,6 +514,7 @@ export type Database = {
           neighborhood?: string | null
           owner_id: string
           phone?: string | null
+          qr_prefix?: string | null
           rejection_reason?: string | null
           sector_id?: string | null
           services?: string[]
@@ -551,6 +553,7 @@ export type Database = {
           neighborhood?: string | null
           owner_id?: string
           phone?: string | null
+          qr_prefix?: string | null
           rejection_reason?: string | null
           sector_id?: string | null
           services?: string[]
@@ -619,11 +622,35 @@ export type Database = {
           },
         ]
       }
+      pet_birthday_greetings: {
+        Row: {
+          last_greeted_on: string
+          user_id: string
+        }
+        Insert: {
+          last_greeted_on: string
+          user_id: string
+        }
+        Update: {
+          last_greeted_on?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pet_birthday_greetings_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pet_medical_items: {
         Row: {
           author_id: string | null
           created_at: string
           detail: string | null
+          emergency_visible: boolean
           id: string
           kind: string
           label: string
@@ -635,6 +662,7 @@ export type Database = {
           author_id?: string | null
           created_at?: string
           detail?: string | null
+          emergency_visible?: boolean
           id?: string
           kind: string
           label: string
@@ -646,6 +674,7 @@ export type Database = {
           author_id?: string | null
           created_at?: string
           detail?: string | null
+          emergency_visible?: boolean
           id?: string
           kind?: string
           label?: string
@@ -898,10 +927,58 @@ export type Database = {
           },
         ]
       }
+      pet_vaccinations: {
+        Row: {
+          application_date: string
+          created_at: string
+          id: string
+          lot_number: string | null
+          next_dose_date: string | null
+          notes: string | null
+          pet_id: string
+          updated_at: string
+          vaccine_name: string
+          veterinary_name: string | null
+        }
+        Insert: {
+          application_date: string
+          created_at?: string
+          id?: string
+          lot_number?: string | null
+          next_dose_date?: string | null
+          notes?: string | null
+          pet_id: string
+          updated_at?: string
+          vaccine_name: string
+          veterinary_name?: string | null
+        }
+        Update: {
+          application_date?: string
+          created_at?: string
+          id?: string
+          lot_number?: string | null
+          next_dose_date?: string | null
+          notes?: string | null
+          pet_id?: string
+          updated_at?: string
+          vaccine_name?: string
+          veterinary_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pet_vaccinations_pet_id_fkey"
+            columns: ["pet_id"]
+            isOneToOne: false
+            referencedRelation: "pets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pets: {
         Row: {
           age_unit: string | null
           age_value: number | null
+          birth_date: string | null
           breed: string | null
           color: string | null
           color_primary: string | null
@@ -924,6 +1001,7 @@ export type Database = {
         Insert: {
           age_unit?: string | null
           age_value?: number | null
+          birth_date?: string | null
           breed?: string | null
           color?: string | null
           color_primary?: string | null
@@ -946,6 +1024,7 @@ export type Database = {
         Update: {
           age_unit?: string | null
           age_value?: number | null
+          birth_date?: string | null
           breed?: string | null
           color?: string | null
           color_primary?: string | null
@@ -1762,6 +1841,389 @@ export type Database = {
           },
         ]
       }
+      vet_access_audit: {
+        Row: {
+          access_level: string
+          action: string
+          actor_id: string | null
+          actor_org_id: string | null
+          at: string
+          code_hint: string | null
+          emergency_reason: string | null
+          grant_id: string | null
+          id: string
+          method: string | null
+          pet_id: string | null
+        }
+        Insert: {
+          access_level: string
+          action: string
+          actor_id?: string | null
+          actor_org_id?: string | null
+          at?: string
+          code_hint?: string | null
+          emergency_reason?: string | null
+          grant_id?: string | null
+          id?: string
+          method?: string | null
+          pet_id?: string | null
+        }
+        Update: {
+          access_level?: string
+          action?: string
+          actor_id?: string | null
+          actor_org_id?: string | null
+          at?: string
+          code_hint?: string | null
+          emergency_reason?: string | null
+          grant_id?: string | null
+          id?: string
+          method?: string | null
+          pet_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vet_access_audit_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vet_access_audit_actor_org_id_fkey"
+            columns: ["actor_org_id"]
+            isOneToOne: false
+            referencedRelation: "organization_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vet_access_audit_grant_id_fkey"
+            columns: ["grant_id"]
+            isOneToOne: false
+            referencedRelation: "vet_access_grants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vet_access_audit_pet_id_fkey"
+            columns: ["pet_id"]
+            isOneToOne: false
+            referencedRelation: "pets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vet_access_grants: {
+        Row: {
+          created_at: string
+          decided_at: string | null
+          expires_at: string | null
+          granted_duration: string | null
+          granted_permissions: string[]
+          id: string
+          identification_method: string | null
+          org_id: string
+          owner_id: string
+          pet_id: string
+          reason: string | null
+          requested_duration: string
+          requested_permissions: string[]
+          revoked_at: string | null
+          revoked_by: string | null
+          status: string
+          vet_user_id: string
+        }
+        Insert: {
+          created_at?: string
+          decided_at?: string | null
+          expires_at?: string | null
+          granted_duration?: string | null
+          granted_permissions?: string[]
+          id?: string
+          identification_method?: string | null
+          org_id: string
+          owner_id: string
+          pet_id: string
+          reason?: string | null
+          requested_duration: string
+          requested_permissions: string[]
+          revoked_at?: string | null
+          revoked_by?: string | null
+          status?: string
+          vet_user_id: string
+        }
+        Update: {
+          created_at?: string
+          decided_at?: string | null
+          expires_at?: string | null
+          granted_duration?: string | null
+          granted_permissions?: string[]
+          id?: string
+          identification_method?: string | null
+          org_id?: string
+          owner_id?: string
+          pet_id?: string
+          reason?: string | null
+          requested_duration?: string
+          requested_permissions?: string[]
+          revoked_at?: string | null
+          revoked_by?: string | null
+          status?: string
+          vet_user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vet_access_grants_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organization_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vet_access_grants_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vet_access_grants_pet_id_fkey"
+            columns: ["pet_id"]
+            isOneToOne: false
+            referencedRelation: "pets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vet_access_grants_revoked_by_fkey"
+            columns: ["revoked_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vet_access_grants_vet_user_id_fkey"
+            columns: ["vet_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vet_consultation_addenda: {
+        Row: {
+          body: string
+          client_request_id: string
+          consultation_id: string
+          created_at: string
+          grant_id: string | null
+          id: string
+          org_id: string | null
+          vet_user_id: string | null
+        }
+        Insert: {
+          body: string
+          client_request_id: string
+          consultation_id: string
+          created_at?: string
+          grant_id?: string | null
+          id?: string
+          org_id?: string | null
+          vet_user_id?: string | null
+        }
+        Update: {
+          body?: string
+          client_request_id?: string
+          consultation_id?: string
+          created_at?: string
+          grant_id?: string | null
+          id?: string
+          org_id?: string | null
+          vet_user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vet_consultation_addenda_consultation_id_fkey"
+            columns: ["consultation_id"]
+            isOneToOne: false
+            referencedRelation: "vet_consultations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vet_consultation_addenda_grant_id_fkey"
+            columns: ["grant_id"]
+            isOneToOne: false
+            referencedRelation: "vet_access_grants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vet_consultation_addenda_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organization_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vet_consultation_addenda_vet_user_id_fkey"
+            columns: ["vet_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vet_consultation_medications: {
+        Row: {
+          consultation_id: string
+          dose: number | null
+          dose_unit: string | null
+          duration_days: number | null
+          end_date: string | null
+          frequency: string | null
+          id: string
+          instructions: string | null
+          name: string
+          notes: string | null
+          position: number
+          route: string | null
+          start_date: string | null
+        }
+        Insert: {
+          consultation_id: string
+          dose?: number | null
+          dose_unit?: string | null
+          duration_days?: number | null
+          end_date?: string | null
+          frequency?: string | null
+          id?: string
+          instructions?: string | null
+          name: string
+          notes?: string | null
+          position: number
+          route?: string | null
+          start_date?: string | null
+        }
+        Update: {
+          consultation_id?: string
+          dose?: number | null
+          dose_unit?: string | null
+          duration_days?: number | null
+          end_date?: string | null
+          frequency?: string | null
+          id?: string
+          instructions?: string | null
+          name?: string
+          notes?: string | null
+          position?: number
+          route?: string | null
+          start_date?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vet_consultation_medications_consultation_id_fkey"
+            columns: ["consultation_id"]
+            isOneToOne: false
+            referencedRelation: "vet_consultations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vet_consultations: {
+        Row: {
+          client_request_id: string
+          consulted_at: string
+          diagnosis: string | null
+          final_observations: string | null
+          follow_up_date: string | null
+          grant_id: string | null
+          heart_rate: number | null
+          id: string
+          org_id: string | null
+          pet_id: string
+          physical_exam: string | null
+          reason: string
+          recommendations: string | null
+          respiratory_rate: number | null
+          symptoms: string | null
+          temperature_c: number | null
+          treatment: string | null
+          urgency: string
+          vet_user_id: string | null
+          weight_kg: number | null
+        }
+        Insert: {
+          client_request_id: string
+          consulted_at?: string
+          diagnosis?: string | null
+          final_observations?: string | null
+          follow_up_date?: string | null
+          grant_id?: string | null
+          heart_rate?: number | null
+          id?: string
+          org_id?: string | null
+          pet_id: string
+          physical_exam?: string | null
+          reason: string
+          recommendations?: string | null
+          respiratory_rate?: number | null
+          symptoms?: string | null
+          temperature_c?: number | null
+          treatment?: string | null
+          urgency?: string
+          vet_user_id?: string | null
+          weight_kg?: number | null
+        }
+        Update: {
+          client_request_id?: string
+          consulted_at?: string
+          diagnosis?: string | null
+          final_observations?: string | null
+          follow_up_date?: string | null
+          grant_id?: string | null
+          heart_rate?: number | null
+          id?: string
+          org_id?: string | null
+          pet_id?: string
+          physical_exam?: string | null
+          reason?: string
+          recommendations?: string | null
+          respiratory_rate?: number | null
+          symptoms?: string | null
+          temperature_c?: number | null
+          treatment?: string | null
+          urgency?: string
+          vet_user_id?: string | null
+          weight_kg?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vet_consultations_grant_id_fkey"
+            columns: ["grant_id"]
+            isOneToOne: false
+            referencedRelation: "vet_access_grants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vet_consultations_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organization_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vet_consultations_pet_id_fkey"
+            columns: ["pet_id"]
+            isOneToOne: false
+            referencedRelation: "pets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vet_consultations_vet_user_id_fkey"
+            columns: ["vet_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -1780,6 +2242,14 @@ export type Database = {
         Args: { p_org_id: string; p_type: string }
         Returns: string
       }
+      _pet_age_unit: {
+        Args: { p_birth: string; p_unit: string; p_value: number }
+        Returns: string
+      }
+      _pet_age_value: {
+        Args: { p_birth: string; p_unit: string; p_value: number }
+        Returns: number
+      }
       _pet_medical_ctx: {
         Args: { p_pet_id: string; p_pet_kind: string }
         Returns: Record<string, unknown>
@@ -1787,6 +2257,20 @@ export type Database = {
       _pet_medical_summary_id: {
         Args: { p_pet_id: string; p_pet_kind: string; p_uid: string }
         Returns: string
+      }
+      _pet_today: { Args: never; Returns: string }
+      _pet_vaccination_check: {
+        Args: {
+          p_app: string
+          p_lot: string
+          p_name: string
+          p_next: string
+          p_notes: string
+          p_pet: string
+          p_uid: string
+          p_vet: string
+        }
+        Returns: Record<string, unknown>
       }
       _poster_caller_org: {
         Args: never
@@ -1797,6 +2281,81 @@ export type Database = {
         }[]
       }
       _shipping_norm: { Args: { p: string }; Returns: string }
+      _vet_audit: {
+        Args: {
+          p_action: string
+          p_actor: string
+          p_grant: string
+          p_hint?: string
+          p_level: string
+          p_method: string
+          p_org: string
+          p_pet: string
+          p_reason?: string
+        }
+        Returns: undefined
+      }
+      _vet_audit_view: {
+        Args: { p_actor: string; p_grant: string; p_org: string; p_pet: string }
+        Returns: undefined
+      }
+      _vet_caller: { Args: never; Returns: Record<string, unknown> }
+      _vet_clean: {
+        Args: { p_max: number; p_required?: boolean; p_text: string }
+        Returns: string
+      }
+      _vet_consultation_json: {
+        Args: {
+          c: Database["public"]["Tables"]["vet_consultations"]["Row"]
+          p_caller_org: string
+        }
+        Returns: Json
+      }
+      _vet_duration: { Args: { p_duration: string }; Returns: string }
+      _vet_effective_status: {
+        Args: { p_created: string; p_expires: string; p_status: string }
+        Returns: string
+      }
+      _vet_grant_check: {
+        Args: { p_grant_id: string; p_perm: string }
+        Returns: Record<string, unknown>
+      }
+      _vet_grant_json: {
+        Args: { g: Database["public"]["Tables"]["vet_access_grants"]["Row"] }
+        Returns: Json
+      }
+      _vet_history_page: {
+        Args: {
+          p_before: string
+          p_caller_org: string
+          p_limit: number
+          p_pet_id: string
+        }
+        Returns: Json
+      }
+      _vet_norm_perms: { Args: { p_perms: string[] }; Returns: string[] }
+      _vet_notify: {
+        Args: {
+          p_body: string
+          p_title: string
+          p_type: string
+          p_user: string
+        }
+        Returns: undefined
+      }
+      _vet_rate_check: {
+        Args: {
+          p_actions: string[]
+          p_actor: string
+          p_max: number
+          p_window: string
+        }
+        Returns: undefined
+      }
+      _vet_resolve_public_tag: {
+        Args: { p_public_id: string }
+        Returns: Record<string, unknown>
+      }
       account_deletion_precheck: { Args: never; Returns: Json }
       account_role_for_email: { Args: { p_email: string }; Returns: string }
       admin_counts: {
@@ -1869,6 +2428,7 @@ export type Database = {
           owner_email: string
           owner_id: string
           phone: string
+          qr_prefix: string
           rejection_reason: string
           slug: string
           status: string
@@ -1900,6 +2460,10 @@ export type Database = {
         Args: { p_daily_rate: number; p_max_days: number; p_min_days: number }
         Returns: undefined
       }
+      admin_set_provider_qr_prefix: {
+        Args: { p_org_id: string; p_prefix: string }
+        Returns: undefined
+      }
       aliado_visibility_quote: {
         Args: { p_days: number }
         Returns: {
@@ -1924,6 +2488,7 @@ export type Database = {
         Args: { object_name: string }
         Returns: boolean
       }
+      claim_birthday_greeting: { Args: { p_local_date: string }; Returns: Json }
       delete_my_closed_reports: { Args: { p_ids: string[] }; Returns: number }
       gen_pet_public_id: { Args: never; Returns: string }
       get_public_pet: {
@@ -1958,6 +2523,7 @@ export type Database = {
           tag_state: string
         }[]
       }
+      health_check: { Args: never; Returns: string }
       is_admin: { Args: never; Returns: boolean }
       is_public_pet_photo: { Args: { object_name: string }; Returns: boolean }
       list_help_organizations: {
@@ -2233,6 +2799,31 @@ export type Database = {
           owner_phone_alt: string
         }[]
       }
+      owner_decide_access: {
+        Args: {
+          p_decision: string
+          p_duration: string
+          p_grant_id: string
+          p_permissions: string[]
+        }
+        Returns: Json
+      }
+      owner_list_access: { Args: { p_limit?: number }; Returns: Json }
+      owner_list_emergency_items: { Args: { p_pet_id: string }; Returns: Json }
+      owner_medical_history: {
+        Args: { p_before?: string; p_limit?: number; p_pet_id: string }
+        Returns: Json
+      }
+      owner_pdf_authorize: { Args: { p_pet_id: string }; Returns: Json }
+      owner_pet_access_audit: {
+        Args: { p_limit?: number; p_pet_id: string }
+        Returns: Json
+      }
+      owner_revoke_access: { Args: { p_grant_id: string }; Returns: Json }
+      owner_set_emergency_visible: {
+        Args: { p_item_id: string; p_visible: boolean }
+        Returns: Json
+      }
       pet_medical_get: {
         Args: { p_pet_id: string; p_pet_kind: string }
         Returns: {
@@ -2293,6 +2884,31 @@ export type Database = {
           p_public_urgent: boolean
         }
         Returns: string
+      }
+      pet_vaccination_add: {
+        Args: {
+          p_application_date: string
+          p_lot_number?: string
+          p_next_dose_date?: string
+          p_notes?: string
+          p_pet_id: string
+          p_vaccine_name: string
+          p_veterinary_name?: string
+        }
+        Returns: string
+      }
+      pet_vaccination_delete: { Args: { p_id: string }; Returns: undefined }
+      pet_vaccination_update: {
+        Args: {
+          p_application_date: string
+          p_id: string
+          p_lot_number?: string
+          p_next_dose_date?: string
+          p_notes?: string
+          p_vaccine_name: string
+          p_veterinary_name?: string
+        }
+        Returns: undefined
       }
       plate_order_admin_assign_plate: {
         Args: { p_order_id: string; p_tag_id: string }
@@ -2451,6 +3067,8 @@ export type Database = {
           assigned: number
           available: number
           created_at: string
+          created_by_name: string
+          created_by_role: string
           id: string
           is_system: boolean
           note: string
@@ -2552,6 +3170,72 @@ export type Database = {
           first_code: string
           last_code: string
           quantity: number
+        }[]
+      }
+      qr_claim_tag: {
+        Args: { p_pet_id: string; p_public_id: string }
+        Returns: {
+          short_code: string
+          tag_status: string
+        }[]
+      }
+      qr_provider_batch_create: {
+        Args: { p_note?: string; p_quantity: number }
+        Returns: {
+          batch_id: string
+          code_prefix: string
+          first_code: string
+          last_code: string
+          quantity: number
+        }[]
+      }
+      qr_provider_list_batches: {
+        Args: never
+        Returns: {
+          active: number
+          annulled: number
+          assigned: number
+          available: number
+          created_at: string
+          id: string
+          note: string
+          quantity: number
+          reference: string
+          replaced: number
+          suspended: number
+          total: number
+        }[]
+      }
+      qr_provider_list_tags: {
+        Args: {
+          p_batch_id?: string
+          p_limit?: number
+          p_offset?: number
+          p_status?: string
+        }
+        Returns: {
+          batch_id: string
+          batch_reference: string
+          created_at: string
+          id: string
+          public_id: string
+          short_code: string
+          status: string
+          total_count: number
+          updated_at: string
+        }[]
+      }
+      qr_provider_tag_detail: {
+        Args: { p_tag_id: string }
+        Returns: {
+          batch_id: string
+          batch_reference: string
+          created_at: string
+          id: string
+          public_id: string
+          short_code: string
+          status: string
+          updated_at: string
         }[]
       }
       record_policy_consent: {
@@ -2659,9 +3343,70 @@ export type Database = {
         }
         Returns: undefined
       }
+      vet_consultation_add_addendum: {
+        Args: {
+          p_body: string
+          p_client_request_id: string
+          p_consultation_id: string
+          p_grant_id: string
+        }
+        Returns: Json
+      }
+      vet_consultation_create: {
+        Args: {
+          p_client_request_id: string
+          p_diagnosis?: string
+          p_final_observations?: string
+          p_follow_up_date?: string
+          p_grant_id: string
+          p_heart_rate?: number
+          p_medications?: Json
+          p_physical_exam?: string
+          p_reason: string
+          p_recommendations?: string
+          p_respiratory_rate?: number
+          p_symptoms?: string
+          p_temperature_c?: number
+          p_treatment?: string
+          p_urgency?: string
+          p_weight_kg?: number
+        }
+        Returns: Json
+      }
+      vet_emergency_access: {
+        Args: { p_method: string; p_reason: string; p_tag_public_id: string }
+        Returns: Json
+      }
+      vet_get_grant: { Args: { p_grant_id: string }; Returns: Json }
+      vet_identify_pet: {
+        Args: { p_code: string; p_method: string }
+        Returns: Json
+      }
+      vet_medical_history: {
+        Args: { p_before?: string; p_grant_id: string; p_limit?: number }
+        Returns: Json
+      }
+      vet_medical_overview: { Args: { p_grant_id: string }; Returns: Json }
+      vet_my_grants: { Args: never; Returns: Json }
+      vet_pdf_authorize: { Args: { p_grant_id: string }; Returns: Json }
+      vet_request_access: {
+        Args: {
+          p_duration: string
+          p_method: string
+          p_permissions: string[]
+          p_reason: string
+          p_tag_public_id: string
+        }
+        Returns: Json
+      }
     }
     Enums: {
-      account_role: "usuario" | "fundacion" | "veterinaria" | "aliado"
+      account_role:
+        | "usuario"
+        | "fundacion"
+        | "veterinaria"
+        | "aliado"
+        | "proveedor"
       pet_status: "at_home" | "lost" | "found" | "for_adoption"
     }
     CompositeTypes: {
@@ -2790,7 +3535,13 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      account_role: ["usuario", "fundacion", "veterinaria", "aliado"],
+      account_role: [
+        "usuario",
+        "fundacion",
+        "veterinaria",
+        "aliado",
+        "proveedor",
+      ],
       pet_status: ["at_home", "lost", "found", "for_adoption"],
     },
   },

@@ -10,7 +10,9 @@ import { LOST_DETAILS_MAX } from "@/lib/pets/reports";
 import { CAT_COLORS, ageUnitOptions, sexOptions, speciesOptions } from "@/lib/pets/labels";
 import Modal from "@/components/ui/Modal";
 import PetPhotoInput, { type PreparedPhoto } from "./PetPhotoInput";
+import { todayLocal, validateBirthDate } from "@/lib/pets/age";
 import MedicalInfoSection from "./MedicalInfoSection";
+import VaccinationSection from "./VaccinationSection";
 import controls from "@/components/ui/controls.module.css";
 import styles from "./editPet.module.css";
 
@@ -45,6 +47,7 @@ export default function EditPetModal({
     colorPrimary: pet.color_primary ?? "",
     colorSecondary: pet.color_secondary ?? "",
     colorTertiary: pet.color_tertiary ?? "",
+    birthDate: pet.birth_date ?? "",
     ageValue: pet.age_value != null ? String(pet.age_value) : "",
     ageUnit: (pet.age_unit ?? "years") as PetAgeUnit,
     sex: (pet.sex ?? "unspecified") as PetSex,
@@ -72,7 +75,9 @@ export default function EditPetModal({
 
   const problem = useMemo(() => {
     if (!form.name.trim()) return "Ingresa el nombre de la mascota.";
-    if (form.ageValue.trim()) {
+    const birthProblem = validateBirthDate(form.birthDate, todayLocal());
+    if (birthProblem) return birthProblem;
+    if (!form.birthDate && form.ageValue.trim()) {
       const n = Number(form.ageValue);
       if (!Number.isInteger(n) || n < 1 || n > 1200) return "La edad debe ser un número entero válido.";
     }
@@ -114,8 +119,10 @@ export default function EditPetModal({
         color_primary: species === "cat" ? form.colorPrimary || null : null,
         color_secondary: species === "cat" && form.colorSecondary ? form.colorSecondary : null,
         color_tertiary: species === "cat" && form.colorTertiary ? form.colorTertiary : null,
-        age_value: form.ageValue.trim() ? Number(form.ageValue) : null,
-        age_unit: form.ageValue.trim() ? form.ageUnit : null,
+        birth_date: form.birthDate || null,
+        // Con fecha de nacimiento la edad se calcula: no se guarda una edad fija.
+        age_value: !form.birthDate && form.ageValue.trim() ? Number(form.ageValue) : null,
+        age_unit: !form.birthDate && form.ageValue.trim() ? form.ageUnit : null,
         sex: form.sex,
         description: form.description.trim() || null,
       };
@@ -206,14 +213,27 @@ export default function EditPetModal({
           </div>
         )}
 
+        <label className={controls.field}>
+          Fecha de nacimiento (opcional)
+          <input
+            className={controls.input}
+            type="date"
+            value={form.birthDate}
+            min="1980-01-01"
+            max={todayLocal()}
+            onChange={(e) => set("birthDate", e.target.value)}
+          />
+          <span className={controls.hint}>Con la fecha, la edad se calcula sola y siempre está al día.</span>
+        </label>
+
         <div className={controls.row2}>
           <label className={controls.field}>
-            Edad
-            <input className={controls.input} type="number" min={1} max={1200} value={form.ageValue} onChange={(e) => set("ageValue", e.target.value)} />
+            Edad aproximada
+            <input className={controls.input} type="number" min={1} max={1200} value={form.ageValue} disabled={form.birthDate !== ""} onChange={(e) => set("ageValue", e.target.value)} />
           </label>
           <label className={controls.field}>
             Unidad
-            <select className={controls.select} value={form.ageUnit} onChange={(e) => set("ageUnit", e.target.value as PetAgeUnit)}>
+            <select className={controls.select} value={form.ageUnit} disabled={form.birthDate !== ""} onChange={(e) => set("ageUnit", e.target.value as PetAgeUnit)}>
               {ageUnitOptions.map(([value, label]) => (
                 <option key={value} value={value}>{label}</option>
               ))}
@@ -292,6 +312,7 @@ export default function EditPetModal({
       </form>
 
       <MedicalInfoSection petKind="owner" petId={pet.id} />
+      <VaccinationSection petId={pet.id} birthDate={pet.birth_date} />
     </Modal>
   );
 }

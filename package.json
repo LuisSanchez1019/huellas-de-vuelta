@@ -6,13 +6,22 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:barcode": "node scripts/barcode-roundtrip.test.mjs",
+    "test:vet": "node --experimental-transform-types --import ./scripts/register-ts.mjs scripts/vet-client.test.mjs",
+    "test": "npm run test:barcode && npm run test:vet && npm run test:pdf && npm run test:age",
+    "test:age": "node --experimental-transform-types --import ./scripts/register-ts.mjs scripts/pet-age.test.mjs",
+    "test:pdf": "node --experimental-transform-types --import ./scripts/register-ts.mjs scripts/pet-info-pdf.test.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.112.4",
+    "@zxing/browser": "^0.2.1",
+    "@zxing/library": "^0.23.0",
     "jspdf": "^4.2.1",
+    "jszip": "^3.10.2",
     "leaflet": "^1.9.4",
     "next": "16.3.3",
+    "nodemailer": "^10.0.10",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "read-excel-file": "^9.3.10"
@@ -20,6 +29,7 @@
   "devDependencies": {
     "@types/leaflet": "^1.9.22",
     "@types/node": "^20",
+    "@types/nodemailer": "^7.0.2",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
