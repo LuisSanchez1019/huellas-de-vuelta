@@ -60,7 +60,7 @@ export async function updatePet(
  * Elimina la mascota DEFINITIVAMENTE (un solo DELETE transaccional, protegido por
  * RLS: solo el propietario). En cascada desaparecen reportes, información médica,
  * consultas, medicamentos, aclaraciones, accesos veterinarios y su auditoría; sus
- * placas QR vigentes se liberan (trigger). No se conserva ninguna copia.
+ * placas QR vigentes quedan ANULADAS (trigger) y no se pueden reutilizar. No se conserva ninguna copia.
  * Después se borra la foto de Storage (mejor esfuerzo: si falla, la mascota ya no existe).
  */
 export async function deletePet(supabase: SupabaseClient, id: string, photoPath?: string | null): Promise<void> {
@@ -110,6 +110,11 @@ export async function setPetPhotoPath(supabase: SupabaseClient, id: string, phot
  * Sube la foto ya redimensionada al bucket privado `pet-photos`. La ruta usa la
  * carpeta del propietario (`<owner_id>/...`), que es lo que exigen las políticas
  * RLS de Storage. Devuelve la ruta del objeto (no una URL).
+ *
+ * Cada subida usa una ruta NUEVA (`<owner_id>/<pet_id>/<uuid>.<ext>`): reemplazar una foto ya
+ * no sobrescribe el mismo objeto, así ninguna URL/copia en caché del navegador o de la CDN
+ * puede seguir mostrando la foto anterior. Quien reemplaza debe borrar la anterior con
+ * `removePetPhoto` (mejor esfuerzo).
  */
 export async function uploadPetPhoto(
   supabase: SupabaseClient,
@@ -119,12 +124,22 @@ export async function uploadPetPhoto(
   contentType: string,
 ): Promise<string> {
   const extension = contentType === "image/jpeg" ? "jpg" : "webp";
-  const path = `${ownerId}/${petId}.${extension}`;
+  const path = `${ownerId}/${petId}/${crypto.randomUUID()}.${extension}`;
   const { error } = await supabase.storage
     .from(PET_PHOTO_BUCKET)
     .upload(path, blob, { contentType, upsert: true });
   if (error) throw error;
   return path;
+}
+
+/** Borra un objeto de `pet-photos` (mejor esfuerzo: si falla, solo queda un archivo huérfano). */
+export async function removePetPhoto(supabase: SupabaseClient, photoPath: string | null | undefined): Promise<void> {
+  if (!photoPath) return;
+  try {
+    await supabase.storage.from(PET_PHOTO_BUCKET).remove([photoPath]);
+  } catch {
+    /* no revierte nada */
+  }
 }
 
 export type PublicPetTagState =
@@ -269,19 +284,3 @@ export async function fetchPublicPet(
   };
 }
 
-/** URL firmada temporal para mostrar una foto del bucket privado. `null` si falla. */
-export async function getPetPhotoSignedUrl(
-  supabase: SupabaseClient,
-  photoPath: string,
-  expiresInSeconds = 3600,
-): Promise<string | null> {
-  try {
-    const { data, error } = await supabase.storage
-      .from(PET_PHOTO_BUCKET)
-      .createSignedUrl(photoPath, expiresInSeconds);
-    if (error) return null;
-    return data?.signedUrl ?? null;
-  } catch {
-    return null;
-  }
-}

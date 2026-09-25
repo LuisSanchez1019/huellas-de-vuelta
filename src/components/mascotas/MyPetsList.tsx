@@ -5,7 +5,10 @@ import { Suspense, useCallback, useEffect, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
-import { deletePet, fetchPets, getPetPhotoSignedUrl } from "@/lib/supabase/pets";
+import { deletePet, fetchPets } from "@/lib/supabase/pets";
+import PetPhoto from "@/components/ui/PetPhoto";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
+import { ownerTagErrorMessage, setPetTagState, type OwnerTagAction } from "@/lib/supabase/qrOwner";
 import { fetchActiveReportsByPet } from "@/lib/supabase/reports";
 import { fetchMyPetsForPlate, ORDER_STATUS_LABEL, type PetForPlate } from "@/lib/supabase/plateOrders";
 import type { Pet } from "@/lib/supabase/types";
@@ -65,7 +68,6 @@ function MyPetsListContent({ basePath, showPlateOrdering }: { basePath: string; 
   const [pets, setPets] = useState<Pet[]>([]);
   const [reports, setReports] = useState<Record<string, PetReport>>({});
   const [plateInfo, setPlateInfo] = useState<Record<string, PetForPlate>>({});
-  const [photoUrls, setPhotoUrls] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [toast, setToast] = useState<ToastState | null>(null);
@@ -73,6 +75,8 @@ function MyPetsListContent({ basePath, showPlateOrdering }: { basePath: string; 
   const [deletingPet, setDeletingPet] = useState<Pet | null>(null);
   const [deleteBusy, setDeleteBusy] = useState<DeleteBusy>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [tagAction, setTagAction] = useState<{ pet: Pet; action: OwnerTagAction } | null>(null);
+  const [tagBusy, setTagBusy] = useState(false);
 
   useEffect(() => {
     const supabase = createSupabaseBrowserClient();
@@ -96,13 +100,6 @@ function MyPetsListContent({ basePath, showPlateOrdering }: { basePath: string; 
         setPets(petList);
         setReports(reportMap);
         setPlateInfo(Object.fromEntries(plateList.map((entry) => [entry.petId, entry])));
-
-        const entries = await Promise.all(
-          petList
-            .filter((pet) => pet.photo_path)
-            .map(async (pet) => [pet.id, await getPetPhotoSignedUrl(supabase, pet.photo_path as string)] as const),
-        );
-        setPhotoUrls(Object.fromEntries(entries.filter((entry): entry is [string, string] => entry[1] !== null)));
       } catch (caughtError) {
         setError(caughtError instanceof Error ? caughtError.message : "No fue posible cargar las mascotas.");
       } finally {
@@ -163,6 +160,29 @@ function MyPetsListContent({ basePath, showPlateOrdering }: { basePath: string; 
     }
   }
 
+  async function confirmTagAction() {
+    if (!tagAction || tagBusy) return;
+    const { pet, action } = tagAction;
+    setTagBusy(true);
+    try {
+      await setPetTagState(createSupabaseBrowserClient(), pet.id, action);
+      setToast({
+        variant: "success",
+        message:
+          action === "suspend"
+            ? `La placa de «${pet.name}» quedó suspendida: su QR ya no muestra el perfil.`
+            : `La placa de «${pet.name}» está activa de nuevo.`,
+      });
+      setTagAction(null);
+      await loadPets();
+    } catch (caughtError) {
+      setToast({ variant: "error", message: ownerTagErrorMessage(caughtError) });
+      setTagAction(null);
+    } finally {
+      setTagBusy(false);
+    }
+  }
+
   async function copyPlate(code: string) {
     try {
       await navigator.clipboard.writeText(code);
@@ -199,12 +219,12 @@ function MyPetsListContent({ basePath, showPlateOrdering }: { basePath: string; 
               const colors = pet.species === "cat" ? catColorsText(pet) : "";
               return (
                 <li key={pet.id} className={styles.card}>
-                  {photoUrls[pet.id] ? (
-                    // eslint-disable-next-line @next/next/no-img-element -- URL firmada temporal de Supabase Storage
-                    <img src={photoUrls[pet.id]} alt={`Foto de ${pet.name}`} className={styles.photo} />
-                  ) : (
-                    <span className={styles.photoPlaceholder} aria-hidden="true"><PawIcon size={34} /></span>
-                  )}
+                  <PetPhoto
+                    path={pet.photo_path}
+                    alt={`Foto de ${pet.name}`}
+                    className={styles.photo}
+                    fallback={<span className={styles.photoPlaceholder} aria-hidden="true"><PawIcon size={34} /></span>}
+                  />
 
                   <div className={styles.main}>
                     <div className={styles.head}>
@@ -273,6 +293,25 @@ function MyPetsListContent({ basePath, showPlateOrdering }: { basePath: string; 
                             >
                               Copiar
                             </button>
+                            {info.plateStatus === "suspended" && <span className={styles.plateHint}>Suspendida</span>}
+                            {info.plateStatus === "active" && (
+                              <button
+                                type="button"
+                                className={styles.plateCopy}
+                                onClick={() => setTagAction({ pet, action: "suspend" })}
+                              >
+                                Suspender
+                              </button>
+                            )}
+                            {info.plateStatus === "suspended" && (
+                              <button
+                                type="button"
+                                className={styles.plateCopy}
+                                onClick={() => setTagAction({ pet, action: "resume" })}
+                              >
+                                Reactivar
+                              </button>
+                            )}
                           </div>
                         );
                       }
@@ -335,6 +374,21 @@ function MyPetsListContent({ basePath, showPlateOrdering }: { basePath: string; 
         />
       )}
 
+      <ConfirmDialog
+        open={Boolean(tagAction)}
+        title={tagAction?.action === "suspend" ? "Suspender placa" : "Reactivar placa"}
+        message={
+          tagAction?.action === "suspend"
+            ? `Mientras esté suspendida, escanear el QR de «${tagAction.pet.name}» no mostrará su perfil. Puedes reactivarla cuando quieras o reemplazarla escaneando el QR de una placa nueva.`
+            : `El QR de «${tagAction?.pet.name ?? ""}» volverá a mostrar su perfil público.`
+        }
+        confirmLabel={tagBusy ? "Guardando…" : tagAction?.action === "suspend" ? "Sí, suspender" : "Sí, reactivar"}
+        cancelLabel="Cancelar"
+        tone={tagAction?.action === "suspend" ? "danger" : undefined}
+        onConfirm={confirmTagAction}
+        onCancel={() => (tagBusy ? undefined : setTagAction(null))}
+      />
+
       <DeletePetDialog
         open={Boolean(deletingPet)}
         petName={deletingPet?.name ?? ""}
@@ -343,7 +397,7 @@ function MyPetsListContent({ basePath, showPlateOrdering }: { basePath: string; 
             ? [
                 ...(reports[deletingPet.id] ? ["También se eliminará su reporte de mascota perdida activo."] : []),
                 ...(plateInfo[deletingPet.id]?.plateCode
-                  ? [`Su placa ${plateInfo[deletingPet.id].plateCode} quedará libre para asignarse de nuevo.`]
+                  ? [`Su placa ${plateInfo[deletingPet.id].plateCode} quedará anulada y ya no podrá volver a usarse.`]
                   : []),
               ]
             : []

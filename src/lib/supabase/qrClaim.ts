@@ -21,7 +21,9 @@ const CLAIM_ERROR_MESSAGES: Record<string, string> = {
   TAG_REPLACED: "Este código fue reemplazado por uno nuevo y ya no se puede asignar.",
   TAG_ANNULLED: "Este código fue anulado y ya no se puede asignar.",
   TAG_NOT_AVAILABLE: "Este código ya no está disponible.",
-  PET_ALREADY_HAS_TAG: "Esta mascota ya tiene otro código vinculado.",
+  PET_ALREADY_HAS_TAG:
+    "Esta mascota ya tiene una placa activa. Si quieres reemplazarla, suspéndela primero desde «Mis mascotas» y vuelve a escanear este código.",
+  ROLE_NOT_ALLOWED: "Solo las cuentas de usuario pueden vincular una placa a su mascota.",
 };
 
 /** Códigos que significan que la placa ya no sigue "available": conviene refrescar la página. */

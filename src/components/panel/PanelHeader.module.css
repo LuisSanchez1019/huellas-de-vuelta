@@ -1,7 +1,9 @@
+/* z-index: por encima del drawer (Sidebar = 50) y de su fondo (scrim = 40) para que el
+   botón hamburguesa/X quede SIEMPRE visible y pulsable con el menú abierto. */
 .header {
   position: sticky;
   top: 0;
-  z-index: 45;
+  z-index: 60;
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -11,34 +13,46 @@
   backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--border);
 }
+/* Botón de menú (solo ≤ 64rem). Tamaño fijo de 44 px: nunca se encoge, así el icono
+   (que la regla global `svg { max-width: 100% }` reduciría a 0) siempre se ve. */
 .menuToggle {
   display: none;
+  flex: 0 0 2.75rem;
+  width: 2.75rem;
+  min-width: 2.75rem;
+  height: 2.75rem;
   border: 0;
   background: transparent;
   cursor: pointer;
-  padding: .4rem;
-  border-radius: .5rem;
+  padding: 0;
+  border-radius: .6rem;
   color: var(--navy-900);
 }
+.menuToggle svg { flex: none; max-width: none; }
 .menuToggle:hover { background: var(--surface-100); }
-.brand { display: flex; align-items: center; gap: .6rem; color: var(--navy-900); font-weight: 800; font-size: 1rem; letter-spacing: -.02em; }
-.logo { border-radius: .45rem; }
-.brandName { white-space: nowrap; }
-.actions { margin-left: auto; display: flex; align-items: center; gap: .5rem; }
+.menuToggle:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+.brand { display: flex; align-items: center; gap: .6rem; min-width: 0; color: var(--navy-900); font-weight: 800; font-size: 1rem; letter-spacing: -.02em; }
+.logo { border-radius: .45rem; flex: none; }
+/* El nombre se trunca con puntos suspensivos: nunca empuja los controles fuera del viewport. */
+.brandName { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.actions { margin-left: auto; flex: none; display: flex; align-items: center; gap: .5rem; }
+.themeHeader { display: inline-flex; }
 .notifButton {
   display: grid;
   place-items: center;
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 2.75rem;
+  height: 2.75rem;
+  flex: none;
   border-radius: .6rem;
   color: var(--ink-600);
 }
 .notifButton:hover { background: var(--surface-100); color: var(--navy-900); }
-.userMenu { position: relative; }
+.userMenu { position: relative; flex: none; }
 .userButton {
   display: flex;
   align-items: center;
   gap: .55rem;
+  min-height: 2.75rem;
   border: 0;
   background: transparent;
   cursor: pointer;
@@ -69,6 +83,7 @@
   top: calc(100% + .5rem);
   right: 0;
   width: 13.5rem;
+  max-width: calc(100vw - 1.5rem);
   padding: .4rem;
   border: 1px solid var(--surface-300);
   border-radius: .8rem;
@@ -82,6 +97,7 @@
   align-items: center;
   gap: .6rem;
   width: 100%;
+  min-height: 2.75rem;
   padding: .6rem .65rem;
   border-radius: .55rem;
   border: 0;
@@ -94,12 +110,30 @@
   text-align: left;
 }
 .dropdownItem:hover { background: var(--surface-100); color: var(--teal-600); }
-
-@media (max-width: 64rem) {
-  .menuToggle { display: grid; place-items: center; }
-  .userName { display: none; }
+/* El selector de tema vive en el menú de usuario solo en pantallas pequeñas. */
+.dropdownTheme {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: .6rem;
+  padding: .4rem .65rem;
+  border-bottom: 1px solid var(--surface-300);
+  margin-bottom: .2rem;
+  color: var(--ink-600);
+  font-size: .82rem;
+  font-weight: 700;
+}
+.dropdownRole {
+  display: none;
+  padding: .3rem .65rem .1rem;
+  color: var(--blue-600);
+  font-size: .68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .04em;
 }
 .badge {
+  flex: none;
   padding: .2rem .55rem;
   border-radius: 999px;
   background: rgba(31, 111, 178, .12);
@@ -109,4 +143,21 @@
   text-transform: uppercase;
   letter-spacing: .04em;
   white-space: nowrap;
+}
+
+@media (max-width: 64rem) {
+  .menuToggle { display: grid; place-items: center; }
+  .userName { display: none; }
+  .header { gap: .5rem; }
+  .actions { gap: .25rem; }
+}
+
+/* Móvil: solo lo esencial en la barra (menú, marca, campana y usuario). La insignia del rol
+   y el selector de tema pasan al menú de usuario / se ocultan. */
+@media (max-width: 40rem) {
+  .header { padding: .5rem .75rem; min-height: 3.75rem; }
+  .badge { display: none; }
+  .themeHeader { display: none; }
+  .dropdownTheme { display: flex; }
+  .dropdownRole { display: block; }
 }

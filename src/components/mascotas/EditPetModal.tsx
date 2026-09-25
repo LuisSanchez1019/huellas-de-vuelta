@@ -2,7 +2,8 @@
 
 import { type FormEvent, useMemo, useRef, useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
-import { setPetPhotoPath, updatePet, uploadPetPhoto } from "@/lib/supabase/pets";
+import { removePetPhoto, setPetPhotoPath, updatePet, uploadPetPhoto } from "@/lib/supabase/pets";
+import { forgetPetPhoto } from "@/lib/supabase/petPhotos";
 import { setPetStatus, type PanelPetStatus } from "@/lib/supabase/reports";
 import type { Pet, PetAgeUnit, PetInput, PetSex, PetSpecies } from "@/lib/supabase/types";
 import type { PetReport } from "@/lib/pets/reports";
@@ -106,8 +107,14 @@ export default function EditPetModal({
       const supabase = createSupabaseBrowserClient();
 
       if (photo) {
+        const previousPath = pet.photo_path;
         const path = await uploadPetPhoto(supabase, pet.owner_id, pet.id, photo.blob, photo.contentType);
         await setPetPhotoPath(supabase, pet.id, path);
+        // La foto nueva tiene ruta nueva: la anterior se borra (y se olvida su firma en memoria).
+        if (previousPath && previousPath !== path) {
+          forgetPetPhoto(previousPath);
+          void removePetPhoto(supabase, previousPath);
+        }
       }
 
       const species = form.species;

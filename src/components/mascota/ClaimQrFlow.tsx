@@ -4,7 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { resolvePanelSession } from "@/lib/auth/session";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
-import { fetchPets, getPetPhotoSignedUrl } from "@/lib/supabase/pets";
+import { fetchPets } from "@/lib/supabase/pets";
+import PetPhoto from "@/components/ui/PetPhoto";
 import { claimQrTag, claimQrTagErrorMessage, isClaimTagStateChanged } from "@/lib/supabase/qrClaim";
 import type { Pet } from "@/lib/supabase/types";
 import { speciesLabels } from "@/lib/pets/labels";
@@ -47,7 +48,6 @@ export default function ClaimQrFlow({
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
   const [phase, setPhase] = useState<Phase>("checking");
   const [pets, setPets] = useState<Pet[]>([]);
-  const [photoUrls, setPhotoUrls] = useState<Record<string, string>>({});
   const [selectedPet, setSelectedPet] = useState<Pet | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
@@ -69,12 +69,6 @@ export default function ClaimQrFlow({
         const list = await fetchPets(supabase);
         if (!active) return;
         setPets(list);
-        const withPhoto = list.filter((pet) => pet.photo_path);
-        const entries = await Promise.all(
-          withPhoto.map(async (pet) => [pet.id, await getPetPhotoSignedUrl(supabase, pet.photo_path as string)] as const),
-        );
-        if (!active) return;
-        setPhotoUrls(Object.fromEntries(entries.filter((e): e is [string, string] => e[1] !== null)));
         setPhase("picking");
       } catch {
         if (active) setPhase("session-error");
@@ -187,16 +181,12 @@ export default function ClaimQrFlow({
                   style={{ justifyContent: "flex-start", width: "100%" }}
                   onClick={() => choosePet(pet)}
                 >
-                  {photoUrls[pet.id] ? (
-                    // eslint-disable-next-line @next/next/no-img-element -- URL firmada temporal
-                    <img
-                      src={photoUrls[pet.id]}
-                      alt=""
-                      style={{ width: "1.8rem", height: "1.8rem", borderRadius: "50%", objectFit: "cover", marginRight: ".6rem" }}
-                    />
-                  ) : (
-                    <PawIcon size={18} className={styles.inlineIcon} />
-                  )}
+                  <PetPhoto
+                    path={pet.photo_path}
+                    alt=""
+                    style={{ width: "1.8rem", height: "1.8rem", borderRadius: "50%", objectFit: "cover", marginRight: ".6rem" }}
+                    fallback={<PawIcon size={18} className={styles.inlineIcon} />}
+                  />
                   {pet.name} · {speciesText(pet)}
                 </button>
               ))}

@@ -10,7 +10,6 @@ import {
 } from "./orgProfiles";
 import type { PublicLostPet } from "@/lib/pets/reports";
 import type { PetAgeUnit, PetSex, PetSpecies } from "./types";
-import { PET_PHOTO_BUCKET } from "./pets";
 import {
   PUBLIC_ADOPTIONS_TAG,
   PUBLIC_ALLIES_TAG,
@@ -21,7 +20,7 @@ import {
 } from "@/lib/cache/tags";
 import type { OrgCategory } from "@/lib/pets/reencuentro";
 import type { OrgCardData } from "@/components/landing/OrgCard";
-import { getPosterSignedUrls, isSafePosterUrl } from "./posters";
+import { isSafePosterUrl } from "./posters";
 
 export {
   PUBLIC_ORGS_TAG,
@@ -50,28 +49,6 @@ const REVALIDATE_SECONDS = 120;
  *  que uno vencido siga apareciendo por caché (§28). Ademas se revalida por tag
  *  al aprobar/rechazar/desactivar/eliminar. */
 const POSTERS_REVALIDATE_SECONDS = 60;
-
-/**
- * Firma en UNA sola llamada (`createSignedUrls`) las fotos privadas de un
- * conjunto de mascotas y devuelve un mapa `path -> URL firmada`. Evita el N+1
- * de firmar una por una. La firma dura 1h, muy por encima de la ventana de
- * revalidación de estos cachés.
- */
-async function signPetPhotoUrls(
-  supabase: ReturnType<typeof createSupabasePublicServerClient>,
-  paths: string[],
-): Promise<Map<string, string>> {
-  const unique = Array.from(new Set(paths.filter(Boolean)));
-  if (unique.length === 0) return new Map();
-  const { data } = await supabase.storage
-    .from(PET_PHOTO_BUCKET)
-    .createSignedUrls(unique, 3600);
-  const map = new Map<string, string>();
-  for (const entry of data ?? []) {
-    if (entry.path && entry.signedUrl && !entry.error) map.set(entry.path, entry.signedUrl);
-  }
-  return map;
-}
 
 function toCardData(
   row: Awaited<ReturnType<typeof listPublishedOrgProfilesWithServices>>[number]["row"],
@@ -123,16 +100,17 @@ export interface LandingPoster {
   targetUrl: string | null;
   orgName: string;
   orgKind: string;
-  imageUrl: string;
+  /** Ruta de la imagen en el bucket privado `org-posters` (se firma en el navegador). */
+  imagePath: string;
 }
 
 /**
  * Hasta 4 posters vigentes para la Landing (RPC `list_public_posters`: maximo 1
  * por organizacion, rotacion cada 3 h, valida tambien el estado de la
- * organizacion). El bucket es privado: la URL de cada imagen se firma aqui,
- * server-side (la policy de Storage solo deja leer el archivo mientras el poster
- * sigue aprobado y vigente). Si un poster ya no es publico, su URL no se firma y
- * queda fuera del resultado.
+ * organizacion). El bucket es privado: aqui solo viaja la RUTA de la imagen y el navegador
+ * la firma al mostrarla (`PetPhoto` con `bucket="org-posters"`): una firma hecha en el servidor
+ * quedaba dentro del HTML cacheado y podia servirse ya vencida. La policy de Storage solo deja
+ * leer el archivo mientras el poster sigue aprobado y vigente.
  */
 export const getCachedLandingPosters = unstable_cache(
   async (): Promise<LandingPoster[]> => {
@@ -140,15 +118,10 @@ export const getCachedLandingPosters = unstable_cache(
     const { data, error } = await supabase.rpc("list_public_posters");
     if (error) throw error;
     const rows = (Array.isArray(data) ? data : []) as Record<string, unknown>[];
-    const signed = await getPosterSignedUrls(
-      supabase,
-      rows.map((row) => String(row.image_path ?? "")).filter(Boolean),
-    );
     return rows
       .map((row): LandingPoster | null => {
         const imagePath = String(row.image_path ?? "");
-        const imageUrl = signed.get(imagePath);
-        if (!imageUrl) return null;
+        if (!imagePath) return null;
         const targetUrl = (row.target_url as string) ?? null;
         return {
           id: String(row.id),
@@ -158,12 +131,12 @@ export const getCachedLandingPosters = unstable_cache(
           targetUrl: isSafePosterUrl(targetUrl) ? targetUrl : null,
           orgName: String(row.org_name ?? ""),
           orgKind: String(row.org_kind ?? ""),
-          imageUrl,
+          imagePath,
         };
       })
       .filter((poster): poster is LandingPoster => poster !== null);
   },
-  ["landing-posters"],
+  ["landing-posters-v2"],
   { revalidate: POSTERS_REVALIDATE_SECONDS, tags: [PUBLIC_POSTERS_TAG] },
 );
 
@@ -174,29 +147,16 @@ export const getCachedMapOrganizations = unstable_cache(
   { revalidate: REVALIDATE_SECONDS, tags: [PUBLIC_ORGS_TAG] },
 );
 
-export interface PublicLostPetWithPhoto extends PublicLostPet {
-  photoUrl: string | null;
-}
-
 /**
- * Mascotas con reporte de pérdida activo + URL firmada de su foto (el bucket
- * es privado; la firma se cachea igual que el resto — dura 1h, muy por
- * encima de la ventana de revalidación de este caché).
+ * Mascotas con reporte de pérdida activo. La foto viaja como RUTA (`photoPath`), no como
+ * URL firmada: el HTML de estas páginas queda en la caché de Next y una firma (1 h) podía
+ * servirse ya vencida. El navegador firma al mostrarla (`PetPhoto`).
  */
+export type PublicLostPetWithPhoto = PublicLostPet;
+
 export const getCachedPublicLostPets = unstable_cache(
-  async (): Promise<PublicLostPetWithPhoto[]> => {
-    const supabase = createSupabasePublicServerClient();
-    const rows = await fetchPublicLostPets(supabase);
-    const signed = await signPetPhotoUrls(
-      supabase,
-      rows.map((row) => row.photoPath).filter((p): p is string => Boolean(p)),
-    );
-    return rows.map((row) => ({
-      ...row,
-      photoUrl: row.photoPath ? signed.get(row.photoPath) ?? null : null,
-    }));
-  },
-  ["public-lost-pets"],
+  async (): Promise<PublicLostPetWithPhoto[]> => fetchPublicLostPets(createSupabasePublicServerClient()),
+  ["public-lost-pets-v2"],
   { revalidate: REVALIDATE_SECONDS, tags: [PUBLIC_LOST_PETS_TAG] },
 );
 
@@ -210,7 +170,8 @@ export interface PublicAdoptionPet {
   ageUnit: PetAgeUnit | null;
   sex: PetSex | null;
   description: string | null;
-  photoUrl: string | null;
+  /** Ruta de la foto en Storage (se firma en el navegador). */
+  photoPath: string | null;
 }
 
 /**
@@ -225,10 +186,6 @@ export const getCachedAdoptionPets = unstable_cache(
     const { data, error } = await supabase.rpc("list_public_adoption_pets");
     if (error) throw error;
     const rows = (Array.isArray(data) ? data : []) as Record<string, unknown>[];
-    const signed = await signPetPhotoUrls(
-      supabase,
-      rows.map((row) => (row.photo_path as string) ?? "").filter(Boolean),
-    );
     return rows.map((row) => {
       const photoPath = (row.photo_path as string) ?? null;
       return {
@@ -241,11 +198,11 @@ export const getCachedAdoptionPets = unstable_cache(
         ageUnit: (row.age_unit as PetAgeUnit) ?? null,
         sex: (row.sex as PetSex) ?? null,
         description: (row.description as string) ?? null,
-        photoUrl: photoPath ? signed.get(photoPath) ?? null : null,
+        photoPath,
       };
     });
   },
-  ["public-adoption-pets"],
+  ["public-adoption-pets-v2"],
   { revalidate: REVALIDATE_SECONDS, tags: [PUBLIC_ADOPTIONS_TAG] },
 );
 
@@ -290,7 +247,8 @@ export interface PublicOrgPet {
   status: string;
   needsHome: boolean;
   needsSponsor: boolean;
-  photoUrl: string | null;
+  /** Ruta de la foto en Storage (se firma en el navegador). */
+  photoPath: string | null;
   org: {
     id: string;
     name: string;
@@ -315,10 +273,6 @@ export const getCachedOrgPets = unstable_cache(
     const { data, error } = await supabase.rpc("list_public_org_pets");
     if (error) throw error;
     const rows = (Array.isArray(data) ? data : []) as Record<string, unknown>[];
-    const signed = await signPetPhotoUrls(
-      supabase,
-      rows.map((row) => (row.photo_path as string) ?? "").filter(Boolean),
-    );
     return rows.map((row) => {
       const photoPath = (row.photo_path as string) ?? null;
       const logoPath = (row.org_logo_path as string) ?? null;
@@ -334,7 +288,7 @@ export const getCachedOrgPets = unstable_cache(
         status: String(row.status ?? ""),
         needsHome: Boolean(row.needs_home),
         needsSponsor: Boolean(row.needs_sponsor),
-        photoUrl: photoPath ? signed.get(photoPath) ?? null : null,
+        photoPath,
         org: {
           id: String(row.org_id ?? ""),
           name: String(row.org_name ?? ""),
@@ -349,7 +303,7 @@ export const getCachedOrgPets = unstable_cache(
       };
     });
   },
-  ["public-org-pets"],
+  ["public-org-pets-v2"],
   { revalidate: REVALIDATE_SECONDS, tags: [PUBLIC_ADOPTIONS_TAG, PUBLIC_ORGS_TAG] },
 );
 

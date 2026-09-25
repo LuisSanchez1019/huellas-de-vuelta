@@ -5,7 +5,6 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import {
   fetchPublicPet,
-  PET_PHOTO_BUCKET,
   type PublicPet,
   type PublicPetAvailable,
   type PublicPetInactive,
@@ -13,6 +12,7 @@ import {
 import { speciesLabels, statusLabels, sexLabels, ageUnitLabels, catColorLabels } from "@/lib/pets/labels";
 import { AlertIcon, LockIcon, PawIcon, PinIcon, StethoscopeIcon } from "@/components/icons/Icon";
 import ThemeToggle from "@/components/theme/ThemeToggle";
+import PetPhoto from "@/components/ui/PetPhoto";
 import FoundPetWizard from "@/components/reencuentro/FoundPetWizard";
 import ClaimQrFlow from "./ClaimQrFlow";
 import styles from "./publicPet.module.css";
@@ -55,7 +55,6 @@ export default function PublicPetView({ publicId }: { publicId: string }) {
   const [pet, setPet] = useState<PublicPet | null>(null);
   const [inactive, setInactive] = useState<PublicPetInactive | null>(null);
   const [available, setAvailable] = useState<PublicPetAvailable | null>(null);
-  const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   // Un único cliente por montaje (evita multiplicar instancias de GoTrueClient
   // sobre el mismo storage key entre esta vista y ClaimQrFlow).
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
@@ -83,12 +82,6 @@ export default function PublicPetView({ publicId }: { publicId: string }) {
         }
         setPet(result.pet);
         setState("found");
-        if (result.pet.photoPath) {
-          const { data } = await supabase.storage
-            .from(PET_PHOTO_BUCKET)
-            .createSignedUrl(result.pet.photoPath, 3600);
-          if (data?.signedUrl) setPhotoUrl(data.signedUrl);
-        }
       })
       .catch(() => setState("error"));
   }, [publicId, supabase]);
@@ -104,7 +97,6 @@ export default function PublicPetView({ publicId }: { publicId: string }) {
     setAvailable(null);
     setInactive(null);
     setPet(null);
-    setPhotoUrl(null);
     fetchState();
   }
 
@@ -167,12 +159,11 @@ export default function PublicPetView({ publicId }: { publicId: string }) {
 
             <div className={styles.card}>
               <div className={styles.photo}>
-                {photoUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element -- URL firmada temporal de Supabase Storage
-                  <img src={photoUrl} alt={`Foto de ${pet.name}`} />
-                ) : (
-                  <PawIcon size={64} className={styles.photoIcon} />
-                )}
+                <PetPhoto
+                  path={pet.photoPath}
+                  alt={`Foto de ${pet.name}`}
+                  fallback={<PawIcon size={64} className={styles.photoIcon} />}
+                />
               </div>
               <div className={styles.body}>
                 <span className={`${styles.badge} ${BADGE_CLASS[pet.status]}`}>{statusLabels[pet.status]}</span>

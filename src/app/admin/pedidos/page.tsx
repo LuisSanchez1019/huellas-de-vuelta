@@ -321,7 +321,7 @@ function AdminOrderModal({
                       </button>
                     )}
                     <button type="button" className={controls.button} disabled={busy}
-                      onClick={() => run(() => adminAddShipmentEvent(createSupabaseBrowserClient(), String(shipment.id), "DELIVERED"), "Marcado como entregado. La placa quedó activa.")}>
+                      onClick={() => run(() => adminAddShipmentEvent(createSupabaseBrowserClient(), String(shipment.id), "DELIVERED"), "Marcado como entregado. El propietario activa la placa escaneando su QR.")}>
                       Marcar entregado
                     </button>
                   </div>
@@ -336,7 +336,7 @@ function AdminOrderModal({
                 onPick={(tag) => run(async () => {
                   await adminAssignPlate(createSupabaseBrowserClient(), orderId, tag.id);
                   setMode("view");
-                }, `Placa ${""}asignada.`)}
+                }, "Placa reservada para el pedido. Sigue disponible hasta que el propietario la escanee y la vincule.")}
               />
             )}
 

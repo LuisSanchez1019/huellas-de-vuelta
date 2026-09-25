@@ -1,4 +1,5 @@
 import Link from "next/link";
+import PetPhoto from "@/components/ui/PetPhoto";
 import { ClockIcon, GenderIcon, PawIcon, PinIcon, TagIcon } from "@/components/icons/Icon";
 import styles from "./landing.module.css";
 
@@ -11,18 +12,19 @@ export interface LostPetCardData {
   sex: string | null;
   location: string;
   reportedAgo: string;
-  photoUrl?: string | null;
+  /** Ruta de la foto en Storage (se firma en el navegador). */
+  photoPath?: string | null;
 }
 
 export default function PetCard({ pet }: { pet: LostPetCardData }) {
   return (
     <article className={styles.petCard} role="listitem">
-      {pet.photoUrl ? (
-        // eslint-disable-next-line @next/next/no-img-element -- URL firmada temporal de Supabase Storage
-        <img src={pet.photoUrl} alt={`Foto de ${pet.name}`} className={styles.petPhoto} />
-      ) : (
-        <span className={styles.petPhotoPlaceholder} aria-hidden="true"><PawIcon size={30} /></span>
-      )}
+      <PetPhoto
+        path={pet.photoPath}
+        alt={`Foto de ${pet.name}`}
+        className={styles.petPhoto}
+        fallback={<span className={styles.petPhotoPlaceholder} aria-hidden="true"><PawIcon size={30} /></span>}
+      />
 
       <div className={styles.petMain}>
         <div className={styles.petHead}>

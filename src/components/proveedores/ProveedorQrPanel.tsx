@@ -101,7 +101,7 @@ export default function ProveedorQrPanel() {
     const key = `${tag.id}-svg`;
     setBusyAction(key);
     try {
-      await downloadQrSvg({ shortCode: tag.shortCode, publicId: tag.publicId }, window.location.origin, sizeCm);
+      await downloadQrSvg({ shortCode: tag.shortCode, publicId: tag.publicId }, sizeCm);
     } catch (error) {
       setToast({ variant: "error", message: providerQrErrorMessage(error) });
     } finally {
@@ -113,7 +113,7 @@ export default function ProveedorQrPanel() {
     const key = `${tag.id}-png`;
     setBusyAction(key);
     try {
-      await downloadQrPng({ shortCode: tag.shortCode, publicId: tag.publicId }, window.location.origin, sizeCm);
+      await downloadQrPng({ shortCode: tag.shortCode, publicId: tag.publicId }, sizeCm);
     } catch (error) {
       setToast({ variant: "error", message: providerQrErrorMessage(error) });
     } finally {
@@ -131,7 +131,6 @@ export default function ProveedorQrPanel() {
       }
       await downloadQrGroupZip(
         tags.map((t) => ({ shortCode: t.shortCode, publicId: t.publicId })),
-        window.location.origin,
         sizeCm,
         `qr-${batch.reference}`,
       );

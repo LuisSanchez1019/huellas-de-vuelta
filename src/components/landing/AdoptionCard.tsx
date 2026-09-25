@@ -1,11 +1,15 @@
 import Link from "next/link";
+import PetPhoto from "@/components/ui/PetPhoto";
 import { ChatIcon, PawIcon, PinIcon } from "@/components/icons/Icon";
 import styles from "./landing.module.css";
 
 export interface AdoptionItem {
   key: string;
   name: string;
-  photoUrl: string | null;
+  /** Ruta de la foto en Storage (se firma en el navegador). */
+  photoPath?: string | null;
+  /** Imagen externa opcional que no es de Storage (sin firma). */
+  photoUrl?: string | null;
   meta: string;
   city: string | null;
   badge: "adopcion" | "padrino";
@@ -28,12 +32,12 @@ export default function AdoptionCard({ item }: { item: AdoptionItem }) {
   return (
     <article className={styles.petItemCard} role="listitem">
       <div className={styles.petItemPhoto}>
-        {item.photoUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element -- URL firmada temporal de Supabase Storage
-          <img src={item.photoUrl} alt={`Foto de ${item.name}`} />
-        ) : (
-          <span className={styles.petItemPhotoFallback} aria-hidden="true"><PawIcon size={34} /></span>
-        )}
+        <PetPhoto
+          path={item.photoPath}
+          url={item.photoUrl}
+          alt={`Foto de ${item.name}`}
+          fallback={<span className={styles.petItemPhotoFallback} aria-hidden="true"><PawIcon size={34} /></span>}
+        />
         <span
           className={`${styles.petItemBadge} ${item.badge === "padrino" ? styles.petItemBadgeSponsor : styles.petItemBadgeAdopt}`}
         >

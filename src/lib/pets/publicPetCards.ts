@@ -51,7 +51,7 @@ export function toLostPetCard(row: PublicLostPetWithPhoto): LostPetCardData {
     sex: row.sex ? sexLabels[row.sex] : null,
     location: [row.city, row.neighborhood].filter(Boolean).join(" · "),
     reportedAgo: timeAgo(row.reportedAt),
-    photoUrl: row.photoUrl,
+    photoPath: row.photoPath,
   };
 }
 
@@ -74,7 +74,7 @@ export function toAdoptionItems(
       return {
         key: `u-${pet.publicId}`,
         name: pet.name,
-        photoUrl: pet.photoUrl,
+        photoPath: pet.photoPath,
         meta,
         city: null,
         badge: "adopcion",
@@ -91,7 +91,7 @@ export function toAdoptionItems(
         return {
           key: `o-${pet.id}`,
           name: pet.name,
-          photoUrl: pet.photoUrl,
+          photoPath: pet.photoPath,
           meta: [speciesText(pet.species, pet.speciesOther), pet.breed, pet.age].filter(Boolean).join(" · "),
           city: pet.org.city,
           badge: "adopcion",

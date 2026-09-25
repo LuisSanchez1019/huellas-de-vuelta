@@ -1,5 +1,5 @@
 import { qrSvgString } from "./svg";
-import { petPublicUrl } from "@/lib/pets/publicPet";
+import { qrPublicUrl } from "./qrBaseUrl";
 
 /**
  * Documento imprimible de un lote / rango de placas QR.
@@ -39,13 +39,12 @@ function escapeHtml(value: string): string {
 
 export function buildQrPrintDocument(
   items: QrPrintItem[],
-  origin: string,
   batchLabel: string,
   layout: QrPrintLayout = DEFAULT_LAYOUT,
 ): string {
   const cells = items
     .map((item) => {
-      const url = petPublicUrl(item.publicId, origin);
+      const url = qrPublicUrl(item.publicId);
       const svg = qrSvgString(url, { border: 2, ecc: "Q" });
       return `<div class="cell">
         <div class="qr">${svg}</div>
@@ -107,11 +106,10 @@ export function buildQrPrintDocument(
  */
 export function openQrPrintSheet(
   items: QrPrintItem[],
-  origin: string,
   batchLabel: string,
   layout?: QrPrintLayout,
 ): boolean {
-  const html = buildQrPrintDocument(items, origin, batchLabel, layout);
+  const html = buildQrPrintDocument(items, batchLabel, layout);
   const url = URL.createObjectURL(new Blob([html], { type: "text/html" }));
   const win = window.open(url, "_blank", "noopener,noreferrer");
   if (!win) {

@@ -31,7 +31,7 @@ export default async function SponsorPetsSection() {
       return {
         key: `s-${pet.id}`,
         name: pet.name,
-        photoUrl: pet.photoUrl,
+        photoPath: pet.photoPath,
         meta: [speciesText(pet.species, pet.speciesOther), pet.breed, pet.age].filter(Boolean).join(" · "),
         city: pet.org.city,
         badge: "padrino",

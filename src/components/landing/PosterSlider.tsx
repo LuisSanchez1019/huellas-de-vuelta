@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ChevronDownIcon } from "@/components/icons/Icon";
+import PetPhoto from "@/components/ui/PetPhoto";
 import type { LandingPoster } from "@/lib/supabase/publicCache";
 import styles from "./posters.module.css";
 
@@ -11,8 +12,15 @@ function PosterCard({ poster }: { poster: LandingPoster }) {
   const alt = poster.title ? `${poster.title} — ${poster.orgName}` : `Poster de ${poster.orgName}`;
   const inner = (
     <>
-      {/* eslint-disable-next-line @next/next/no-img-element -- imagen firmada de Storage, proporcion fija 3:1 */}
-      <img src={poster.imageUrl} alt={alt} className={styles.img} loading="lazy" width={1200} height={400} />
+      <PetPhoto
+        bucket="org-posters"
+        path={poster.imagePath}
+        alt={alt}
+        className={styles.img}
+        width={1200}
+        height={400}
+        fallback={<div style={{ aspectRatio: "3 / 1" }} aria-hidden="true" />}
+      />
       {poster.title && (
         <div className={styles.caption}>
           <span className={styles.captionTitle}>{poster.title}</span>

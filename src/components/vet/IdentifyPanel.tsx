@@ -2,19 +2,18 @@
 
 import dynamic from "next/dynamic";
 import { useMemo, useRef, useState } from "react";
-import { CameraIcon, QrIcon, SearchIcon } from "@/components/icons/Icon";
+import { QrIcon, SearchIcon } from "@/components/icons/Icon";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { vetErrorMessage } from "@/lib/vet/errors";
 import {
   IDENTIFY_FAILURE_MESSAGES,
   identifyPet,
-  isPlausibleCode,
+  isShortCode,
   normalizeCode,
   parseScanPayload,
   type IdentificationMethod,
   type IdentifyResult,
 } from "@/lib/vet/identification";
-import type { ScanFormat } from "@/lib/scanner/scanner";
 import controls from "@/components/ui/controls.module.css";
 import IdentifiedPetPanel from "./IdentifiedPetPanel";
 import styles from "./vet.module.css";
@@ -25,13 +24,14 @@ const CameraScanner = dynamic(() => import("./CameraScanner"), {
   loading: () => <p className={styles.meta}>Preparando la cámara…</p>,
 });
 
-type Mode = "menu" | ScanFormat | "manual";
+type Mode = "menu" | "camera" | "reader";
 
 /**
- * "Identificar mascota": escanear QR, escanear código de barras o escribir el
- * código (también sirve un lector HID, que teclea el código y pulsa Enter).
- * Sin cámara ni escáner visibles hasta que se pide. Identificar NO da acceso
- * médico: el resultado solo trae información pública mínima.
+ * "Identificar mascota": escanear el QR de la placa con la cámara o con un lector de
+ * QR (USB/Bluetooth, que teclea la URL y pulsa Enter). NFC llegará a futuro con el mismo
+ * flujo. La placa identifica solo por QR/NFC; el código corto (short_code) NO identifica.
+ * Identificar NO da acceso médico: el resultado solo trae información pública mínima y
+ * el servidor comprueba que la organización veterinaria esté realmente aprobada.
  */
 export default function IdentifyPanel() {
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
@@ -44,7 +44,7 @@ export default function IdentifyPanel() {
   const busyRef = useRef(false);
 
   async function run(code: string, method: IdentificationMethod) {
-    if (busyRef.current) return; // un lector HID puede disparar Enter dos veces
+    if (busyRef.current) return; // un lector puede disparar Enter dos veces
     busyRef.current = true;
     setBusy(true);
     setError(null);
@@ -66,30 +66,33 @@ export default function IdentifyPanel() {
     }
   }
 
-  function onScanned(text: string, format: ScanFormat) {
-    setMode("menu"); // desmonta el escáner: apaga la cámara antes de consultar
-    const resolved = parseScanPayload(text, format);
-    if (!resolved) {
-      setFailure("El código leído no es un identificador de Huellas de Vuelta.");
-      return;
+  function resolve(text: string): { code: string; method: IdentificationMethod } | null {
+    const raw = normalizeCode(text);
+    if (isShortCode(raw)) {
+      setResult(null);
+      setFailure("El código corto de la placa es interno y no identifica. Escanea el QR de la placa.");
+      return null;
     }
-    void run(resolved.code, resolved.method);
+    const resolved = parseScanPayload(raw);
+    if (!resolved) {
+      setResult(null);
+      setFailure("El código leído no es un identificador de Huellas de Vuelta.");
+      return null;
+    }
+    return resolved;
   }
 
-  function onManualSubmit(event: React.FormEvent<HTMLFormElement>) {
+  function onScanned(text: string) {
+    setMode("menu"); // desmonta el escáner: apaga la cámara antes de consultar
+    const resolved = resolve(text);
+    if (resolved) void run(resolved.code, resolved.method);
+  }
+
+  function onReaderSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const raw = inputRef.current?.value ?? "";
-    // Se acepta también una URL pegada (/m/<id>): se extrae solo el token.
-    const resolved = parseScanPayload(raw, "barcode");
-    const code = resolved?.code ?? normalizeCode(raw);
-    if (!isPlausibleCode(code)) {
-      setResult(null);
-      setFailure("El código no tiene un formato válido. Ejemplo: ABC-001.");
-      return;
-    }
-    void run(code, "manual").then(() => {
-      if (inputRef.current) inputRef.current.value = "";
-    });
+    const resolved = resolve(inputRef.current?.value ?? "");
+    if (inputRef.current) inputRef.current.value = "";
+    if (resolved) void run(resolved.code, resolved.method);
   }
 
   function open(next: Mode) {
@@ -111,43 +114,39 @@ export default function IdentifyPanel() {
 
         {mode === "menu" && (
           <div className={styles.methodGrid} style={{ marginTop: "1rem" }}>
-            <button type="button" className={styles.methodButton} disabled={busy} onClick={() => open("qr")}>
-              <QrIcon size={22} /> Escanear QR
+            <button type="button" className={styles.methodButton} disabled={busy} onClick={() => open("camera")}>
+              <QrIcon size={22} /> Escanear QR con la cámara
             </button>
-            <button type="button" className={styles.methodButton} disabled={busy} onClick={() => open("barcode")}>
-              <CameraIcon size={22} /> Escanear código de barras
-            </button>
-            <button type="button" className={styles.methodButton} disabled={busy} onClick={() => open("manual")}>
-              <SearchIcon size={22} /> Introducir código
+            <button type="button" className={styles.methodButton} disabled={busy} onClick={() => open("reader")}>
+              <SearchIcon size={22} /> Usar un lector de QR
             </button>
           </div>
         )}
 
-        {(mode === "qr" || mode === "barcode") && (
+        {mode === "camera" && (
           <div style={{ marginTop: "1rem" }}>
-            <CameraScanner format={mode} onDetected={(text) => onScanned(text, mode)} onCancel={() => setMode("menu")} />
+            <CameraScanner onDetected={onScanned} onCancel={() => setMode("menu")} />
           </div>
         )}
 
-        {mode === "manual" && (
-          <form className={styles.manual} style={{ marginTop: "1rem" }} onSubmit={onManualSubmit}>
+        {mode === "reader" && (
+          <form className={styles.manual} style={{ marginTop: "1rem" }} onSubmit={onReaderSubmit}>
             <label className={controls.field}>
-              Código de la placa
+              Lector de QR (USB o Bluetooth)
               <input
                 ref={inputRef}
                 className={controls.input}
                 autoFocus
                 autoComplete="off"
-                autoCapitalize="characters"
                 spellCheck={false}
-                maxLength={60}
-                placeholder="ABC-001"
-                aria-describedby="code-hint"
+                maxLength={300}
+                placeholder="Escanea el QR de la placa"
+                aria-describedby="reader-hint"
               />
-              <span id="code-hint" className={controls.hint}>Escríbelo o usa un lector de código de barras (envía Enter al terminar).</span>
+              <span id="reader-hint" className={controls.hint}>Deja este campo seleccionado y escanea el QR: el lector envía Enter al terminar.</span>
             </label>
             <div className={controls.buttonRow}>
-              <button type="submit" className={controls.button} disabled={busy}>{busy ? "Buscando…" : "Buscar"}</button>
+              <button type="submit" className={controls.button} disabled={busy}>{busy ? "Buscando…" : "Identificar"}</button>
               <button type="button" className={controls.buttonSecondary} onClick={() => setMode("menu")}>Cancelar</button>
             </div>
           </form>

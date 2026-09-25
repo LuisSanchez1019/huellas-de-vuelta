@@ -1,6 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { getOrgLogoPublicUrl } from "./orgProfiles";
-import { getPetPhotoSignedUrl } from "./pets";
 
 /**
  * Mascotas públicas de organizaciones (RPC `list_public_org_pets`, la misma
@@ -20,7 +19,8 @@ export interface PublicOrgPetRow {
   status: string;
   needsHome: boolean;
   needsSponsor: boolean;
-  photoUrl: string | null;
+  /** Ruta de la foto en Storage (se firma en el navegador con `PetPhoto`). */
+  photoPath: string | null;
   org: {
     id: string;
     name: string;
@@ -36,8 +36,7 @@ export async function fetchPublicOrgPets(supabase: SupabaseClient): Promise<Publ
   const { data, error } = await supabase.rpc("list_public_org_pets");
   if (error) throw error;
   const rows = (Array.isArray(data) ? data : []) as Record<string, unknown>[];
-  return Promise.all(
-    rows.map(async (row) => {
+  return rows.map((row) => {
       const photoPath = (row.photo_path as string) ?? null;
       const logoPath = (row.org_logo_path as string) ?? null;
       return {
@@ -52,7 +51,7 @@ export async function fetchPublicOrgPets(supabase: SupabaseClient): Promise<Publ
         status: String(row.status ?? ""),
         needsHome: Boolean(row.needs_home),
         needsSponsor: Boolean(row.needs_sponsor),
-        photoUrl: photoPath ? await getPetPhotoSignedUrl(supabase, photoPath) : null,
+        photoPath,
         org: {
           id: String(row.org_id ?? ""),
           name: String(row.org_name ?? ""),
@@ -63,6 +62,5 @@ export async function fetchPublicOrgPets(supabase: SupabaseClient): Promise<Publ
           whatsapp: (row.org_whatsapp as string) ?? null,
         },
       };
-    }),
-  );
+  });
 }

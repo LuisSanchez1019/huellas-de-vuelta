@@ -1,15 +1,15 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { startScanner, type ScanFormat, type ScannerError, type ScannerSession } from "@/lib/scanner/scanner";
+import { startScanner, type ScannerError, type ScannerSession } from "@/lib/scanner/scanner";
 import controls from "@/components/ui/controls.module.css";
 import styles from "./vet.module.css";
 
 const ERROR_TEXT: Record<string, string> = {
-  "permission-denied": "No diste permiso para usar la cámara. Puedes habilitarlo en los ajustes del navegador o escribir el código a mano.",
+  "permission-denied": "No diste permiso para usar la cámara. Puedes habilitarlo en los ajustes del navegador o usar un lector de QR.",
   "no-camera": "No encontramos una cámara disponible en este dispositivo.",
   "insecure-context": "La cámara solo funciona en una conexión segura (https).",
-  unsupported: "Este navegador no permite usar la cámara. Escribe el código a mano.",
+  unsupported: "Este navegador no permite usar la cámara. Usa un lector de QR.",
   failed: "No fue posible iniciar la cámara. Inténtalo de nuevo.",
 };
 
@@ -20,11 +20,9 @@ const ERROR_TEXT: Record<string, string> = {
  * No conoce autorización: solo entrega el texto leído.
  */
 export default function CameraScanner({
-  format,
   onDetected,
   onCancel,
 }: {
-  format: ScanFormat;
   onDetected: (text: string) => void;
   onCancel: () => void;
 }) {
@@ -44,7 +42,7 @@ export default function CameraScanner({
     let cancelled = false;
     let session: ScannerSession | null = null;
 
-    startScanner(video, format, (text) => {
+    startScanner(video, (text) => {
       if (!cancelled) onDetectedRef.current(text);
     })
       .then((s) => {
@@ -68,12 +66,12 @@ export default function CameraScanner({
       document.removeEventListener("visibilitychange", onHidden);
       session?.stop();
     };
-  }, [format, attempt]);
+  }, [attempt]);
 
   return (
     <div className={styles.scanner}>
       <p className={styles.scannerHint}>
-        {format === "qr" ? "Apunta la cámara al código QR de la placa." : "Apunta la cámara al código de barras de la placa."}
+        Apunta la cámara al código QR de la placa.
       </p>
       {error ? (
         <p className={controls.errorText} role="alert">{error}</p>

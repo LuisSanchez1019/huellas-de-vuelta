@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import ThemeToggle from "@/components/theme/ThemeToggle";
@@ -18,6 +18,16 @@ const navItems = [
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
+
+  // Escape cierra el menú móvil.
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setMenuOpen(false);
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [menuOpen]);
 
   return (
     <header className={styles.header}>
@@ -44,6 +54,7 @@ export default function Header() {
           onClick={() => setMenuOpen((value) => !value)}
           aria-label={menuOpen ? "Cerrar menú" : "Abrir menú"}
           aria-expanded={menuOpen}
+          aria-controls="landing-mobile-menu"
         >
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
             {menuOpen ? <path d="M6 6l12 12M18 6L6 18" /> : <path d="M3 6h18M3 12h18M3 18h18" />}
@@ -52,7 +63,7 @@ export default function Header() {
       </div>
 
       {menuOpen && (
-        <div className={`${styles.mobilePanel} ${styles.open}`}>
+        <div id="landing-mobile-menu" className={`${styles.mobilePanel} ${styles.open}`}>
           {navItems.map((item) => (
             <Link key={item.label} className={styles.navLink} href={item.href} onClick={() => setMenuOpen(false)}>{item.label}</Link>
           ))}

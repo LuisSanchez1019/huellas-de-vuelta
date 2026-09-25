@@ -1,6 +1,6 @@
 import JSZip from "jszip";
 import { qrSvgString } from "./svg";
-import { petPublicUrl } from "@/lib/pets/publicPet";
+import { qrPublicUrl } from "./qrBaseUrl";
 
 /**
  * Descarga real de placas QR individuales o en grupo (SVG / PNG / ZIP).
@@ -84,26 +84,25 @@ function triggerBlobDownload(blob: Blob, filename: string): void {
   window.setTimeout(() => URL.revokeObjectURL(url), 30_000);
 }
 
-export async function downloadQrSvg(item: QrDownloadItem, origin: string, sizeCm: QrPhysicalSizeCm): Promise<void> {
-  const svg = qrSvgFileString(petPublicUrl(item.publicId, origin), sizeCm);
+export async function downloadQrSvg(item: QrDownloadItem, sizeCm: QrPhysicalSizeCm): Promise<void> {
+  const svg = qrSvgFileString(qrPublicUrl(item.publicId), sizeCm);
   triggerBlobDownload(new Blob([svg], { type: "image/svg+xml" }), `${safeFileName(item.shortCode)}.svg`);
 }
 
-export async function downloadQrPng(item: QrDownloadItem, origin: string, sizeCm: QrPhysicalSizeCm): Promise<void> {
-  const blob = await qrPngBlob(petPublicUrl(item.publicId, origin), sizeCm);
+export async function downloadQrPng(item: QrDownloadItem, sizeCm: QrPhysicalSizeCm): Promise<void> {
+  const blob = await qrPngBlob(qrPublicUrl(item.publicId), sizeCm);
   triggerBlobDownload(blob, `${safeFileName(item.shortCode)}.png`);
 }
 
 /** ZIP real con un PNG y un SVG por cada placa del grupo (5/10/20). */
 export async function downloadQrGroupZip(
   items: QrDownloadItem[],
-  origin: string,
   sizeCm: QrPhysicalSizeCm,
   zipName: string,
 ): Promise<void> {
   const zip = new JSZip();
   for (const item of items) {
-    const url = petPublicUrl(item.publicId, origin);
+    const url = qrPublicUrl(item.publicId);
     const name = safeFileName(item.shortCode);
     zip.file(`${name}.svg`, qrSvgFileString(url, sizeCm));
     zip.file(`${name}.png`, await qrPngBlob(url, sizeCm));

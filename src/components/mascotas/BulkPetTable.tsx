@@ -11,7 +11,9 @@ import { speciesLabels, sexLabels } from "@/lib/pets/labels";
 import { bulkPetRepository, uploadOrgPetPhoto } from "@/lib/pets/bulkPetRepository";
 import { bulkStatusLabels, type BulkPet, type BulkPetInput, type OrgKind, type OrgScope } from "@/lib/pets/bulkPets";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
-import { getPetPhotoSignedUrl } from "@/lib/supabase/pets";
+import { forgetPetPhoto, getPetPhotoUrl } from "@/lib/supabase/petPhotos";
+import { removePetPhoto } from "@/lib/supabase/pets";
+import PetPhoto from "@/components/ui/PetPhoto";
 import { getSupabaseUserId } from "@/lib/auth/session";
 import { TableSkeletonBody } from "@/components/loading/SkeletonVariants";
 import controls from "@/components/ui/controls.module.css";
@@ -26,7 +28,6 @@ const STATUS_BADGE: Record<BulkPet["status"], string> = {
 
 export default function BulkPetTable({ scope, role }: { scope: OrgScope; role: OrgKind }) {
   const [pets, setPets] = useState<BulkPet[]>([]);
-  const [photoUrls, setPhotoUrls] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [toast, setToast] = useState<ToastState | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -43,15 +44,6 @@ export default function BulkPetTable({ scope, role }: { scope: OrgScope; role: O
       try {
         const list = await bulkPetRepository.list(scope);
         setPets(list);
-        if (await getSupabaseUserId()) {
-          const supabase = createSupabaseBrowserClient();
-          const entries = await Promise.all(
-            list
-              .filter((pet) => pet.photoPath)
-              .map(async (pet) => [pet.id, await getPetPhotoSignedUrl(supabase, pet.photoPath as string)] as const),
-          );
-          setPhotoUrls(Object.fromEntries(entries.filter((e): e is [string, string] => e[1] !== null)));
-        }
       } catch {
         setToast({ variant: "error", message: "No fue posible cargar las mascotas." });
       } finally {
@@ -64,6 +56,27 @@ export default function BulkPetTable({ scope, role }: { scope: OrgScope; role: O
   useEffect(() => {
     reload();
   }, [reload]);
+
+  // Vista previa de la foto en el editor: se firma al abrirlo (nunca una URL guardada).
+  const [editPreview, setEditPreview] = useState<{ id: string; url: string | null } | null>(null);
+  useEffect(() => {
+    if (!editPet?.photoPath) return;
+    let alive = true;
+    const id = editPet.id;
+    getPetPhotoUrl(editPet.photoPath).then((url) => {
+      if (alive) setEditPreview({ id, url });
+    });
+    return () => {
+      alive = false;
+    };
+  }, [editPet]);
+  const editPreviewUrl = editPet
+    ? editPet.photoPath
+      ? editPreview?.id === editPet.id
+        ? editPreview.url
+        : null
+      : editPet.photoUrl
+    : null;
 
   async function toggleFlag(pet: BulkPet, flag: "needsHome" | "needsSponsor") {
     setBusyId(pet.id);
@@ -92,8 +105,18 @@ export default function BulkPetTable({ scope, role }: { scope: OrgScope; role: O
     let nextPatch = patch;
     if (photo && (await getSupabaseUserId())) {
       const supabase = createSupabaseBrowserClient();
+      const previousPath = pets.find((pet) => pet.id === id)?.photoPath ?? null;
       const path = await uploadOrgPetPhoto(supabase, scope.id, id, photo.blob, photo.contentType);
       nextPatch = { ...patch, photoPath: path };
+      await bulkPetRepository.update(scope, id, nextPatch);
+      // Foto nueva = ruta nueva: se borra la anterior (mejor esfuerzo) y se olvida su firma.
+      if (previousPath && previousPath !== path) {
+        forgetPetPhoto(previousPath);
+        void removePetPhoto(supabase, previousPath);
+      }
+      await reload();
+      setToast({ variant: "success", message: "Mascota actualizada." });
+      return;
     }
     await bulkPetRepository.update(scope, id, nextPatch);
     await reload();
@@ -132,15 +155,14 @@ export default function BulkPetTable({ scope, role }: { scope: OrgScope; role: O
         key: "photo",
         header: "Foto",
         render: (pet) => {
-          const url = photoUrls[pet.id] ?? pet.photoUrl;
+          const placeholder = <span className={styles.thumbPlaceholder} aria-hidden="true"><PawIcon size={18} /></span>;
           return (
             <div className={styles.photoCell}>
-              {url ? (
-                // eslint-disable-next-line @next/next/no-img-element -- URL firmada de Storage o URL de la organización
-                <img src={url} alt={pet.name} className={styles.thumb} />
+              {pet.photoPath || pet.photoUrl ? (
+                <PetPhoto path={pet.photoPath} url={pet.photoUrl} alt={pet.name} className={styles.thumb} fallback={placeholder} />
               ) : (
                 <>
-                  <span className={styles.thumbPlaceholder} aria-hidden="true"><PawIcon size={18} /></span>
+                  {placeholder}
                   <span className={styles.noPhotoLabel}>Sin foto</span>
                 </>
               )}
@@ -181,10 +203,10 @@ export default function BulkPetTable({ scope, role }: { scope: OrgScope; role: O
           <button type="button" className={styles.action} onClick={() => setViewPet(pet)}>Ver</button>
           <button
             type="button"
-            className={photoUrls[pet.id] ?? pet.photoUrl ? styles.action : styles.actionOn}
+            className={pet.photoPath || pet.photoUrl ? styles.action : styles.actionOn}
             onClick={() => setEditPet(pet)}
           >
-            {photoUrls[pet.id] ?? pet.photoUrl ? "Cambiar foto" : "Agregar foto"}
+            {pet.photoPath || pet.photoUrl ? "Cambiar foto" : "Agregar foto"}
           </button>
           <button type="button" className={styles.action} onClick={() => setEditPet(pet)}>Editar</button>
           <button type="button" className={styles.actionDanger} onClick={() => setDeletePet(pet)}>Eliminar</button>
@@ -213,7 +235,7 @@ export default function BulkPetTable({ scope, role }: { scope: OrgScope; role: O
     });
     return base;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [role, busyId, photoUrls]);
+  }, [role, busyId]);
 
   const filters = useMemo<DataTableFilter<BulkPet>[] | undefined>(() => {
     if (role !== "fundacion") return undefined;
@@ -255,7 +277,7 @@ export default function BulkPetTable({ scope, role }: { scope: OrgScope; role: O
         open={Boolean(editPet)}
         mode="edit"
         pet={editPet}
-        photoPreviewUrl={editPet ? (photoUrls[editPet.id] ?? editPet.photoUrl) : null}
+        photoPreviewUrl={editPreviewUrl}
         onClose={() => setEditPet(null)}
         onSave={handleSave}
       />

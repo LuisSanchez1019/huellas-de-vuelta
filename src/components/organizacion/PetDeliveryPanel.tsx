@@ -10,7 +10,7 @@ import {
   orgConfirmPetReceipt,
   type OrgPetOwnerContact,
 } from "@/lib/supabase/reportEvents";
-import { getPetPhotoSignedUrl } from "@/lib/supabase/pets";
+import PetPhoto from "@/components/ui/PetPhoto";
 import { orgDeliveryEventStatus, orgDeliveryStatusLabels, petConditionLabels, type OrgDeliveryEvent } from "@/lib/pets/reencuentro";
 import { speciesLabels } from "@/lib/pets/labels";
 import { AlertIcon, CheckIcon, ClockIcon, CrossIcon, PawIcon, PinIcon } from "@/components/icons/Icon";
@@ -49,7 +49,6 @@ const STATUS_BADGE_CLASS: Record<string, string> = {
 export default function PetDeliveryPanel({ kind }: { kind: OrgProfileKind }) {
   const [state, setState] = useState<"loading" | "ready" | "no-org" | "error">("loading");
   const [events, setEvents] = useState<OrgDeliveryEvent[]>([]);
-  const [photoUrls, setPhotoUrls] = useState<Record<string, string>>({});
   const [busyId, setBusyId] = useState<string | null>(null);
   const [confirming, setConfirming] = useState<{ event: OrgDeliveryEvent; received: boolean } | null>(null);
   const [contacts, setContacts] = useState<Record<string, OrgPetOwnerContact | "loading">>({});
@@ -75,13 +74,6 @@ export default function PetDeliveryPanel({ kind }: { kind: OrgProfileKind }) {
         }
         const rows = await fetchOrgDeliveryEvents(supabase);
         setEvents(rows);
-
-        const entries = await Promise.all(
-          rows
-            .filter((ev) => ev.pet.photo_path)
-            .map(async (ev) => [ev.id, await getPetPhotoSignedUrl(supabase, ev.pet.photo_path as string)] as const),
-        );
-        setPhotoUrls(Object.fromEntries(entries.filter((e): e is [string, string] => e[1] !== null)));
         setState("ready");
       } catch {
         setState("error");
@@ -157,12 +149,12 @@ export default function PetDeliveryPanel({ kind }: { kind: OrgProfileKind }) {
           return (
             <li key={ev.id} className={styles.item}>
               <div className={styles.itemHead}>
-                {photoUrls[ev.id] ? (
-                  // eslint-disable-next-line @next/next/no-img-element -- URL firmada temporal de Supabase Storage
-                  <img src={photoUrls[ev.id]} alt={pet.name || "Mascota"} className={styles.thumb} />
-                ) : (
-                  <span className={styles.thumbPlaceholder} aria-hidden="true"><PawIcon size={24} /></span>
-                )}
+                <PetPhoto
+                  path={pet.photo_path}
+                  alt={pet.name || "Mascota"}
+                  className={styles.thumb}
+                  fallback={<span className={styles.thumbPlaceholder} aria-hidden="true"><PawIcon size={24} /></span>}
+                />
                 <div className={styles.body}>
                   <div className={styles.top}>
                     <span className={styles.name}>{pet.name || "Mascota"}</span>

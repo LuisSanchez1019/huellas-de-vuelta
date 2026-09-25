@@ -2,40 +2,49 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { mapGrant, type VetGrant } from "./access";
 
 /**
- * Servicio de IDENTIFICACIÓN. Un QR, un código de barras, un short_code escrito
- * o (a futuro) NFC solo IDENTIFICAN una placa. Nunca conceden acceso médico:
- * eso lo decide `access.ts`/`medical.ts` con un grant vigente.
+ * Servicio de IDENTIFICACIÓN. Un QR o (a futuro) NFC solo IDENTIFICAN una placa:
+ * llevan un token opaco (`public_id`) que NO es un secreto ni una contraseña.
+ * Nunca conceden acceso médico: eso lo decide el servidor (veterinaria aprobada +
+ * grant vigente + auditoría) mediante `access.ts`/`medical.ts`.
  *
- * No depende de la cámara: sirve igual con un lector HID (que teclea el código
- * y pulsa Enter), con el escáner web o con un escáner nativo futuro (Capacitor).
+ * La placa física NO tiene código de barras, y el `short_code` (ABC-001) es un
+ * identificador administrativo/interno: la veterinaria NO identifica con él (el
+ * servidor tampoco lo acepta).
+ *
+ * No depende de la cámara: sirve igual con un lector de QR USB/Bluetooth (que
+ * teclea la URL del QR y pulsa Enter), con el escáner web o con un escáner nativo
+ * futuro (Capacitor).
  */
 
-export type IdentificationMethod = "qr" | "barcode" | "manual" | "nfc";
+export type IdentificationMethod = "qr" | "nfc";
 
-/** Mismos formatos que el CHECK de qr_tags.short_code. */
-const SHORT_CODE_RE = /^(?:[A-Za-z]{3}-[0-9]{3}|[Hh][Vv]-[Ll]?[0-9]{4,6})$/;
 /** Token opaco de la URL /m/<public_id>. */
 const PUBLIC_ID_RE = /^[A-Za-z0-9]{8,24}$/;
+/** Formato del short_code administrativo (ABC-001, HV-L00001): NO identifica. */
+const SHORT_CODE_RE = /^(?:[A-Za-z]{3}-[0-9]{3}|[Hh][Vv]-[Ll]?[0-9]{4,6})$/;
 
 const isControlOrSpace = (code: number) => code <= 0x20 || code === 0x7f;
 
 /**
- * Normaliza lo que llega del teclado o de un lector HID: quita espacios y
- * caracteres de control (Enter/CR/LF/tab) de los extremos y, si tiene forma de
- * short_code, lo pasa a mayúsculas. No altera el contenido del identificador.
+ * Normaliza lo que llega de un lector o del teclado: quita espacios y caracteres de
+ * control (Enter/CR/LF/tab, STX…) SOLO de los extremos. No altera el contenido.
  */
 export function normalizeCode(raw: string): string {
-  // El lector HID puede anteponer/añadir caracteres de control (Enter, STX...): se quitan solo de los extremos.
   let start = 0;
   let end = raw.length;
   while (start < end && isControlOrSpace(raw.charCodeAt(start))) start++;
   while (end > start && isControlOrSpace(raw.charCodeAt(end - 1))) end--;
-  const trimmed = raw.slice(start, end);
-  return SHORT_CODE_RE.test(trimmed) ? trimmed.toUpperCase() : trimmed;
+  return raw.slice(start, end);
 }
 
-export function isPlausibleCode(code: string): boolean {
-  return SHORT_CODE_RE.test(code) || PUBLIC_ID_RE.test(code);
+/** ¿Tiene forma de token de placa (public_id)? El short_code no la tiene (lleva guion). */
+export function isPlausiblePublicId(code: string): boolean {
+  return PUBLIC_ID_RE.test(code);
+}
+
+/** ¿Es un short_code administrativo? Se rechaza con un mensaje propio. */
+export function isShortCode(code: string): boolean {
+  return SHORT_CODE_RE.test(code);
 }
 
 export interface ScanResolution {
@@ -44,12 +53,12 @@ export interface ScanResolution {
 }
 
 /**
- * Interpreta el texto leído por el escáner. El QR de una placa contiene la URL
- * `/m/<public_id>` (solo se extrae ese token; jamás se navega ahí). Un código de
- * barras contiene el short_code. Devuelve `null` si no es un identificador
- * válido (código inválido).
+ * Interpreta el texto leído por el escáner o el lector. El QR de una placa contiene la
+ * URL `/m/<public_id>` (solo se extrae ese token; jamás se navega ahí). También se
+ * acepta el token suelto (lo que escribiría un lector NFC/QR configurado sin URL).
+ * Devuelve `null` si no es un identificador válido: incluye el short_code.
  */
-export function parseScanPayload(text: string, format: "qr" | "barcode"): ScanResolution | null {
+export function parseScanPayload(text: string): ScanResolution | null {
   const raw = normalizeCode(text);
   if (raw === "" || raw.length > 300) return null;
 
@@ -61,8 +70,8 @@ export function parseScanPayload(text: string, format: "qr" | "barcode"): ScanRe
       return null;
     }
   }
-  if (!isPlausibleCode(raw)) return null;
-  return { code: raw, method: format === "barcode" ? "barcode" : "qr" };
+  if (!isPlausiblePublicId(raw)) return null;
+  return { code: raw, method: "qr" };
 }
 
 export interface IdentifiedPet {
@@ -93,7 +102,7 @@ export type IdentifyResult =
 
 export const IDENTIFY_FAILURE_MESSAGES: Record<IdentifyFailure, string> = {
   not_found: "No encontramos este identificador.",
-  invalid_code: "El código no tiene un formato válido.",
+  invalid_code: "Lee el QR de la placa: este código no es un identificador válido.",
   not_active: "Este identificador todavía no está activo.",
   suspended: "Este identificador está temporalmente suspendido.",
   replaced: "Este identificador ya no está activo: fue reemplazado por otro.",

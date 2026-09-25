@@ -1,11 +1,28 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ChevronDownIcon, LogoutIcon } from "@/components/icons/Icon";
 import { isGroupActive, type NavEntry } from "./types";
 import styles from "./Sidebar.module.css";
+
+const MOBILE_QUERY = "(max-width: 64rem)";
+
+function subscribeMobile(onChange: () => void) {
+  const mq = window.matchMedia(MOBILE_QUERY);
+  mq.addEventListener("change", onChange);
+  return () => mq.removeEventListener("change", onChange);
+}
+
+/** ¿Es un viewport donde el menú es un drawer? En el servidor se asume escritorio. */
+function useIsMobileNav() {
+  return useSyncExternalStore(
+    subscribeMobile,
+    () => window.matchMedia(MOBILE_QUERY).matches,
+    () => false,
+  );
+}
 
 export default function Sidebar({
   items,
@@ -23,6 +40,7 @@ export default function Sidebar({
   signOutLabel?: string;
 }) {
   const pathname = usePathname();
+  const isMobile = useIsMobileNav();
   // undefined = sin preferencia manual: el grupo se expande solo si contiene
   // la ruta activa. true/false = el usuario lo abrió/cerró explícitamente.
   const [manualOverrides, setManualOverrides] = useState<Record<string, boolean>>({});
@@ -38,7 +56,13 @@ export default function Sidebar({
   }
 
   return (
-    <nav className={`${styles.sidebar} ${isOpen ? styles.open : ""}`} aria-label="Panel">
+    <nav
+      id="panel-sidebar"
+      className={`${styles.sidebar} ${isOpen ? styles.open : ""}`}
+      aria-label="Panel"
+      // Drawer cerrado en móvil: fuera de pantalla, sin foco ni lectura de pantalla.
+      inert={isMobile && !isOpen}
+    >
       <ul className={styles.list}>
         {items.map((entry) => {
           if (entry.type === "link") {

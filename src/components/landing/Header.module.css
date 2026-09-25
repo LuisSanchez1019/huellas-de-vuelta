@@ -1,20 +1,27 @@
 .header { position: sticky; top: 0; z-index: 50; display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .75rem 1.5rem; background: var(--header-bg); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); }
-.brand { display:flex; align-items:center; gap:.65rem; color: var(--navy-900); }
+.brand { display:flex; align-items:center; gap:.65rem; min-width:0; color: var(--navy-900); }
 .logo { border-radius: .6rem; flex-shrink: 0; }
-.brandText { display:flex; flex-direction:column; line-height:1.15; }
-.brandName { font-weight:800; font-size:1.02rem; letter-spacing:-.02em; }
-.brandTagline { font-size:.72rem; font-weight:600; color: var(--ink-600); }
+.brandText { display:flex; flex-direction:column; line-height:1.15; min-width:0; }
+.brandName { font-weight:800; font-size:1.02rem; letter-spacing:-.02em; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.brandTagline { font-size:.72rem; font-weight:600; color: var(--ink-600); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .nav { display:flex; align-items:center; gap:1.35rem; flex-wrap:wrap; }
 .navLink { color: var(--ink-600); font-weight:600; font-size:.9rem; transition: color .15s ease; }
 .navLink:hover { color: var(--brand-blue); }
-.actions { display:flex; align-items:center; gap:.6rem; }
+.actions { display:flex; flex:none; align-items:center; gap:.6rem; }
 
 .loginLink { padding:.5rem 1rem; border-radius:.6rem; background: var(--primary); color: var(--primary-contrast); font-weight:700; font-size:.85rem; white-space:nowrap; }
 .loginLink:hover { background: var(--primary-hover); }
 
-.menuToggle { display:none; border:0; background:transparent; cursor:pointer; padding:.4rem; color: var(--navy-900); }
+.menuToggle { display:none; flex:0 0 2.75rem; width:2.75rem; min-width:2.75rem; height:2.75rem; border:0; border-radius:.6rem; background:transparent; cursor:pointer; padding:0; color: var(--navy-900); }
+.menuToggle svg { flex:none; max-width:none; }
+.menuToggle:focus-visible { outline:2px solid var(--primary); outline-offset:2px; }
 .mobilePanel { display:none; }
 .mobileLogin { display:none; }
+
+@media (max-width: 30rem) {
+  .header { padding:.6rem 1rem; gap:.5rem; }
+  .actions { gap:.25rem; }
+}
 
 @media (max-width: 62rem) {
   .nav { display:none; }
@@ -22,7 +29,7 @@
      y el acceso a iniciar sesión viven dentro del panel desplegable. */
   .loginLink { display:none; }
   .menuToggle { display:grid; place-items:center; }
-  .mobilePanel.open { display:grid; gap:.25rem; position:absolute; top:100%; left:0; right:0; padding:1rem 1.5rem 1.5rem; background: var(--surface-100); border-bottom:1px solid var(--surface-300); box-shadow: 0 1rem 2rem rgba(var(--shadow-rgb),.08); }
+  .mobilePanel.open { display:grid; gap:.25rem; position:absolute; top:100%; left:0; right:0; padding:1rem 1.5rem 1.5rem; background: var(--surface-100); border-bottom:1px solid var(--surface-300); box-shadow: 0 1rem 2rem rgba(var(--shadow-rgb),.08); max-height: calc(100dvh - 4.5rem); overflow-y:auto; overscroll-behavior:contain; }
   .mobilePanel .navLink { padding:.65rem 0; border-bottom:1px solid var(--surface-300); }
   .mobileLogin {
     display: block; margin-top: .5rem; padding: .7rem 1rem; border-radius: .6rem;

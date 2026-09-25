@@ -109,8 +109,8 @@ export default function AdminEnviosPage() {
       <div className={controls.pageHead}>
         <h1 className={controls.pageTitle}>Envíos</h1>
         <p className={controls.pageSubtitle}>
-          Envíos de placas con su número de guía. Al marcar “Entregado”, la placa se activa y el QR
-          empieza a identificar a la mascota.
+          Envíos de placas con su número de guía. Al marcar “Entregado” solo se registra la entrega: la placa se activa
+          cuando el propietario escanea su QR y la vincula a su mascota.
         </p>
       </div>
 
@@ -184,7 +184,7 @@ export default function AdminEnviosPage() {
       <ConfirmDialog
         open={pendingDeliver !== null}
         title="Marcar como entregado"
-        message="¿Marcar como entregado? La placa quedará activa y pública."
+        message="¿Marcar como entregado? La placa NO se activa sola: la activa el propietario al escanear su QR."
         confirmLabel={busyId === pendingDeliver?.id ? "Guardando…" : "Sí, marcar como entregado"}
         cancelLabel="Cancelar"
         onConfirm={confirmDeliver}

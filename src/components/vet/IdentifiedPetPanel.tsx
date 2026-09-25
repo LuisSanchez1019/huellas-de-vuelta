@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { PawIcon } from "@/components/icons/Icon";
 import { speciesLabels, statusLabels } from "@/lib/pets/labels";
-import { getPetPhotoSignedUrl } from "@/lib/supabase/pets";
+import PetPhoto from "@/components/ui/PetPhoto";
 import type { PetSpecies, PetStatus } from "@/lib/supabase/types";
 import {
   DURATION_LABELS,
@@ -46,7 +46,6 @@ export default function IdentifiedPetPanel({
   method: IdentificationMethod;
 }) {
   const [grant, setGrant] = useState<VetGrant | null>(found.grant);
-  const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [showRequest, setShowRequest] = useState(false);
   const [showEmergency, setShowEmergency] = useState(false);
   const [perms, setPerms] = useState<Set<VetPermission>>(new Set(["can_read_medical"]));
@@ -60,18 +59,6 @@ export default function IdentifiedPetPanel({
   const { pet } = found;
   const pending = grant?.effectiveStatus === "pending";
   const active = grant?.effectiveStatus === "active";
-
-  useEffect(() => {
-    let alive = true;
-    if (pet.photoPath) {
-      getPetPhotoSignedUrl(supabase, pet.photoPath).then((url) => {
-        if (alive) setPhotoUrl(url);
-      });
-    }
-    return () => {
-      alive = false;
-    };
-  }, [supabase, pet.photoPath]);
 
   // Mientras la solicitud está pendiente se consulta (ligero, sin auditar) si el propietario ya respondió.
   useEffect(() => {
@@ -151,12 +138,7 @@ export default function IdentifiedPetPanel({
     <div className={styles.result}>
       <div className={styles.resultTop}>
         <div className={styles.avatar}>
-          {photoUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element -- URL firmada temporal de Supabase Storage
-            <img src={photoUrl} alt={`Foto de ${pet.name}`} />
-          ) : (
-            <PawIcon size={32} />
-          )}
+          <PetPhoto path={pet.photoPath} alt={`Foto de ${pet.name}`} fallback={<PawIcon size={32} />} />
         </div>
         <div>
           <p className={styles.petName}>{pet.name}</p>

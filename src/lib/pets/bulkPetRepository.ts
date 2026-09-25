@@ -12,7 +12,8 @@ type OrgPetRow = Database["public"]["Tables"]["organization_pets"]["Row"];
 /**
  * Sube la foto de una mascota de organización al mismo bucket privado que las
  * mascotas de usuario (`pet-photos`), en la carpeta de la organización
- * (`<org_id>/orgpet/<petId>.<ext>`). Las políticas RLS de Storage ya lo permiten
+ * (`<org_id>/orgpet/<petId>/<uuid>.<ext>`: ruta nueva en cada subida, así reemplazar la foto
+ * nunca deja una copia vieja en caché). Las políticas RLS de Storage ya lo permiten
  * porque `org_id === auth.uid()`. Devuelve la ruta del objeto.
  */
 export async function uploadOrgPetPhoto(
@@ -23,7 +24,7 @@ export async function uploadOrgPetPhoto(
   contentType: string,
 ): Promise<string> {
   const extension = contentType === "image/jpeg" ? "jpg" : "webp";
-  const path = `${orgId}/orgpet/${petId}.${extension}`;
+  const path = `${orgId}/orgpet/${petId}/${crypto.randomUUID()}.${extension}`;
   const { error } = await supabase.storage
     .from(PET_PHOTO_BUCKET)
     .upload(path, blob, { contentType, upsert: true });

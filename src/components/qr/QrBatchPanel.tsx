@@ -104,7 +104,6 @@ export default function QrBatchPanel({ onBatchCreated }: { onBatchCreated: () =>
       }
       const ok = openQrPrintSheet(
         rows.map((row) => ({ shortCode: row.shortCode, publicId: row.publicId })),
-        window.location.origin,
         batch.reference,
       );
       if (!ok) {

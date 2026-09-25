@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
-import { getPetPhotoSignedUrl } from "@/lib/supabase/pets";
+import PetPhoto from "@/components/ui/PetPhoto";
 import { deleteMyClosedReports, fetchMyReports, setPetStatus } from "@/lib/supabase/reports";
 import { notifyNotificationsChanged } from "@/lib/notifications/events";
 import { ListSkeletonBody } from "@/components/loading/SkeletonVariants";
@@ -41,7 +41,6 @@ export default function ReportsList({ status }: { status: PetReportStatus }) {
   const [state, setState] = useState<"loading" | "ready" | "no-session" | "error">("loading");
   const [reports, setReports] = useState<PetReport[]>([]);
   const [events, setEvents] = useState<Record<string, ReportEvent[]>>({});
-  const [photoUrls, setPhotoUrls] = useState<Record<string, string>>({});
   const [evidenceUrls, setEvidenceUrls] = useState<Record<string, string>>({});
   const [resolving, setResolving] = useState<PetReport | null>(null);
   const [isResolving, setIsResolving] = useState(false);
@@ -72,15 +71,6 @@ export default function ReportsList({ status }: { status: PetReportStatus }) {
         const byReport: Record<string, ReportEvent[]> = {};
         for (const ev of eventRows) (byReport[ev.report_id] ||= []).push(ev);
         setEvents(byReport);
-
-        const petEntries = await Promise.all(
-          rows
-            .filter((report) => report.pet?.photo_path)
-            .map(async (report) =>
-              [report.id, await getPetPhotoSignedUrl(supabase, report.pet!.photo_path as string)] as const,
-            ),
-        );
-        setPhotoUrls(Object.fromEntries(petEntries.filter((e): e is [string, string] => e[1] !== null)));
 
         const evidenceEntries = await Promise.all(
           eventRows
@@ -233,12 +223,12 @@ export default function ReportsList({ status }: { status: PetReportStatus }) {
                     aria-label={`Seleccionar reporte de ${pet?.name ?? "mascota"}`}
                   />
                 )}
-                {photoUrls[report.id] ? (
-                  // eslint-disable-next-line @next/next/no-img-element -- URL firmada temporal de Supabase Storage
-                  <img src={photoUrls[report.id]} alt={pet?.name ?? "Mascota"} className={styles.thumb} />
-                ) : (
-                  <span className={styles.thumbPlaceholder} aria-hidden="true"><PawIcon size={24} /></span>
-                )}
+                <PetPhoto
+                  path={pet?.photo_path}
+                  alt={pet?.name ?? "Mascota"}
+                  className={styles.thumb}
+                  fallback={<span className={styles.thumbPlaceholder} aria-hidden="true"><PawIcon size={24} /></span>}
+                />
                 <div className={styles.body}>
                   <div className={styles.top}>
                     <span className={styles.name}>{pet?.name ?? "Mascota"}</span>

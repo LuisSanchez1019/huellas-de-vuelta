@@ -21,7 +21,7 @@ import {
   type QrTagEvent,
   type QrTagStatus,
 } from "@/lib/supabase/qr";
-import { petPublicUrl } from "@/lib/pets/publicPet";
+import { QrBaseUrlError, qrPublicUrl } from "@/lib/qr/qrBaseUrl";
 import { qrSvgString } from "@/lib/qr/svg";
 import { CloseIcon } from "@/components/icons/Icon";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
@@ -292,15 +292,17 @@ function QrTagDetailModal({
     load();
   }, [load]);
 
-  const qrDataUrl = useMemo(() => {
-    if (!detail) return null;
+  const qrPreview = useMemo((): { url: string | null; error: string | null } => {
+    if (!detail) return { url: null, error: null };
     try {
-      const svg = qrSvgString(petPublicUrl(detail.publicId, window.location.origin), { border: 2 });
-      return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
-    } catch {
-      return null;
+      const svg = qrSvgString(qrPublicUrl(detail.publicId), { border: 2 });
+      return { url: `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`, error: null };
+    } catch (caught) {
+      // Dominio oficial ausente o inválido: no se muestra ningún QR (no se cae a otro dominio).
+      return { url: null, error: caught instanceof QrBaseUrlError ? caught.message : "No fue posible generar el QR." };
     }
   }, [detail]);
+  const qrDataUrl = qrPreview.url;
 
   async function runState(action: QrStateAction) {
     if (action === "annul" || action === "suspend" || action === "unassign") {
@@ -389,6 +391,7 @@ function QrTagDetailModal({
         {state === "ready" && detail && (
           <>
             <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", alignItems: "flex-start" }}>
+              {qrPreview.error && <p className={styles.empty}>{qrPreview.error}</p>}
               {qrDataUrl && (
                 <div className={styles.qrPreview}>
                   {/* eslint-disable-next-line @next/next/no-img-element -- SVG generado en el cliente (data URL) */}

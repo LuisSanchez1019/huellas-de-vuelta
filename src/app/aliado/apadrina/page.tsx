@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
+import PetPhoto from "@/components/ui/PetPhoto";
 import { fetchPublicOrgPets, type PublicOrgPetRow } from "@/lib/supabase/orgPetsPublic";
 import { speciesLabels } from "@/lib/pets/labels";
 import { whatsappLink } from "@/lib/phone";
@@ -65,12 +66,12 @@ export default function AliadoApadrinaPage() {
             const wa = whatsappLink(pet.org.whatsapp);
             return (
               <li key={pet.id} className={styles.card}>
-                {pet.photoUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element -- URL firmada temporal de Supabase Storage
-                  <img src={pet.photoUrl} alt={pet.name} className={styles.photo} />
-                ) : (
-                  <span className={styles.photoPlaceholder} aria-hidden="true"><PawIcon size={30} /></span>
-                )}
+                <PetPhoto
+                  path={pet.photoPath}
+                  alt={pet.name}
+                  className={styles.photo}
+                  fallback={<span className={styles.photoPlaceholder} aria-hidden="true"><PawIcon size={30} /></span>}
+                />
                 <div className={styles.body}>
                   <span className={styles.badge}><HandIcon size={12} /> Busca padrino</span>
                   <p className={styles.name}>{pet.name}</p>

@@ -6,11 +6,12 @@
  *
  * - La cámara se pide SOLO cuando se llama a `startScanner`.
  * - ZXing se carga con `import()` dinámico y solo si el navegador no trae
- *   `BarcodeDetector` para el formato pedido.
+ *   `BarcodeDetector` con soporte de QR.
  * - `stop()` libera cámara y decodificador por completo (es idempotente).
+ *
+ * Solo lee códigos QR: la placa física identifica con QR (y NFC a futuro), no con
+ * código de barras.
  */
-
-export type ScanFormat = "qr" | "barcode";
 
 export type ScannerErrorCode =
   | "permission-denied"
@@ -42,7 +43,7 @@ interface BarcodeDetectorCtor {
   getSupportedFormats?: () => Promise<string[]>;
 }
 
-const NATIVE_FORMAT: Record<ScanFormat, string> = { qr: "qr_code", barcode: "code_128" };
+const NATIVE_QR_FORMAT = "qr_code";
 
 function mapMediaError(error: unknown): ScannerError {
   const name = error instanceof DOMException ? error.name : "";
@@ -72,7 +73,6 @@ function releaseStream(stream: MediaStream | null, video: HTMLVideoElement): voi
  */
 export async function startScanner(
   video: HTMLVideoElement,
-  format: ScanFormat,
   onResult: (text: string) => void,
 ): Promise<ScannerSession> {
   if (typeof window === "undefined" || !navigator.mediaDevices?.getUserMedia) {
@@ -123,8 +123,8 @@ export async function startScanner(
     if (Native) {
       try {
         const supported = (await Native.getSupportedFormats?.()) ?? [];
-        if (supported.includes(NATIVE_FORMAT[format])) {
-          detector = new Native({ formats: [NATIVE_FORMAT[format]] });
+        if (supported.includes(NATIVE_QR_FORMAT)) {
+          detector = new Native({ formats: [NATIVE_QR_FORMAT] });
         }
       } catch {
         detector = null;
@@ -159,9 +159,7 @@ export async function startScanner(
       ]);
       if (stopped) return session;
       const hints = new Map();
-      hints.set(DecodeHintType.POSSIBLE_FORMATS, [
-        format === "qr" ? BarcodeFormat.QR_CODE : BarcodeFormat.CODE_128,
-      ]);
+      hints.set(DecodeHintType.POSSIBLE_FORMATS, [BarcodeFormat.QR_CODE]);
       const reader = new BrowserMultiFormatReader(hints, {
         delayBetweenScanAttempts: 150,
         delayBetweenScanSuccess: 500,

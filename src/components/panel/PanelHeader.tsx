@@ -57,10 +57,12 @@ export default function PanelHeader({
     <header className={styles.header}>
       <button
         type="button"
+        id="panel-menu-toggle"
         className={styles.menuToggle}
         onClick={onToggleNav}
         aria-label={isNavOpen ? "Cerrar menú" : "Abrir menú"}
         aria-expanded={isNavOpen}
+        aria-controls="panel-sidebar"
       >
         {isNavOpen ? <CloseIcon size={22} /> : <MenuIcon size={22} />}
       </button>
@@ -72,7 +74,9 @@ export default function PanelHeader({
       </Link>
 
       <div className={styles.actions}>
-        <ThemeToggle />
+        <span className={styles.themeHeader}>
+          <ThemeToggle />
+        </span>
         {notificationsHref && (
           <NotificationsBell href={notificationsHref} className={styles.notifButton} />
         )}
@@ -92,6 +96,11 @@ export default function PanelHeader({
 
           {menuOpen && (
             <div className={styles.dropdown} role="menu">
+              {badge && <span className={styles.dropdownRole}>{badge}</span>}
+              <div className={styles.dropdownTheme}>
+                <span>Tema</span>
+                <ThemeToggle />
+              </div>
               {menuItems.map((item) => (
                 <Link
                   key={item.href}

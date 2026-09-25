@@ -54,11 +54,11 @@ Antes de enviar correo real en producción, el dominio de envío (`SMTP_FROM_EMA
 
 ## Identificación veterinaria, autorización e historia clínica (Bloque D)
 
-**Regla: IDENTIFICACIÓN ≠ AUTORIZACIÓN.** Un QR, un código de barras, un `short_code`, un `public_id` o (a futuro) NFC solo *identifican* una placa (`qr_tags`). Nunca son una contraseña ni bastan para ver datos médicos. Alcance: solo mascotas de usuario (`pets`); `organization_pets` queda fuera y conserva su sistema (`pet_medical_*`).
+**Regla: IDENTIFICACIÓN ≠ AUTORIZACIÓN.** Un QR o (a futuro) NFC solo *identifican* una placa (`qr_tags`): llevan un token opaco (`public_id`) que NO es un secreto ni una contraseña y nunca basta para ver datos médicos. La placa física NO tiene código de barras. Alcance: solo mascotas de usuario (`pets`); `organization_pets` queda fuera y conserva su sistema (`pet_medical_*`).
 
-**Una identificación, varias representaciones.** `qr_tags.short_code` es el identificador común: el QR lleva la URL `/m/<public_id>`, el código de barras (Code 128B, `src/lib/qr/barcode.ts`) se *deriva* del `short_code` (no se guarda en BD) y un NFC futuro resolvería al mismo tag. El método queda registrado como `qr | barcode | manual | nfc` (el `nfc` ya es válido en la BD, sin implementar).
+**Identificación solo por QR/NFC.** El QR de la placa lleva la URL `/m/<public_id>` y un NFC futuro resolverá al mismo tag (mismo token, mismo flujo). El método queda registrado como `qr | nfc` (`nfc` ya es válido en la BD, sin implementar). **`qr_tags.short_code` (ABC-001) es un identificador administrativo** (inventario, lotes, proveedor, pedidos, soporte): NO identifica para veterinaria y el servidor tampoco lo acepta (`vet_identify_pet` responde `invalid_code`; `vet_request_access` / `vet_emergency_access` solo reciben `public_id`). No existe entrada manual del código corto. Un lector de QR USB/Bluetooth sirve: teclea la URL del QR y pulsa Enter.
 
-**Capas (sin acoplar cámara con autorización):** `lib/scanner` (cámara + ZXing bajo demanda; solo devuelve texto) → `lib/vet/identification.ts` → `lib/vet/access.ts` → `lib/vet/medical.ts`. Un escáner nativo (Capacitor) o un lector HID reutilizan las tres capas y el mismo backend.
+**Capas (sin acoplar cámara con autorización):** `lib/scanner` (cámara + ZXing bajo demanda; solo devuelve texto) → `lib/vet/identification.ts` → `lib/vet/access.ts` → `lib/vet/medical.ts`. Un escáner nativo (Capacitor) o un lector de QR reutilizan las tres capas y el mismo backend.
 
 **Tres niveles de información**
 1. *Público*: lo que ya muestra `get_public_pet` (sin cambios).
@@ -77,7 +77,7 @@ Antes de enviar correo real en producción, el dominio de envío (`SMTP_FROM_EMA
 
 **Notificaciones.** Se reutiliza `notifications` (CHECK ampliado con `vet_access_requested`, `vet_access_decided`, `vet_access_revoked`, `vet_emergency_access`) y la misma campana/página; el texto nunca incluye datos médicos. La veterinaria usa `/veterinaria/notificaciones` (reexporta la misma página).
 
-**Pruebas:** `npm test` (barcode ida y vuelta con ZXing, normalización HID, QR). Las pruebas contra la BD real se documentan en el informe del bloque.
+**Pruebas:** `npm test` (normalización del lector, QR ida y vuelta con ZXing, guardas de que el código de barras y el `short_code` no identifican). Pruebas SQL con rollback en `supabase/tests/`. Las pruebas contra la BD real se documentan en el informe del bloque.
 
 **Eliminación de una mascota (política definitiva).** «La historia clínica pertenece al registro de la mascota y se elimina definitivamente cuando el propietario elimina la mascota. Huellas de Vuelta no conserva una copia histórica.» Un único `DELETE` transaccional sobre `pets` (protegido por RLS: solo el propietario) elimina en cascada: consultas, medicamentos, aclaraciones, accesos veterinarios (`vet_access_grants`), **toda su auditoría médica** (`vet_access_audit.pet_id` es `ON DELETE CASCADE`, incluidos los motivos de emergencia), el resumen médico y sus ítems, y los reportes de mascota perdida. Un trigger `BEFORE DELETE` libera sus placas QR vigentes (quedan `available`, con evento `unassigned`); antes de esta migración el `DELETE` fallaba con una placa activa (CHECK `qr_tags_linked_has_pet`). No hay tablas de archivo, soft-delete ni copia alguna. La foto se borra de Storage después (mejor esfuerzo). **Excepción vigente:** `plate_orders.owner_pet_id` sigue `RESTRICT` (registro comercial con datos de envío): una mascota con pedido de placa no se puede eliminar todavía. Solo quedan sin datos clínicos: el `uuid` de la mascota en `qr_tag_events` (bitácora técnica de la placa) y notificaciones que mencionan solo el nombre de la mascota.
 
@@ -87,8 +87,7 @@ Antes de enviar correo real en producción, el dominio de envío (`SMTP_FROM_EMA
 1. ~~Política de retención de la historia médica~~ — **DECIDIDA** (ver «Eliminación de una mascota»): no se conserva nada tras eliminar la mascota.
 2. **Revisión legal del acceso de emergencia** (nivel 2). Que el propietario marque `emergency_visible` no da por resueltas las obligaciones legales; requisito antes de producción.
 3. **Prueba física de la cámara.** Está probado el decodificador (ZXing con un flujo simulado de canvas) y los estados de error/permiso; falta probar el escáner en dispositivos reales (Android/iOS/webcam).
-4. **Descarga PNG del código de barras.** Solo existe la salida SVG (`src/lib/qr/barcode.ts`); el PNG queda preparado pero sin implementar.
-5. **Activación de SMTP para enviar el PDF por correo.** El envío por correo del PDF espera a que el SMTP del Bloque A (Brevo) esté configurado; la descarga local funciona sin él.
+4. **Activación de SMTP para enviar el PDF por correo.** El envío por correo del PDF espera a que el SMTP del Bloque A (Brevo) esté configurado; la descarga local funciona sin él.
 
 ## Fecha de nacimiento, vacunación y saludo de cumpleaños (Bloque E)
 
@@ -106,6 +105,39 @@ Migración `20260927000000_pet_birthdate_vaccinations_birthday.sql` (aplicada en
 2. `vet_medical_overview` (vista veterinaria) no incluye vacunas todavía.
 3. Prueba de interfaz autenticada (registrar/editar fecha, CRUD de vacunas, ventana de cumpleaños, PDF) pendiente de ejecución manual: no se automatizó porque exigiría escribir una contraseña en el formulario de acceso.
 4. El nombre del archivo de migración (`20260927...`) puede no coincidir con la versión registrada por Supabase al aplicarla desde el MCP.
+
+## Bloque correctivo: aprobación de organizaciones, identificación QR/NFC, barra superior e imágenes
+
+### H-01 — una organización podía autoaprobarse (corregido en BD)
+- **Qué lo permitía:** `organization_profiles` tenía una política `ALL` para el propietario y el trigger que protegía `approval_status`/`verified_*`/`qr_prefix` solo corría en `UPDATE`. Una organización pendiente podía **borrar su fila y recrearla ya como `approved`** (o insertarla directamente) y `_vet_caller()` la trataba como veterinaria autorizada para `vet_identify_pet`, `vet_request_access` y `vet_emergency_access`.
+- **Corrección** (`20260928000000_org_profiles_approval_hardening.sql`): políticas granulares (`select/insert/update` del propietario, **sin DELETE**); `REVOKE DELETE, TRUNCATE` a `anon`/`authenticated`; `lock_org_approval_columns()` también en `INSERT` (nace `pending`, `is_active=true`, sin `verified_*`/`qr_prefix`) y en `UPDATE` restaura los valores previos si quien escribe no es administrador; `guard_org_profile_delete()` (`ORG_DELETE_FORBIDDEN`); `_vet_caller()` exige además `verified_at is not null`. Solo `set_org_approval` / `set_org_active` (administrador) cambian el estado.
+- **Pruebas:** `supabase/tests/org_approval_hardening.test.sql` (17 comprobaciones; termina en `raise exception`, no deja datos).
+
+### Identificación veterinaria: solo QR o NFC
+- La placa física trae QR (y NFC a futuro), **no código de barras**. Se eliminó `barcode.ts`, el modo CODE_128 del escáner, el método `barcode`/`manual` y su prueba.
+- `short_code` sigue en BD (inventario, pedidos, administración) pero **no identifica**: `vet_identify_pet`/`vet_request_access`/`vet_emergency_access` responden `invalid_code`/`PET_NOT_FOUND` ante un `short_code`; `identification_method` y `vet_access_audit.method` quedan restringidos por CHECK a `qr`/`nfc` (`20260928000100_vet_identification_qr_nfc_only.sql`).
+- Flujo: QR/NFC → identifica → el servidor verifica sesión + organización realmente aprobada → permisos/grant → autorización. El QR/NFC no es un secreto.
+- **Pruebas:** `supabase/tests/vet_identification_qr_nfc.test.sql` (18) y `scripts/vet-client.test.mjs` (20).
+
+### Barra superior responsive
+- Causa: contenido más ancho que el viewport + botón de menú reducible + regla global `svg { max-width: 100% }` → icono de 0 px; el drawer (z-index 50) cubría la X (cabecera 45).
+- Ahora: hamburguesa de 44 px que no se encoge, X por encima del drawer, marca con elipsis, elementos secundarios ocultos/agrupados en móvil; Escape, cierre al navegar, toque en el fondo, bloqueo de scroll y foco. No se añadió campana a fundación/aliado/proveedor.
+- **Prueba:** `npm run test:browser` (`scripts/browser-checks.mjs`, Edge/Chrome sin cabeza vía CDP, requiere `npm run dev`): 5 roles × 7 anchos (320–1280).
+
+### Imágenes privadas: firma en el navegador
+- Causa: el HTML/RSC público queda en caché (ISR + stale-while-revalidate) y llevaba URLs firmadas de 1 h que se servían vencidas.
+- Ahora el servidor solo entrega **rutas** (`photoPath`, `imagePath`); `PetPhoto` firma en el navegador con `createSignedUrls` en lote (`lib/supabase/petPhotos.ts`), copia en memoria de 45 min, un reintento con firma nueva si la imagen falla (la `<img>` se vuelve a montar aunque la firma sea idéntica), sin caché de fallos, descarte al iniciar/cerrar sesión. Cada foto nueva usa una ruta nueva (`crypto.randomUUID()`) y borra la anterior. Bucket privado; sin ruta `/api`, sin servicios nuevos.
+- **Pruebas:** `scripts/pet-photos.test.mjs` (15) y `npm run test:browser images` (primera carga sin F5 en escritorio/móvil, firma vencida, reintento único).
+
+## QR de Huellas: de la placa al perfil público
+
+Alcance mínimo y detalle en `docs/HUELLAS_FUENTE_DE_VERDAD.md`. Placa física → QR → `<NEXT_PUBLIC_SITE_URL>/m/<qr_tags.public_id>`
+(`lib/qr/qrBaseUrl.ts`; falla cerrado si el dominio falta o no es un https público) → `qr_tags → owner_pet_id → pets` →
+perfil público limitado (`get_public_pet`). La asociación ocurre solo en Huellas: el propietario inicia sesión y reclama con
+`qr_claim_tag`; proveedor, producción, envío y tienda no activan. `public_id` es inmutable y único; el propietario suspende/
+reactiva su placa (`qr_owner_set_pet_tag_state`); eliminar una mascota anula su placa. Migración
+`20260929000000_qr_source_of_truth_hardening.sql`; pruebas `supabase/tests/qr_source_of_truth.test.sql`. El e-commerce futuro
+solo fabrica/vende la placa con ese QR y no forma parte de esta arquitectura.
 
 ## Secretos
 
